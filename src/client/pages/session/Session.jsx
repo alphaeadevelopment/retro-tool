@@ -40,8 +40,8 @@ export const RawSession = ({ classes, session, onLeaveSession, onAddResponse }) 
       <Grid item xs={12} sm={7} lg={9}>
         <Grid container>
           {keys(session.responses).map(r => (
-            <Grid item xs={12} lg={4}>
-              <ResponseSection key={r} responseId={r} responses={session.responses[r]} onAdd={onAddResponse(r)} />
+            <Grid item xs={12} lg={4} key={r}>
+              <ResponseSection responseId={r} responses={session.responses[r]} onAdd={onAddResponse(r)} />
             </Grid>
           ))}
         </Grid>

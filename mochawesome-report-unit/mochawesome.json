@@ -1,0 +1,134 @@
+{
+  "stats": {
+    "suites": 2,
+    "tests": 2,
+    "passes": 2,
+    "pending": 0,
+    "failures": 0,
+    "start": "2018-03-10T12:08:06.382Z",
+    "end": "2018-03-10T12:08:06.393Z",
+    "duration": 11,
+    "testsRegistered": 2,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false,
+    "passPercentClass": "success",
+    "pendingPercentClass": "danger"
+  },
+  "suites": {
+    "uuid": "70e4d26d-d83f-4bb0-9ab2-8bfa7f699675",
+    "title": "",
+    "fullFile": "",
+    "file": "",
+    "beforeHooks": [],
+    "afterHooks": [],
+    "tests": [],
+    "suites": [
+      {
+        "uuid": "5eb742e9-c41b-4d25-b947-5c6a958cd048",
+        "title": "session manager",
+        "fullFile": "/Users/gk/Development/retro/retro-tool/src/server/session/session-manager.spec.js",
+        "file": "/src/server/session/session-manager.spec.js",
+        "beforeHooks": [
+          {
+            "title": "\"before all\" hook",
+            "fullTitle": "session manager \"before all\" hook",
+            "timedOut": false,
+            "duration": 0,
+            "pass": false,
+            "fail": false,
+            "pending": false,
+            "code": "sessionId = 'sessionId';\nsocketId = 'socketId';\nowner = 'owner';\nsession = _sessionManager2.default.createSession(sessionId, socketId, owner);",
+            "err": {},
+            "isRoot": false,
+            "uuid": "8b4a0ef8-856a-40b4-b039-4e7f697f4fe7",
+            "isHook": true,
+            "skipped": false
+          }
+        ],
+        "afterHooks": [],
+        "tests": [
+          {
+            "title": "creates a new session",
+            "fullTitle": "session manager creates a new session",
+            "timedOut": false,
+            "duration": 3,
+            "state": "passed",
+            "speed": "fast",
+            "pass": true,
+            "fail": false,
+            "pending": false,
+            "code": "(0, _chai.expect)(session).to.not.be.null;\n(0, _chai.expect)(session).to.have.property('id', sessionId);\n(0, _chai.expect)(session).to.have.property('owner', owner);\n(0, _chai.expect)(session).to.have.property('participants').deep.equal([]);\n(0, _chai.expect)(session).to.have.property('responses');\n(0, _chai.expect)(session.responses).to.have.property('start').deep.equal([]);\n(0, _chai.expect)(session.responses).to.have.property('continue').deep.equal([]);\n(0, _chai.expect)(session.responses).to.have.property('change').deep.equal([]);",
+            "err": {},
+            "isRoot": false,
+            "uuid": "f5e9d180-b8ce-4a7f-9a56-7fb01f511537",
+            "isHook": false,
+            "skipped": false
+          }
+        ],
+        "suites": [
+          {
+            "uuid": "8e56c31d-a8cc-46cb-af2e-899c59753217",
+            "title": "join session",
+            "fullFile": "/Users/gk/Development/retro/retro-tool/src/server/session/session-manager.spec.js",
+            "file": "/src/server/session/session-manager.spec.js",
+            "beforeHooks": [],
+            "afterHooks": [],
+            "tests": [
+              {
+                "title": "adds participant",
+                "fullTitle": "session manager join session adds participant",
+                "timedOut": false,
+                "duration": 1,
+                "state": "passed",
+                "speed": "fast",
+                "pass": true,
+                "fail": false,
+                "pending": false,
+                "code": "var name = 'Bob';\nupdatedSession = _sessionManager2.default.joinSession(socketId, name, sessionId);\n(0, _chai.expect)(updatedSession).to.have.property('participants').deep.equal([name]);",
+                "err": {},
+                "isRoot": false,
+                "uuid": "95dc03a8-6872-435b-b9c0-42174fb0301f",
+                "isHook": false,
+                "skipped": false
+              }
+            ],
+            "suites": [],
+            "passes": [
+              "95dc03a8-6872-435b-b9c0-42174fb0301f"
+            ],
+            "failures": [],
+            "pending": [],
+            "skipped": [],
+            "duration": 1,
+            "root": false,
+            "rootEmpty": false,
+            "_timeout": 2000
+          }
+        ],
+        "passes": [
+          "f5e9d180-b8ce-4a7f-9a56-7fb01f511537"
+        ],
+        "failures": [],
+        "pending": [],
+        "skipped": [],
+        "duration": 3,
+        "root": false,
+        "rootEmpty": false,
+        "_timeout": 2000
+      }
+    ],
+    "passes": [],
+    "failures": [],
+    "pending": [],
+    "skipped": [],
+    "duration": 0,
+    "root": true,
+    "rootEmpty": true,
+    "_timeout": 2000
+  },
+  "copyrightYear": 2018
+}

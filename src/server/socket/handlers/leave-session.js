@@ -1,4 +1,4 @@
-import sessionManager from '../session';
+import sessionManager from '../../session';
 
 export default (io, socket) => () => { // eslint-disable-line no-unused-vars
   const name = sessionManager.getName(socket.id);

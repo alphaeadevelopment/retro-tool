@@ -1,4 +1,4 @@
-import sessionManager from '../session';
+import sessionManager from '../../session';
 
 export default (io, socket) => ({ name, sessionId }) => { // eslint-disable-line no-unused-vars
   if (sessionManager.sessionExists(sessionId)) {

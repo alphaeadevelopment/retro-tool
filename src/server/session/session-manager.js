@@ -31,7 +31,6 @@ class SessionManager {
     const sessionId = this.getSessionId(socketId);
     this.sessions[sessionId] = update(this.sessions[sessionId], spec);
     const session = clone(this.sessions[sessionId]);
-    console.log('Updated session: %s', JSON.stringify(session));
     return session;
   }
   joinSession = (socketId, name, sessionId) => {
