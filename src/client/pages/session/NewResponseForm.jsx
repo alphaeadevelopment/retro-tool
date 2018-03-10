@@ -1,11 +1,19 @@
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import TextField from 'material-ui/TextField';
-import Button from 'material-ui/Button';
+import IconButton from 'material-ui/IconButton';
+import Done from 'material-ui-icons/Done';
 
 const styles = {
   root: {
-
+    'display': 'flex',
+    'justifyContent': 'space-between',
+    '&>div': {
+      flex: 8,
+    },
+  },
+  doneIcon: {
+    color: 'green',
   },
 };
 export class RawNewResponseForm extends React.Component {
@@ -21,10 +29,11 @@ export class RawNewResponseForm extends React.Component {
   }
   render() {
     const { value } = this.state;
+    const { classes } = this.props;
     return (
-      <div>
+      <div className={classes.root}>
         <TextField value={value} onChange={this.onChange} />
-        <Button onClick={this.onSubmit}>Submit</Button>
+        <IconButton onClick={this.onSubmit}><Done className={classes.doneIcon} /></IconButton>
       </div>
     );
   }
