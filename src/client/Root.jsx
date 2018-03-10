@@ -6,7 +6,7 @@ import { HashRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
-import { window } from '@alphaeadev/js-services';
+import { window } from 'js-services';
 import reducer from './reducers';
 import App from './containers/App';
 import SocketProvider from './containers/SocketProvider';

@@ -5,7 +5,7 @@ import { withStyles } from 'material-ui/styles';
 import ArrowBack from 'material-ui-icons/ArrowBack';
 import IconButton from 'material-ui/IconButton';
 import classNames from 'classnames';
-import { api } from '@alphaeadev/js-services';
+import { api } from 'js-services';
 import { getAuthToken } from '../selectors';
 import { keepSessionAlive } from '../actions';
 import { Title } from '../components';

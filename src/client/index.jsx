@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
-import { document, configuration } from '@alphaeadev/js-services';
+import { document, configuration } from 'js-services';
 import Root from './Root';
 
 configuration.setConfiguration({ apiBaseUri: process.env.PROXY_SERVER });

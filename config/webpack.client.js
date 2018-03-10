@@ -46,7 +46,7 @@ if (process.env.NODE_ENV !== 'production') {
   Object.assign(alias, moduleConfig.aliases);
 }
 
-const babelExclude = /node_modules[\\/](?!@alphaeadev\/(js-services))/
+const babelExclude = /node_modules[\\/](?!js-services)/
 
 const config = {
   entry: {

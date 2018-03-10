@@ -1,6 +1,6 @@
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
-import Form from '@alphaeadev/material-ui-jsonschema-form';
+import Form from 'material-ui-jsonschema-form';
 import Modal from 'material-ui/Modal';
 import Button from 'material-ui/Button';
 
