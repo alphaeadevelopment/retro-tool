@@ -6,6 +6,7 @@ import http from 'http';
 
 import socket from './socket';
 
+console.log(process.env.PORT);
 const port = process.env.PORT || 3000;
 
 const app = express();
