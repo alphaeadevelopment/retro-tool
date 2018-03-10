@@ -47,6 +47,8 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const babelExclude = /node_modules[\\/](?!js-services)/
+const outputPath = path.join(__dirname, '../dist');
+console.log(outputPath);
 
 const config = {
   entry: {
@@ -54,7 +56,7 @@ const config = {
     vendor: VENDOR_LIBS,
   },
   output: {
-    path: path.join(__dirname, '../dist'),
+    path: outputPath,
     filename: '[name].js',
     publicPath: '/',
   },
