@@ -26,14 +26,21 @@ const newSession = (id, owner) => ({
 });
 
 class SessionManager {
+  ownerSockets = {}
   sessions = {}
   connections = {}
   getSessions = () => keys(this.sessions);
-  createSession = (sessionId, socketId, owner) => {
-    this.connections[socketId] = { name: owner, sessionId };
+  createSession = (sessionId, socket, owner) => {
+    this.connections[socket.id] = { name: owner, sessionId };
     const session = newSession(sessionId, owner);
     this.sessions[session.id] = session;
+    this.ownerSockets[session.id] = socket;
     return clone(session);
+  }
+  getOwnerSocket = sessionId => this.ownerSockets[sessionId]
+  isOwner = (socketId) => {
+    const sessionId = this.getSessionId(socketId);
+    return socketId === this.ownerSockets[sessionId];
   }
   sessionExists = sessionId => includes(keys(this.sessions), sessionId)
   userInSession = socketId => this.connections[socketId] && true

@@ -21,7 +21,7 @@ export const RawParticipantList = ({ classes, owner, participants }) => (
     <Typography variant={'subheading'}>Participants</Typography>
     <ul>
       <li>{owner} *</li>
-      {keys(participants).map(p => <li key={p}>{participants[p]}</li>)}
+      {keys(participants).map(p => <li key={p}>{participants[p].name}</li>)}
     </ul>
   </Paper>
 );

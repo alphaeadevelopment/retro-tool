@@ -7,14 +7,18 @@ import sessionManager from './session-manager';
 describe('session manager', () => {
   let session;
   let updatedSession;
-  let sessionId = 'sessionId';
-  let socketId = 'socketId';
+  let sessionId;
+  let socketId;
+  let socket;
   let owner = 'owner';
   beforeEach(() => {
     sessionId = 'sessionId';
     socketId = 'socketId';
     owner = 'owner';
-    session = sessionManager.createSession(sessionId, socketId, owner);
+    socket = {
+      id: socketId,
+    };
+    session = sessionManager.createSession(sessionId, socket, owner);
   });
   it('creates a new session', () => {
     expect(session).to.not.be.null;
@@ -30,6 +34,7 @@ describe('session manager', () => {
     expect(session.responseTypes).to.have.property('continue');
     expect(session.responseTypes.continue).to.have.property('title');
     expect(sessionManager.getSession(sessionId)).deep.equal(session);
+    expect(sessionManager.getOwnerSocket(sessionId)).to.equal(socket);
   });
   describe('join session', () => {
     it('adds participant', () => {
