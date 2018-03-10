@@ -5,6 +5,7 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Left from 'material-ui-icons/KeyboardArrowLeft';
 import IconButton from 'material-ui/IconButton';
+import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
 import ParticipantList from './ParticipantList';
 import ResponseTypePanel from './ResponseTypePanel';
@@ -12,6 +13,12 @@ import ResponseTypePanel from './ResponseTypePanel';
 const Header = ({ className, children }) => (
   <div className={className}>
     {children}
+  </div>
+);
+
+const SessionButtons = ({ sessionStatus, onChangeStatus }) => (
+  <div>
+    {sessionStatus === 'initial' && <Button onClick={onChangeStatus('voting')}>Open for Voting</Button>}
   </div>
 );
 
@@ -28,7 +35,7 @@ const styles = theme => ({
     alignItems: 'center',
   },
 });
-export const RawSession = ({ classes, session, onLeaveSession, onAddResponse, ...rest }) => (
+export const RawSession = ({ classes, isOwner, session, onLeaveSession, onAddResponse, onChangeStatus, ...rest }) => (
   <div className={classes.root}>
     <Header className={classes.header}>
       <IconButton onClick={onLeaveSession}><Left /></IconButton>
@@ -46,7 +53,7 @@ export const RawSession = ({ classes, session, onLeaveSession, onAddResponse, ..
                 responseType={session.responseTypes[rt]}
                 responses={filter(session.responses, r => r.responseType === rt)}
                 onAdd={onAddResponse(rt)}
-                sessionState={session.state}
+                sessionStatus={session.status}
                 {...rest}
               />
             </Grid>
@@ -54,6 +61,7 @@ export const RawSession = ({ classes, session, onLeaveSession, onAddResponse, ..
         </Grid>
       </Grid>
     </Grid>
+    {isOwner && <SessionButtons onChangeStatus={onChangeStatus} sessionStatus={session.status} />}
   </div>
 );
 export default withStyles(styles)(RawSession);

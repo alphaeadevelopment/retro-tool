@@ -10,12 +10,12 @@ import StarBorder from 'material-ui-icons/StarBorder';
 import NewResponseForm from './NewResponseForm';
 import * as Selectors from '../../selectors';
 
-const Response = ({ response, className, voted, onUpVote, onCancelUpVote, sessionState }) => (
+const Response = ({ response, className, voted, onUpVote, onCancelUpVote, sessionStatus }) => (
   <li className={className}>
     <Typography>
       {response.response}({response.author})
     </Typography>
-    {sessionState === 'voting' &&
+    {sessionStatus === 'voting' &&
       <div>
         {voted && <IconButton onClick={onCancelUpVote}><Star /></IconButton>}
         {!voted && <IconButton onClick={onUpVote}><StarBorder /></IconButton>}

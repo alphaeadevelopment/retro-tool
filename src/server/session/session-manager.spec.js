@@ -33,7 +33,7 @@ describe('session manager', () => {
     expect(session.responseTypes.start).to.have.property('title');
     expect(session.responseTypes).to.have.property('continue');
     expect(session.responseTypes.continue).to.have.property('title');
-    expect(session).to.have.property('state', 'initial');
+    expect(session).to.have.property('status', 'initial');
     expect(sessionManager.getSession(sessionId)).deep.equal(session);
     expect(sessionManager.getOwnerSocket(sessionId)).to.equal(socket);
   });
@@ -103,6 +103,14 @@ describe('session manager', () => {
       sessionManager.cancelUpVoteResponse(socketId, response.id);
       updatedSession = sessionManager.getSession(sessionId);
       expect(updatedSession.responses[response.id]).to.have.property('votes').equal(0);
+    });
+  });
+  describe('setStatus', () => {
+    it('changes status', () => {
+      const status = 'voting';
+      sessionManager.setStatus(socketId, status);
+      updatedSession = sessionManager.getSession(sessionId);
+      expect(updatedSession.status).to.equal(status);
     });
   });
 });

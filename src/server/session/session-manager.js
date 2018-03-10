@@ -8,7 +8,7 @@ import generate from 'shortid';
 
 const newSession = (id, owner) => ({
   id,
-  state: 'initial',
+  status: 'initial',
   participants: {},
   owner,
   responses: {
@@ -103,6 +103,11 @@ class SessionManager {
           },
         },
       },
+    });
+  }
+  setStatus = (socketId, status) => {
+    this.updateSession(socketId, {
+      status: { $set: status },
     });
   }
 }

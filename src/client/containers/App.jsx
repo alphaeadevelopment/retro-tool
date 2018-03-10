@@ -12,6 +12,7 @@ export class RawApp extends React.Component { // eslint-disable-line react/prefe
   render() {
     const {
       session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onUpVote, onCancelUpVote,
+      isOwner, onChangeStatus,
     } = this.props;
     const { socket } = this.context;
     return (
@@ -26,6 +27,8 @@ export class RawApp extends React.Component { // eslint-disable-line react/prefe
             onAddResponse={onAddResponse(socket)}
             onUpVote={onUpVote(socket)}
             onCancelUpVote={onCancelUpVote(socket)}
+            isOwner={isOwner}
+            onChangeStatus={onChangeStatus(socket)}
           />
         }
       </MuiThemeProvider>
@@ -38,6 +41,7 @@ RawApp.contextTypes = {
 
 const mapStateToProps = state => ({
   session: Selectors.getCurrentSession(state),
+  isOwner: Selectors.isSessionOwner(state),
 });
 
 const dispatchToActions = dispatch => ({
@@ -47,6 +51,7 @@ const dispatchToActions = dispatch => ({
   onJoinSession: socket => (name, session) => dispatch(Actions.onJoinSession(socket, name, session)),
   onLeaveSession: socket => () => dispatch(Actions.onLeaveSession(socket)),
   onAddResponse: socket => responseType => value => dispatch(Actions.onAddResponse(socket, responseType, value)),
+  onChangeStatus: socket => status => () => dispatch(Actions.onChangeStatus(socket, status)),
 });
 
 export default connect(mapStateToProps, dispatchToActions)(RawApp);

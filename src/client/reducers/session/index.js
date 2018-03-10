@@ -53,6 +53,12 @@ export default (state = initial, { type, payload }) => {
           $apply: v => without(v, payload.responseId),
         },
       });
+    case Types.SYNC_SESSION:
+      return update(state, {
+        session: {
+          $set: payload.session,
+        },
+      });
     default:
       return state;
   }

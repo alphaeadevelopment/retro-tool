@@ -1,9 +1,5 @@
 import sessionManager from '../../session';
-
-const filterResponses = session => ({
-  ...session,
-  responses: (session.state === 'initial') ? {} : session.responses,
-});
+import filterResponses from './filter-responses';
 
 export default (io, socket) => ({ name, sessionId }) => { // eslint-disable-line no-unused-vars
   if (sessionManager.sessionExists(sessionId)) {
