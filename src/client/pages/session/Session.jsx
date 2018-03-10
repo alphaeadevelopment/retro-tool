@@ -46,6 +46,7 @@ export const RawSession = ({ classes, session, onLeaveSession, onAddResponse, ..
                 responseType={session.responseTypes[rt]}
                 responses={filter(session.responses, r => r.responseType === rt)}
                 onAdd={onAddResponse(rt)}
+                sessionState={session.state}
                 {...rest}
               />
             </Grid>

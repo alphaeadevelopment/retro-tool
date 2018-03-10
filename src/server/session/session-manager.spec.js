@@ -33,6 +33,7 @@ describe('session manager', () => {
     expect(session.responseTypes.start).to.have.property('title');
     expect(session.responseTypes).to.have.property('continue');
     expect(session.responseTypes.continue).to.have.property('title');
+    expect(session).to.have.property('state', 'initial');
     expect(sessionManager.getSession(sessionId)).deep.equal(session);
     expect(sessionManager.getOwnerSocket(sessionId)).to.equal(socket);
   });

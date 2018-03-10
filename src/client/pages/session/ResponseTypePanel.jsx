@@ -10,15 +10,17 @@ import StarBorder from 'material-ui-icons/StarBorder';
 import NewResponseForm from './NewResponseForm';
 import * as Selectors from '../../selectors';
 
-const Response = ({ response, className, voted, onUpVote, onCancelUpVote }) => (
+const Response = ({ response, className, voted, onUpVote, onCancelUpVote, sessionState }) => (
   <li className={className}>
     <Typography>
       {response.response}({response.author})
     </Typography>
-    <div>
-      {voted && <IconButton onClick={onCancelUpVote}><Star /></IconButton>}
-      {!voted && <IconButton onClick={onUpVote}><StarBorder /></IconButton>}
-    </div>
+    {sessionState === 'voting' &&
+      <div>
+        {voted && <IconButton onClick={onCancelUpVote}><Star /></IconButton>}
+        {!voted && <IconButton onClick={onUpVote}><StarBorder /></IconButton>}
+      </div>
+    }
   </li>
 );
 const styles = theme => ({
@@ -43,24 +45,28 @@ const styles = theme => ({
     },
   },
 });
-export const RawResponseTypePanel = ({ classes, responseType, responses, onAdd, onUpVote, onCancelUpVote, votes }) => (
-  <Paper className={classes.root}>
-    <Typography variant={'subheading'}>{responseType.title}</Typography>
-    <ul className={classes.responsesCtr}>
-      {responses.map(r => (
-        <Response
-          onUpVote={onUpVote(r.id)}
-          onCancelUpVote={onCancelUpVote(r.id)}
-          key={r.id}
-          className={classes.itemCtr}
-          response={r}
-          voted={includes(votes, r.id)}
-        />
-      ))}
-    </ul>
-    <NewResponseForm onAdd={onAdd} />
-  </Paper>
-);
+export const RawResponseTypePanel = ({
+  classes, responseType, responses, onAdd, onUpVote, onCancelUpVote, votes, ...rest
+}) =>
+  (
+    <Paper className={classes.root}>
+      <Typography variant={'subheading'}>{responseType.title}</Typography>
+      <ul className={classes.responsesCtr}>
+        {responses.map(r => (
+          <Response
+            onUpVote={onUpVote(r.id)}
+            onCancelUpVote={onCancelUpVote(r.id)}
+            key={r.id}
+            className={classes.itemCtr}
+            response={r}
+            voted={includes(votes, r.id)}
+            {...rest}
+          />
+        ))}
+      </ul>
+      <NewResponseForm onAdd={onAdd} />
+    </Paper>
+  );
 
 const mapStateToProps = state => ({
   votes: Selectors.getVotes(state),

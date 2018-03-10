@@ -26,13 +26,13 @@ export default (state = initial, { type, payload }) => {
     case Types.NEW_PARTICIPANT:
       return update(state, {
         session: {
-          participants: { $merge: { [payload.name]: { name: [payload.name] } } },
+          participants: { $merge: { [payload.name]: { name: payload.name } } },
         },
       });
     case Types.PARTICIPANT_LEFT:
       return update(state, {
         session: {
-          participants: { [payload.name]: { $set: null } },
+          participants: { $apply: p => without(p, payload.name) },
         },
       });
     case Types.RESPONSE_ADDED:

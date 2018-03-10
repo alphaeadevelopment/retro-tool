@@ -8,6 +8,7 @@ import generate from 'shortid';
 
 const newSession = (id, owner) => ({
   id,
+  state: 'initial',
   participants: {},
   owner,
   responses: {
