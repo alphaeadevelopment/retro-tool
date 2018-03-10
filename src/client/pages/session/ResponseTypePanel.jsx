@@ -1,20 +1,23 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import includes from 'lodash/includes';
 import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
-import ThumbUp from 'material-ui-icons/ThumbUp';
-import ThumbDown from 'material-ui-icons/ThumbDown';
+import Star from 'material-ui-icons/Star';
+import StarBorder from 'material-ui-icons/StarBorder';
 import NewResponseForm from './NewResponseForm';
+import * as Selectors from '../../selectors';
 
-const Response = ({ response, className }) => (
+const Response = ({ response, className, voted, onUpVote, onCancelUpVote }) => (
   <li className={className}>
     <Typography>
-      {response.value}({response.name})
+      {response.response}({response.author})
     </Typography>
     <div>
-      <IconButton><ThumbUp style={{ color: 'green' }} /></IconButton>
-      <IconButton><ThumbDown style={{ color: 'red' }} /></IconButton>
+      {voted && <IconButton onClick={onCancelUpVote}><Star /></IconButton>}
+      {!voted && <IconButton onClick={onUpVote}><StarBorder /></IconButton>}
     </div>
   </li>
 );
@@ -40,20 +43,26 @@ const styles = theme => ({
     },
   },
 });
-export const RawResponseSection = ({ classes, responseId, responses, onAdd }) => (
+export const RawResponseTypePanel = ({ classes, responseType, responses, onAdd, onUpVote, onCancelUpVote, votes }) => (
   <Paper className={classes.root}>
-    <Typography variant={'subheading'}>{responseId}</Typography>
+    <Typography variant={'subheading'}>{responseType.title}</Typography>
     <ul className={classes.responsesCtr}>
-      {responses.map((r, idx) => (
+      {responses.map(r => (
         <Response
-          key={idx // eslint-disable-line react/no-array-index-key
-          }
+          onUpVote={onUpVote(r.id)}
+          onCancelUpVote={onCancelUpVote(r.id)}
+          key={r.id}
           className={classes.itemCtr}
           response={r}
+          voted={includes(votes, r.id)}
         />
       ))}
     </ul>
     <NewResponseForm onAdd={onAdd} />
   </Paper>
 );
-export default withStyles(styles)(RawResponseSection);
+
+const mapStateToProps = state => ({
+  votes: Selectors.getVotes(state),
+});
+export default connect(mapStateToProps)(withStyles(styles)(RawResponseTypePanel));

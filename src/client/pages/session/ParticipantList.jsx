@@ -1,4 +1,5 @@
 import React from 'react';
+import keys from 'lodash/keys';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
 import Paper from 'material-ui/Paper';
@@ -20,7 +21,7 @@ export const RawParticipantList = ({ classes, owner, participants }) => (
     <Typography variant={'subheading'}>Participants</Typography>
     <ul>
       <li>{owner} *</li>
-      {participants.map(p => <li key={p}>{p}</li>)}
+      {keys(participants).map(p => <li key={p}>{participants[p]}</li>)}
     </ul>
   </Paper>
 );

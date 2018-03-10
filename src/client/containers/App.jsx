@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
 import 'styles/main.scss'; // eslint-disable-line import/no-unresolved,import/no-extraneous-dependencies
 import { connect } from 'react-redux';
 import { MuiThemeProvider } from 'material-ui/styles';
@@ -11,7 +10,9 @@ import * as Actions from '../actions';
 
 export class RawApp extends React.Component { // eslint-disable-line react/prefer-stateless-function
   render() {
-    const { session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse } = this.props;
+    const {
+      session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onUpVote, onCancelUpVote,
+    } = this.props;
     const { socket } = this.context;
     return (
       <MuiThemeProvider theme={theme}>
@@ -23,6 +24,8 @@ export class RawApp extends React.Component { // eslint-disable-line react/prefe
             onLeaveSession={onLeaveSession(socket, session.id)}
             session={session}
             onAddResponse={onAddResponse(socket)}
+            onUpVote={onUpVote(socket)}
+            onCancelUpVote={onCancelUpVote(socket)}
           />
         }
       </MuiThemeProvider>
@@ -39,9 +42,11 @@ const mapStateToProps = state => ({
 
 const dispatchToActions = dispatch => ({
   onCreateSession: socket => name => dispatch(Actions.onCreateSession(socket, name)),
+  onUpVote: socket => responseId => () => dispatch(Actions.onUpVoteResponse(socket, responseId)),
+  onCancelUpVote: socket => responseId => () => dispatch(Actions.onCancelUpVoteResponse(socket, responseId)),
   onJoinSession: socket => (name, session) => dispatch(Actions.onJoinSession(socket, name, session)),
   onLeaveSession: socket => () => dispatch(Actions.onLeaveSession(socket)),
   onAddResponse: socket => responseType => value => dispatch(Actions.onAddResponse(socket, responseType, value)),
 });
 
-export default withRouter(connect(mapStateToProps, dispatchToActions)(RawApp));
+export default connect(mapStateToProps, dispatchToActions)(RawApp);

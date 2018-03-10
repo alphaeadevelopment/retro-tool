@@ -4,6 +4,7 @@ import * as Types from '../../actions/types';
 
 const initial = {
   session: null,
+  votes: [],
 };
 export default (state = initial, { type, payload }) => {
   switch (type) {
@@ -37,9 +38,19 @@ export default (state = initial, { type, payload }) => {
     case Types.RESPONSE_ADDED:
       return update(state, {
         session: {
-          responses: {
-            [payload.response.responseType]: { $push: [payload.response] },
-          },
+          responses: { $merge: { [payload.response.id]: payload.response } },
+        },
+      });
+    case Types.UP_VOTE_REGISTERED:
+      return update(state, {
+        votes: {
+          $push: [payload.responseId],
+        },
+      });
+    case Types.UP_VOTE_CANCELLED:
+      return update(state, {
+        votes: {
+          $apply: v => without(v, payload.responseId),
         },
       });
     default:

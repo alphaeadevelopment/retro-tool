@@ -1,12 +1,13 @@
 import React from 'react';
 import keys from 'lodash/keys';
+import filter from 'lodash/filter';
 import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Left from 'material-ui-icons/KeyboardArrowLeft';
 import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
 import ParticipantList from './ParticipantList';
-import ResponseSection from './ResponseSection';
+import ResponseTypePanel from './ResponseTypePanel';
 
 const Header = ({ className, children }) => (
   <div className={className}>
@@ -27,11 +28,11 @@ const styles = theme => ({
     alignItems: 'center',
   },
 });
-export const RawSession = ({ classes, session, onLeaveSession, onAddResponse }) => (
+export const RawSession = ({ classes, session, onLeaveSession, onAddResponse, ...rest }) => (
   <div className={classes.root}>
     <Header className={classes.header}>
       <IconButton onClick={onLeaveSession}><Left /></IconButton>
-      <Typography variant={'heading'}>Session: {session.id}</Typography>
+      <Typography variant={'display1'}>Session: {session.id}</Typography>
     </Header>
     <Grid container spacing={0} className={classes.sessionBody} >
       <Grid item xs={12} sm={5} lg={3}>
@@ -39,9 +40,14 @@ export const RawSession = ({ classes, session, onLeaveSession, onAddResponse }) 
       </Grid>
       <Grid item xs={12} sm={7} lg={9}>
         <Grid container>
-          {keys(session.responses).map(r => (
-            <Grid item xs={12} lg={4} key={r}>
-              <ResponseSection responseId={r} responses={session.responses[r]} onAdd={onAddResponse(r)} />
+          {keys(session.responseTypes).map(rt => (
+            <Grid item xs={12} lg={4} key={rt}>
+              <ResponseTypePanel
+                responseType={session.responseTypes[rt]}
+                responses={filter(session.responses, r => r.responseType === rt)}
+                onAdd={onAddResponse(rt)}
+                {...rest}
+              />
             </Grid>
           ))}
         </Grid>

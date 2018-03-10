@@ -1,14 +1,14 @@
 {
   "stats": {
-    "suites": 2,
-    "tests": 2,
-    "passes": 2,
+    "suites": 5,
+    "tests": 7,
+    "passes": 7,
     "pending": 0,
     "failures": 0,
-    "start": "2018-03-10T12:08:06.382Z",
-    "end": "2018-03-10T12:08:06.393Z",
-    "duration": 11,
-    "testsRegistered": 2,
+    "start": "2018-03-10T15:18:08.012Z",
+    "end": "2018-03-10T15:18:08.045Z",
+    "duration": 33,
+    "testsRegistered": 7,
     "passPercent": 100,
     "pendingPercent": 0,
     "other": 0,
@@ -19,7 +19,7 @@
     "pendingPercentClass": "danger"
   },
   "suites": {
-    "uuid": "70e4d26d-d83f-4bb0-9ab2-8bfa7f699675",
+    "uuid": "cd346480-867d-4ef4-9040-5161dafd9e1b",
     "title": "",
     "fullFile": "",
     "file": "",
@@ -28,14 +28,14 @@
     "tests": [],
     "suites": [
       {
-        "uuid": "5eb742e9-c41b-4d25-b947-5c6a958cd048",
+        "uuid": "2f53d516-6d6d-464e-8fe4-8765a80bdf33",
         "title": "session manager",
         "fullFile": "/Users/gk/Development/retro/retro-tool/src/server/session/session-manager.spec.js",
         "file": "/src/server/session/session-manager.spec.js",
         "beforeHooks": [
           {
-            "title": "\"before all\" hook",
-            "fullTitle": "session manager \"before all\" hook",
+            "title": "\"before each\" hook",
+            "fullTitle": "session manager \"before each\" hook",
             "timedOut": false,
             "duration": 0,
             "pass": false,
@@ -44,7 +44,7 @@
             "code": "sessionId = 'sessionId';\nsocketId = 'socketId';\nowner = 'owner';\nsession = _sessionManager2.default.createSession(sessionId, socketId, owner);",
             "err": {},
             "isRoot": false,
-            "uuid": "8b4a0ef8-856a-40b4-b039-4e7f697f4fe7",
+            "uuid": "c1d19735-965f-4fe0-87e5-79669cea7410",
             "isHook": true,
             "skipped": false
           }
@@ -55,23 +55,23 @@
             "title": "creates a new session",
             "fullTitle": "session manager creates a new session",
             "timedOut": false,
-            "duration": 3,
+            "duration": 10,
             "state": "passed",
             "speed": "fast",
             "pass": true,
             "fail": false,
             "pending": false,
-            "code": "(0, _chai.expect)(session).to.not.be.null;\n(0, _chai.expect)(session).to.have.property('id', sessionId);\n(0, _chai.expect)(session).to.have.property('owner', owner);\n(0, _chai.expect)(session).to.have.property('participants').deep.equal([]);\n(0, _chai.expect)(session).to.have.property('responses');\n(0, _chai.expect)(session.responses).to.have.property('start').deep.equal([]);\n(0, _chai.expect)(session.responses).to.have.property('continue').deep.equal([]);\n(0, _chai.expect)(session.responses).to.have.property('change').deep.equal([]);",
+            "code": "(0, _chai.expect)(session).to.not.be.null;\n(0, _chai.expect)(session).to.have.property('id', sessionId);\n(0, _chai.expect)(session).to.have.property('owner', owner);\n(0, _chai.expect)(session).to.have.property('participants').deep.equal({});\n(0, _chai.expect)(session).to.have.property('responses');\n(0, _chai.expect)(session).to.have.property('responseTypes');\n(0, _chai.expect)(session.responseTypes).to.have.property('stop');\n(0, _chai.expect)(session.responseTypes.stop).to.have.property('title');\n(0, _chai.expect)(session.responseTypes).to.have.property('start');\n(0, _chai.expect)(session.responseTypes.start).to.have.property('title');\n(0, _chai.expect)(session.responseTypes).to.have.property('continue');\n(0, _chai.expect)(session.responseTypes.continue).to.have.property('title');\n(0, _chai.expect)(_sessionManager2.default.getSession(sessionId)).deep.equal(session);",
             "err": {},
             "isRoot": false,
-            "uuid": "f5e9d180-b8ce-4a7f-9a56-7fb01f511537",
+            "uuid": "cd0d43ae-1f94-4736-afb4-4cd99b01fdec",
             "isHook": false,
             "skipped": false
           }
         ],
         "suites": [
           {
-            "uuid": "8e56c31d-a8cc-46cb-af2e-899c59753217",
+            "uuid": "3c37d9c3-5e43-4c29-a35e-88f1b203da36",
             "title": "join session",
             "fullFile": "/Users/gk/Development/retro/retro-tool/src/server/session/session-manager.spec.js",
             "file": "/src/server/session/session-manager.spec.js",
@@ -88,17 +88,53 @@
                 "pass": true,
                 "fail": false,
                 "pending": false,
-                "code": "var name = 'Bob';\nupdatedSession = _sessionManager2.default.joinSession(socketId, name, sessionId);\n(0, _chai.expect)(updatedSession).to.have.property('participants').deep.equal([name]);",
+                "code": "var name = 'Bob';\nvar bobSocketId = 'bobSocket';\nupdatedSession = _sessionManager2.default.joinSession(bobSocketId, name, sessionId);\n(0, _chai.expect)(updatedSession).to.have.property('participants').deep.equal(_defineProperty({}, name, { name: name }));",
                 "err": {},
                 "isRoot": false,
-                "uuid": "95dc03a8-6872-435b-b9c0-42174fb0301f",
+                "uuid": "6060d652-3666-4db2-b099-45b5d4213ab5",
+                "isHook": false,
+                "skipped": false
+              },
+              {
+                "title": "prevents socket id joining two sessions",
+                "fullTitle": "session manager join session prevents socket id joining two sessions",
+                "timedOut": false,
+                "duration": 0,
+                "state": "passed",
+                "speed": "fast",
+                "pass": true,
+                "fail": false,
+                "pending": false,
+                "code": "var name = 'Harry';\nvar harrySocketId = 'harrySocket';\nupdatedSession = _sessionManager2.default.joinSession(harrySocketId, name, sessionId);\ntry {\n  _sessionManager2.default.joinSession(harrySocketId, 'Harry2', sessionId);\n  _chai.expect.fail();\n} catch (e) {\n  (0, _chai.expect)(e.message).to.equal('already in session');\n}",
+                "err": {},
+                "isRoot": false,
+                "uuid": "ee07717c-15b1-421e-95c5-3f20093532f4",
+                "isHook": false,
+                "skipped": false
+              },
+              {
+                "title": "prevents same name joining session",
+                "fullTitle": "session manager join session prevents same name joining session",
+                "timedOut": false,
+                "duration": 0,
+                "state": "passed",
+                "speed": "fast",
+                "pass": true,
+                "fail": false,
+                "pending": false,
+                "code": "var name = 'Harry';\nvar harrySocketId = 'harrySocket2';\nupdatedSession = _sessionManager2.default.joinSession(harrySocketId, name, sessionId);\ntry {\n  _sessionManager2.default.joinSession('new socket id', 'Harry', sessionId);\n  _chai.expect.fail();\n} catch (e) {\n  (0, _chai.expect)(e.message).to.equal('name in use');\n}",
+                "err": {},
+                "isRoot": false,
+                "uuid": "46e88cc2-80f5-42cd-ae7e-2a5ed8c05e92",
                 "isHook": false,
                 "skipped": false
               }
             ],
             "suites": [],
             "passes": [
-              "95dc03a8-6872-435b-b9c0-42174fb0301f"
+              "6060d652-3666-4db2-b099-45b5d4213ab5",
+              "ee07717c-15b1-421e-95c5-3f20093532f4",
+              "46e88cc2-80f5-42cd-ae7e-2a5ed8c05e92"
             ],
             "failures": [],
             "pending": [],
@@ -107,15 +143,129 @@
             "root": false,
             "rootEmpty": false,
             "_timeout": 2000
+          },
+          {
+            "uuid": "ce1bdfc2-2927-403e-bdc3-79fd53fc2c56",
+            "title": "addResponse",
+            "fullFile": "/Users/gk/Development/retro/retro-tool/src/server/session/session-manager.spec.js",
+            "file": "/src/server/session/session-manager.spec.js",
+            "beforeHooks": [],
+            "afterHooks": [],
+            "tests": [
+              {
+                "title": "adds response",
+                "fullTitle": "session manager addResponse adds response",
+                "timedOut": false,
+                "duration": 1,
+                "state": "passed",
+                "speed": "fast",
+                "pass": true,
+                "fail": false,
+                "pending": false,
+                "code": "var type = 'start';\nvar message = 'Message';\nvar response = _sessionManager2.default.addResponse(socketId, type, message);\n(0, _chai.expect)(response).to.have.property('responseType', type);\n(0, _chai.expect)(response).to.have.property('author', owner);\n(0, _chai.expect)(response).to.have.property('response', message);\n(0, _chai.expect)(response).to.have.property('id');\nupdatedSession = _sessionManager2.default.getSession(sessionId);\n(0, _chai.expect)(updatedSession.responses).to.have.property(response.id).deep.equal(response);",
+                "err": {},
+                "isRoot": false,
+                "uuid": "ce04c38d-d229-49e4-9b52-1a4681836eaa",
+                "isHook": false,
+                "skipped": false
+              }
+            ],
+            "suites": [],
+            "passes": [
+              "ce04c38d-d229-49e4-9b52-1a4681836eaa"
+            ],
+            "failures": [],
+            "pending": [],
+            "skipped": [],
+            "duration": 1,
+            "root": false,
+            "rootEmpty": false,
+            "_timeout": 2000
+          },
+          {
+            "uuid": "205f8bd8-96d3-484a-a6b9-a5c2c8bd11e6",
+            "title": "upVoteResponse",
+            "fullFile": "/Users/gk/Development/retro/retro-tool/src/server/session/session-manager.spec.js",
+            "file": "/src/server/session/session-manager.spec.js",
+            "beforeHooks": [],
+            "afterHooks": [],
+            "tests": [
+              {
+                "title": "adds upvote to response",
+                "fullTitle": "session manager upVoteResponse adds upvote to response",
+                "timedOut": false,
+                "duration": 4,
+                "state": "passed",
+                "speed": "fast",
+                "pass": true,
+                "fail": false,
+                "pending": false,
+                "code": "var type = 'start';\nvar message = 'Message';\nvar response = _sessionManager2.default.addResponse(socketId, type, message);\n_sessionManager2.default.upVoteResponse(socketId, response.id);\nupdatedSession = _sessionManager2.default.getSession(sessionId);\n(0, _chai.expect)(updatedSession.responses[response.id]).to.have.property('votes').equal(1);",
+                "err": {},
+                "isRoot": false,
+                "uuid": "1fe5ffc5-b32f-4ded-9138-c8d614f0b2ed",
+                "isHook": false,
+                "skipped": false
+              }
+            ],
+            "suites": [],
+            "passes": [
+              "1fe5ffc5-b32f-4ded-9138-c8d614f0b2ed"
+            ],
+            "failures": [],
+            "pending": [],
+            "skipped": [],
+            "duration": 4,
+            "root": false,
+            "rootEmpty": false,
+            "_timeout": 2000
+          },
+          {
+            "uuid": "49cf1845-666a-444c-8cbd-8ed09450469b",
+            "title": "cancelUpVoteResponse",
+            "fullFile": "/Users/gk/Development/retro/retro-tool/src/server/session/session-manager.spec.js",
+            "file": "/src/server/session/session-manager.spec.js",
+            "beforeHooks": [],
+            "afterHooks": [],
+            "tests": [
+              {
+                "title": "removes upvote to response",
+                "fullTitle": "session manager cancelUpVoteResponse removes upvote to response",
+                "timedOut": false,
+                "duration": 4,
+                "state": "passed",
+                "speed": "fast",
+                "pass": true,
+                "fail": false,
+                "pending": false,
+                "code": "var type = 'start';\nvar message = 'Message';\nvar response = _sessionManager2.default.addResponse(socketId, type, message);\n_sessionManager2.default.upVoteResponse(socketId, response.id);\nupdatedSession = _sessionManager2.default.getSession(sessionId);\n(0, _chai.expect)(updatedSession.responses[response.id]).to.have.property('votes').equal(1);\n_sessionManager2.default.cancelUpVoteResponse(socketId, response.id);\nupdatedSession = _sessionManager2.default.getSession(sessionId);\n(0, _chai.expect)(updatedSession.responses[response.id]).to.have.property('votes').equal(0);",
+                "err": {},
+                "isRoot": false,
+                "uuid": "f6efc0e0-240d-4883-a918-f21ccb4cd9c8",
+                "isHook": false,
+                "skipped": false
+              }
+            ],
+            "suites": [],
+            "passes": [
+              "f6efc0e0-240d-4883-a918-f21ccb4cd9c8"
+            ],
+            "failures": [],
+            "pending": [],
+            "skipped": [],
+            "duration": 4,
+            "root": false,
+            "rootEmpty": false,
+            "_timeout": 2000
           }
         ],
         "passes": [
-          "f5e9d180-b8ce-4a7f-9a56-7fb01f511537"
+          "cd0d43ae-1f94-4736-afb4-4cd99b01fdec"
         ],
         "failures": [],
         "pending": [],
         "skipped": [],
-        "duration": 3,
+        "duration": 10,
         "root": false,
         "rootEmpty": false,
         "_timeout": 2000

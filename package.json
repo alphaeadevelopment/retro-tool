@@ -8,7 +8,9 @@
     "test:ci": "mocha --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit \"src/**/*.spec.js\"",
     "postinstall": "npm run build",
     "build": "webpack --config config/webpack.client.js",
-    "start": "node src/server/index.js"
+    "start": "node src/server/index.js",
+    "start:watch": "nodemon src/server/index.js",
+    "start:debug": "nodemon --inspect-brk src/server/index.js"
   },
   "author": "Graham King <gking2224@gmail.com>",
   "license": "ISC",

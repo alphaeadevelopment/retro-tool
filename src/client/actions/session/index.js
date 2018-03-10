@@ -10,6 +10,8 @@ export const newParticipant = createAction(Types.NEW_PARTICIPANT);
 export const noSuchSession = createAction(Types.NO_SUCH_SESSION);
 export const participantLeft = createAction(Types.PARTICIPANT_LEFT);
 export const responseAdded = createAction(Types.RESPONSE_ADDED);
+export const upVoteRegistered = createAction(Types.UP_VOTE_REGISTERED);
+export const upVoteCancelled = createAction(Types.UP_VOTE_CANCELLED);
 
 export const doInitSocket = socket => () => {
   socket.on('initial', (res) => {
@@ -28,6 +30,12 @@ export const onLeaveSession = (socket, id) => () => {
 };
 export const onAddResponse = (socket, responseType, value) => () => {
   socket.emit('addResponse', { responseType, value });
+};
+export const onUpVoteResponse = (socket, responseId) => () => {
+  socket.emit('upVoteResponse', { responseId });
+};
+export const onCancelUpVoteResponse = (socket, responseId) => () => {
+  socket.emit('cancelUpVoteResponse', { responseId });
 };
 
 export const onSocketEventSessionCreated = session => (dispatch) => {
@@ -50,5 +58,11 @@ export const onSocketEventParticipantLeft = name => (dispatch) => {
 };
 export const onSocketEventResponseAdded = response => (dispatch) => {
   dispatch(responseAdded({ response }));
+};
+export const onSocketEventUpVoteRegistered = ({ responseId }) => (dispatch) => {
+  dispatch(upVoteRegistered({ responseId }));
+};
+export const onSocketEventUpVoteCancelled = ({ responseId }) => (dispatch) => {
+  dispatch(upVoteCancelled({ responseId }));
 };
 

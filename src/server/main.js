@@ -6,13 +6,11 @@ import http from 'http';
 
 import socket from './socket';
 
-console.log(process.env.PORT);
 const port = process.env.PORT || 3000;
 
 const app = express();
 app.use(bodyParser.json());
 
-console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV !== 'production') {
   const webpack = require('webpack');
   const webpackConfig = require('../../config/webpack.client');
@@ -26,7 +24,6 @@ if (process.env.NODE_ENV !== 'production') {
 
 // serve static files from webpack dist dir
 const publicPath = path.join(__dirname, '../../dist');
-console.log(publicPath);
 app.use(express.static(publicPath));
 
 // ping for load balancer checking health

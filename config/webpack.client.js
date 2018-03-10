@@ -48,7 +48,6 @@ if (process.env.NODE_ENV !== 'production') {
 
 const babelExclude = /node_modules[\\/](?!js-services)/
 const outputPath = path.join(__dirname, '../dist');
-console.log(outputPath);
 
 const config = {
   entry: {
