@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
+    "postinstall": "npm run build",
     "build": "webpack --config config/webpack.client.js",
     "start": "node src/server/index.js"
   },
