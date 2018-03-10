@@ -12,6 +12,7 @@ const port = process.env.PORT || 3000;
 const app = express();
 app.use(bodyParser.json());
 
+console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV !== 'production') {
   const webpack = require('webpack');
   const webpackConfig = require('../../config/webpack.client');
