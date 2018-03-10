@@ -15,7 +15,7 @@ export class RawSocketProvider extends React.Component {
   }
   componentWillMount() {
     const { initSocket, dispatch } = this.props;
-    const socket = io.connect('http://localhost:3000');
+    const socket = io.connect(process.env.SOCKET_URL || 'http://localhost:3000');
     this.setState({
       socket,
     });
