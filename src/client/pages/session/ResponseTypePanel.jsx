@@ -46,7 +46,7 @@ const styles = theme => ({
   },
 });
 export const RawResponseTypePanel = ({
-  classes, responseType, responses, onAdd, onUpVote, onCancelUpVote, votes, ...rest
+  classes, responseType, responses, onAdd, onUpVote, onCancelUpVote, votes, sessionStatus, ...rest
 }) =>
   (
     <Paper className={classes.root}>
@@ -60,11 +60,12 @@ export const RawResponseTypePanel = ({
             className={classes.itemCtr}
             response={r}
             voted={includes(votes, r.id)}
+            sessionStatus={sessionStatus}
             {...rest}
           />
         ))}
       </ul>
-      <NewResponseForm onAdd={onAdd} />
+      {sessionStatus === 'initial' && <NewResponseForm onAdd={onAdd} />}
     </Paper>
   );
 
