@@ -9,7 +9,12 @@ import generate from 'shortid';
 const newSession = (id, owner) => ({
   id,
   status: 'initial',
-  participants: {},
+  participants: {
+    [owner]: {
+      name: owner,
+      votes: 0,
+    },
+  },
   owner,
   responses: {
   },
@@ -58,9 +63,14 @@ class SessionManager {
     if (this.userInSession(socketId)) throw new Error('already in session');
     if (has(this.getSession(sessionId).participants, name)) throw new Error('name in use');
     this.connections[socketId] = { name, sessionId };
+    const newParticipant = {
+      id: name,
+      name,
+      votes: 0,
+    };
     const updated = this.updateSession(socketId, {
       participants: {
-        $merge: { [name]: { name } },
+        $merge: { [name]: newParticipant },
       },
     });
     return updated;
@@ -85,7 +95,7 @@ class SessionManager {
     const name = this.getName(socketId);
     const id = generate();
     const newResponse = {
-      id, author: name, response: value, responseType, votes: 0,
+      id, author: name, response: value, responseType, votes: [],
     };
     this.updateSession(
       socketId,
@@ -94,23 +104,35 @@ class SessionManager {
     return newResponse;
   }
   upVoteResponse = (socketId, responseId) => {
+    const name = this.getName(socketId);
     this.updateSession(socketId, {
       responses: {
         [responseId]: {
           votes: {
-            $apply: v => v + 1,
+            $push: [name],
           },
+        },
+      },
+      participants: {
+        [name]: {
+          votes: { $apply: v => v + 1 },
         },
       },
     });
   }
   cancelUpVoteResponse = (socketId, responseId) => {
+    const name = this.getName(socketId);
     this.updateSession(socketId, {
       responses: {
         [responseId]: {
           votes: {
-            $apply: v => v - 1,
+            $apply: v => without(v, name),
           },
+        },
+      },
+      participants: {
+        [name]: {
+          votes: { $apply: v => v - 1 },
         },
       },
     });

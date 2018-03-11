@@ -35,7 +35,7 @@ describe('session manager', () => {
       expect(session).to.not.be.null;
       expect(session).to.have.property('id', sessionId);
       expect(session).to.have.property('owner', owner);
-      expect(session).to.have.property('participants').deep.equal({});
+      expect(session).to.have.property('participants').deep.equal({ [owner]: { name: owner, votes: 0 } });
       expect(session).to.have.property('responses');
       expect(session).to.have.property('responseTypes');
       expect(session.responseTypes).to.have.property('stop');
@@ -60,7 +60,10 @@ describe('session manager', () => {
       const name = 'Bob';
       const bobSocketId = 'bobSocket';
       updatedSession = sessionManager.joinSession(bobSocketId, name, sessionId);
-      expect(updatedSession).to.have.property('participants').deep.equal({ [name]: { name } });
+      expect(updatedSession).to.have.property('participants');
+      expect(updatedSession.participants).to.have.property(name);
+      expect(updatedSession.participants[name]).to.have.property('votes');
+      expect(updatedSession.participants[name]).to.have.property('name', name);
     });
     it('prevents socket id joining two sessions', () => {
       const name = 'Harry';
@@ -107,7 +110,8 @@ describe('session manager', () => {
       const response = sessionManager.addResponse(socketId, type, message);
       sessionManager.upVoteResponse(socketId, response.id);
       updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.responses[response.id]).to.have.property('votes').equal(1);
+      expect(updatedSession.responses[response.id]).to.have.property('votes').deep.equal([owner]);
+      expect(updatedSession.participants[owner]).to.have.property('votes').equal(1);
     });
   });
   describe('cancelUpVoteResponse', () => {
@@ -117,10 +121,12 @@ describe('session manager', () => {
       const response = sessionManager.addResponse(socketId, type, message);
       sessionManager.upVoteResponse(socketId, response.id);
       updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.responses[response.id]).to.have.property('votes').equal(1);
+      expect(updatedSession.responses[response.id]).to.have.property('votes').deep.equal([owner]);
+      expect(updatedSession.participants[owner]).to.have.property('votes').equal(1);
       sessionManager.cancelUpVoteResponse(socketId, response.id);
       updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.responses[response.id]).to.have.property('votes').equal(0);
+      expect(updatedSession.responses[response.id]).to.have.property('votes').deep.equal([]);
+      expect(updatedSession.participants[owner]).to.have.property('votes').equal(0);
     });
   });
   describe('setStatus', () => {

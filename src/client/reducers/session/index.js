@@ -1,5 +1,6 @@
 import update from 'immutability-helper';
 import without from 'lodash/without';
+import omit from 'lodash/omit';
 import * as Types from '../../actions/types';
 
 const initial = {
@@ -29,13 +30,13 @@ export default (state = initial, { type, payload }) => {
     case Types.NEW_PARTICIPANT:
       return update(state, {
         session: {
-          participants: { $merge: { [payload.name]: { name: payload.name } } },
+          participants: { $merge: { [payload.name]: { name: payload.name, votes: 0 } } },
         },
       });
     case Types.PARTICIPANT_LEFT:
       return update(state, {
         session: {
-          participants: { $apply: p => without(p, payload.name) },
+          participants: { $apply: p => omit(p, payload.name) },
         },
       });
     case Types.RESPONSE_ADDED:
@@ -55,17 +56,51 @@ export default (state = initial, { type, payload }) => {
         votes: {
           $push: [payload.responseId],
         },
+        session: {
+          participants: {
+            [state.name]: {
+              votes: { $apply: v => v + 1 },
+            },
+          },
+        },
       });
     case Types.UP_VOTE_CANCELLED:
       return update(state, {
         votes: {
           $apply: v => without(v, payload.responseId),
         },
+        session: {
+          participants: {
+            [state.name]: {
+              votes: { $apply: v => v - 1 },
+            },
+          },
+        },
       });
     case Types.SYNC_SESSION:
       return update(state, {
         session: {
           $set: payload.session,
+        },
+      });
+    case Types.USER_VOTED:
+      return update(state, {
+        session: {
+          participants: {
+            [payload.name]: {
+              votes: { $apply: v => v + 1 },
+            },
+          },
+        },
+      });
+    case Types.USER_UNVOTED:
+      return update(state, {
+        session: {
+          participants: {
+            [payload.name]: {
+              votes: { $apply: v => v - 1 },
+            },
+          },
         },
       });
     default:

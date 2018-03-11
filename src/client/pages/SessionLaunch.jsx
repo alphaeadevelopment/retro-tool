@@ -9,8 +9,8 @@ import * as Actions from '../actions';
 export class RawSessionLaunch extends React.Component { // eslint-disable-line react/prefer-stateless-function
   render() {
     const {
-      session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onAddResponseType, onUpVote, onCancelUpVote,
-      onChangeStatus, ...rest
+      session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onAddResponseType,
+      onChangeStatus, onUpVote, onCancelUpVote, ...rest
     } = this.props;
     const { socket } = this.context;
     return (

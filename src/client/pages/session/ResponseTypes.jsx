@@ -30,16 +30,21 @@ export class RawResponseTypes extends React.Component {
   onSubmit = ({ formData }) => {
     const { question, type } = formData;
     this.setState({ displayForm: false });
+    this.clearForm();
     if (this.props.onAddResponseType) this.props.onAddResponseType(question, type);
   }
   onCancel = () => {
     this.setState({ displayForm: false });
+    this.clearForm();
   }
   onChange = ({ formData }) => {
     this.setState({ formData });
   }
   onClickAddResponseType = () => {
     this.setState({ displayForm: true });
+  }
+  clearForm = () => {
+    this.setState({ formData: { question: '', type: '' } });
   }
   formSchema = {
     type: 'object',
