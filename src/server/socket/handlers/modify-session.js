@@ -18,6 +18,8 @@ const modifyResponses = (responses, status) => {
     case 'voting':
     case 'initial':
       return mapValues(responses, r => omit(r, 'votes'));
+    case 'discuss':
+      return mapValues(responses, r => ({ ...r, votes: r.votes.length }));
     default:
       return responses;
   }

@@ -88,7 +88,7 @@ export class RawResponseTypes extends React.Component {
             />}
           </div>
         </Modal>
-        {isOwner &&
+        {isOwner && session.status === 'initial' &&
           <Button className={classes.loginButton} variant={'raised'} onClick={this.onClickAddResponseType}>
             Add Feedback Question
           </Button>

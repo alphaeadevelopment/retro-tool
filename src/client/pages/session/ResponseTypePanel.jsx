@@ -62,7 +62,7 @@ export const RawResponseTypePanel = ({
       <ul className={classes.responsesCtr}>
         {sortedResponses.map(r => (
           <Response
-            onUpVote={typedVotes.length < 3 && onUpVote(r.id)}
+            onUpVote={typedVotes.length < 3 ? onUpVote(r.id) : undefined}
             onCancelUpVote={onCancelUpVote(r.id)}
             key={r.id}
             className={classes.itemCtr}

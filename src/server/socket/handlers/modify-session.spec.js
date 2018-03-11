@@ -13,27 +13,19 @@ describe('filterResponses', () => {
           'abc': {
             author: 'bob',
             responseType: 'x',
-            votes: 3,
+            votes: ['a', 'b', 'c'],
           },
           'def': {
             author: 'harry',
             responseType: 'x',
-            votes: 2,
-          },
-        },
-      };
-      const expected = {
-        status: 'initial',
-        responses: {
-          'abc': {
-            author: 'bob',
-            responseType: 'x',
+            votes: ['a', 'b', 'c'],
           },
         },
       };
 
       const actual = modifySession(session, 'bob');
-      expect(actual).to.deep.equal(expected);
+      expect(actual.responses).to.have.property('abc');
+      expect(actual.responses).not.to.have.property('def');
     });
   });
   describe('voting', () => {
@@ -44,53 +36,63 @@ describe('filterResponses', () => {
           'abc': {
             author: 'bob',
             responseType: 'x',
+            votes: ['a', 'b', 'c'],
           },
           'def': {
             author: 'harry',
             responseType: 'x',
+            votes: ['a', 'b', 'c'],
           },
         },
       };
-      const expected = {
-        status: 'voting',
-        responses: session.responses,
-      };
 
       const actual = modifySession(session, 'bob');
-      expect(actual).to.deep.equal(expected);
+      expect(actual.responses).to.have.property('abc');
+      expect(actual.responses).to.have.property('def');
     });
-    it('exclude number of votes', () => {
+    it('exclude votes', () => {
       const session = {
         status: 'voting',
         responses: {
           'abc': {
             author: 'bob',
             responseType: 'x',
-            votes: 3,
+            votes: ['a', 'b', 'c'],
           },
           'def': {
             author: 'harry',
             responseType: 'x',
-            votes: 2,
-          },
-        },
-      };
-      const expected = {
-        status: 'voting',
-        responses: {
-          'abc': {
-            author: 'bob',
-            responseType: 'x',
-          },
-          'def': {
-            author: 'harry',
-            responseType: 'x',
+            votes: ['a', 'b', 'c'],
           },
         },
       };
 
       const actual = modifySession(session, 'bob');
-      expect(actual).to.deep.equal(expected);
+      expect(actual.responses.abc).not.to.have.property('votes');
+      expect(actual.responses.def).not.to.have.property('votes');
+    });
+  });
+  describe('discuss', () => {
+    it('include number of votes', () => {
+      const session = {
+        status: 'discuss',
+        responses: {
+          'abc': {
+            author: 'bob',
+            responseType: 'x',
+            votes: ['a', 'b', 'c'],
+          },
+          'def': {
+            author: 'harry',
+            responseType: 'x',
+            votes: ['a', 'b'],
+          },
+        },
+      };
+
+      const actual = modifySession(session, 'bob');
+      expect(actual.responses.abc).to.have.property('votes', 3);
+      expect(actual.responses.def).to.have.property('votes', 2);
     });
   });
 });
