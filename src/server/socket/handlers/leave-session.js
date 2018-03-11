@@ -5,6 +5,7 @@ export default (io, socket) => () => { // eslint-disable-line no-unused-vars
   if (name) {
     const sessionId = sessionManager.leaveSession(socket.id);
     socket.broadcast.to(sessionId).emit('participantLeft', name);
+    socket.leave(sessionId);
     socket.emit('leftSession');
   }
   else {

@@ -2,6 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
+import sortBy from 'lodash/sortBy';
+import reverse from 'lodash/reverse';
 import find from 'lodash/find';
 import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
@@ -12,10 +14,12 @@ import StarBorder from 'material-ui-icons/StarBorder';
 import NewResponseForm from './NewResponseForm';
 import * as Selectors from '../../selectors';
 
+const sortResponses = responses => reverse(sortBy(responses, r => r.votes));
+
 const Response = ({ response, className, voted, onUpVote, onCancelUpVote, sessionStatus }) => (
   <li className={className}>
     <Typography>
-      {response.response}({response.author})
+      {response.response} {sessionStatus === 'discuss' && <span>({response.votes})</span>}
     </Typography>
     {sessionStatus === 'voting' &&
       <div>
@@ -51,11 +55,12 @@ export const RawResponseTypePanel = ({
   classes, responseType, responses, onAdd, onUpVote, onCancelUpVote, votes, sessionStatus, ...rest
 }) => {
   const typedVotes = filter(votes, v => find(responses, r => r.id === v));
+  const sortedResponses = (sessionStatus === 'discuss') ? sortResponses(responses) : responses;
   return (
     <Paper className={classes.root}>
       <Typography variant={'subheading'}>{responseType.title}</Typography>
       <ul className={classes.responsesCtr}>
-        {responses.map(r => (
+        {sortedResponses.map(r => (
           <Response
             onUpVote={typedVotes.length < 3 && onUpVote(r.id)}
             onCancelUpVote={onCancelUpVote(r.id)}

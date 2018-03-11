@@ -1,5 +1,5 @@
 import sessionManager from '../../session';
-import filterResponses from './filter-responses';
+import modifySession from './modify-session';
 
 export default (io, socket) => ({ name, sessionId }) => { // eslint-disable-line no-unused-vars
   if (sessionManager.sessionExists(sessionId)) {
@@ -7,7 +7,7 @@ export default (io, socket) => ({ name, sessionId }) => { // eslint-disable-line
     const session = sessionManager.joinSession(socket.id, name, sessionId);
     socket.join(sessionId);
     socket.broadcast.to(sessionId).emit('newParticipant', name);
-    socket.emit('joinedSession', filterResponses(session));
+    socket.emit('joinedSession', modifySession(session, name));
   }
   else {
     socket.emit('noSuchSession', sessionId);
