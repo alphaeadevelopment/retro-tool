@@ -44,6 +44,12 @@ export default (state = initial, { type, payload }) => {
           responses: { $merge: { [payload.response.id]: payload.response } },
         },
       });
+    case Types.RESPONSE_TYPE_ADDED:
+      return update(state, {
+        session: {
+          responseTypes: { $merge: { [payload.responseType.id]: payload.responseType } },
+        },
+      });
     case Types.UP_VOTE_REGISTERED:
       return update(state, {
         votes: {

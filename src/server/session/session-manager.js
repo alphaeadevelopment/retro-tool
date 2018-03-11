@@ -15,12 +15,15 @@ const newSession = (id, owner) => ({
   },
   responseTypes: {
     continue: {
+      id: 'continue',
       title: 'What went well?',
     },
     stop: {
+      id: 'stop',
       title: 'What did not work well?',
     },
     start: {
+      id: 'start',
       title: 'What could be improved?',
     },
   },
@@ -65,11 +68,18 @@ class SessionManager {
   getName = socketId => this.connections[socketId] && this.connections[socketId].name
   getSessionId = socketId => this.connections[socketId] && this.connections[socketId].sessionId
   getSession = sessionId => clone(this.sessions[sessionId])
+  getSessionFromSocket = socketId => this.getSession(this.getSessionId(socketId));
   getSessionIdAndName = socketId => this.connections[socketId] && clone(this.connections[socketId])
   leaveSession = (socketId) => {
     const name = this.getName(socketId);
     const updated = this.updateSession(socketId, { participants: { $apply: p => without(p, name) } });
     return updated.id;
+  }
+  addResponseType = (socketId, question, type) => {
+    const id = generate();
+    const newResponseType = { id, title: question, type };
+    this.updateSession(socketId, { responseTypes: { $merge: { [id]: newResponseType } } });
+    return newResponseType;
   }
   addResponse = (socketId, responseType, value) => {
     const name = this.getName(socketId);

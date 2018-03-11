@@ -1,8 +1,18 @@
 /* globals xdescribe, xit, before describe, it, beforeEach */ // eslint-disable-line no-unused-vars
-/* eslint-disable no-unused-expressions */
-import { expect } from 'chai';
+/* eslint-disable no-unused-expressions,import/no-webpack-loader-syntax */
+import chai, { expect } from 'chai';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 
-import sessionManager from './session-manager';
+chai.use(sinonChai);
+
+const inject = require('inject-loader!./session-manager'); // eslint-disable-line import/no-unresolved
+
+const shortid = sinon.stub();
+shortid.returns('newid');
+const sessionManager = inject({
+  shortid,
+}).default;
 
 describe('session manager', () => {
   let session;
@@ -20,22 +30,30 @@ describe('session manager', () => {
     };
     session = sessionManager.createSession(sessionId, socket, owner);
   });
-  it('creates a new session', () => {
-    expect(session).to.not.be.null;
-    expect(session).to.have.property('id', sessionId);
-    expect(session).to.have.property('owner', owner);
-    expect(session).to.have.property('participants').deep.equal({});
-    expect(session).to.have.property('responses');
-    expect(session).to.have.property('responseTypes');
-    expect(session.responseTypes).to.have.property('stop');
-    expect(session.responseTypes.stop).to.have.property('title');
-    expect(session.responseTypes).to.have.property('start');
-    expect(session.responseTypes.start).to.have.property('title');
-    expect(session.responseTypes).to.have.property('continue');
-    expect(session.responseTypes.continue).to.have.property('title');
-    expect(session).to.have.property('status', 'initial');
-    expect(sessionManager.getSession(sessionId)).deep.equal(session);
-    expect(sessionManager.getOwnerSocket(sessionId)).to.equal(socket);
+  describe('new session', () => {
+    it('creates a new session', () => {
+      expect(session).to.not.be.null;
+      expect(session).to.have.property('id', sessionId);
+      expect(session).to.have.property('owner', owner);
+      expect(session).to.have.property('participants').deep.equal({});
+      expect(session).to.have.property('responses');
+      expect(session).to.have.property('responseTypes');
+      expect(session.responseTypes).to.have.property('stop');
+      expect(session.responseTypes.stop).to.have.property('title');
+      expect(session.responseTypes).to.have.property('start');
+      expect(session.responseTypes.start).to.have.property('title');
+      expect(session.responseTypes).to.have.property('continue');
+      expect(session.responseTypes.continue).to.have.property('title');
+      expect(session).to.have.property('status', 'initial');
+      expect(sessionManager.getSession(sessionId)).deep.equal(session);
+      expect(sessionManager.getOwnerSocket(sessionId)).to.equal(socket);
+    });
+  });
+  describe('get session from socket id', () => {
+    it('returns session', () => {
+      const actual = sessionManager.getSessionFromSocket(socketId);
+      expect(actual).to.deep.equal(session);
+    });
   });
   describe('join session', () => {
     it('adds participant', () => {
@@ -111,6 +129,21 @@ describe('session manager', () => {
       sessionManager.setStatus(socketId, status);
       updatedSession = sessionManager.getSession(sessionId);
       expect(updatedSession.status).to.equal(status);
+    });
+  });
+  describe('addResponseType', () => {
+    it('adds new response type', () => {
+      const question = 'How well did we do?';
+      const type = 'number';
+      const expected = {
+        id: 'newid',
+        title: question,
+        type,
+      };
+      const newResponseType = sessionManager.addResponseType(socketId, question, type);
+      updatedSession = sessionManager.getSessionFromSocket(socketId);
+      expect(updatedSession.responseTypes).to.have.property('newid').deep.equal(expected);
+      expect(newResponseType).to.deep.equal(expected);
     });
   });
 });

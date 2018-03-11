@@ -9,7 +9,7 @@ import * as Actions from '../actions';
 export class RawSessionLaunch extends React.Component { // eslint-disable-line react/prefer-stateless-function
   render() {
     const {
-      session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onUpVote, onCancelUpVote,
+      session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onAddResponseType, onUpVote, onCancelUpVote,
       onChangeStatus, ...rest
     } = this.props;
     const { socket } = this.context;
@@ -26,6 +26,7 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
             onUpVote={onUpVote(socket)}
             onCancelUpVote={onCancelUpVote(socket)}
             onChangeStatus={onChangeStatus(socket)}
+            onAddResponseType={onAddResponseType(socket)}
             {...rest}
           />
         }
@@ -51,6 +52,7 @@ const dispatchToActions = dispatch => ({
   onLeaveSession: socket => () => dispatch(Actions.onLeaveSession(socket)),
   onAddResponse: socket => responseType => value => dispatch(Actions.onAddResponse(socket, responseType, value)),
   onChangeStatus: socket => status => () => dispatch(Actions.onChangeStatus(socket, status)),
+  onAddResponseType: socket => (question, type) => dispatch(Actions.onAddResponseType(socket, question, type)),
 });
 
 export default connect(mapStateToProps, dispatchToActions)(RawSessionLaunch);

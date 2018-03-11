@@ -6,6 +6,8 @@
   "scripts": {
     "test": "npm run test:ci -- --watch",
     "test:ci": "mocha --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit \"src/**/*.spec.js\"",
+    "test:server": "npm run test:server:ci -- --watch",
+    "test:server:ci": "mocha-webpack --webpack-config config/webpack.server.js --glob '*.spec.js' --recursive --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit src/server",
     "postinstall": "npm run build",
     "build": "webpack --config config/webpack.client.js",
     "start": "node src/server/index.js",
@@ -38,6 +40,7 @@
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.0.6",
+    "inject-loader": "^2.0.1",
     "mocha": "^4.1.0",
     "mocha-webpack": "^1.0.1",
     "mochawesome": "^3.0.2",

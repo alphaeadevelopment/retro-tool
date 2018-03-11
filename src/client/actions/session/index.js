@@ -13,6 +13,7 @@ export const responseAdded = createAction(Types.RESPONSE_ADDED);
 export const upVoteRegistered = createAction(Types.UP_VOTE_REGISTERED);
 export const upVoteCancelled = createAction(Types.UP_VOTE_CANCELLED);
 export const syncSession = createAction(Types.SYNC_SESSION);
+export const responseTypeAdded = createAction(Types.RESPONSE_TYPE_ADDED);
 
 export const doInitSocket = socket => () => {
   socket.on('initial', (res) => {
@@ -40,6 +41,9 @@ export const onCancelUpVoteResponse = (socket, responseId) => () => {
 };
 export const onChangeStatus = (socket, status) => () => {
   socket.emit('changeStatus', { status });
+};
+export const onAddResponseType = (socket, question, type) => () => {
+  socket.emit('addResponseType', { question, type });
 };
 
 export const onSocketEventSessionCreated = ({ session, name }) => (dispatch) => {
@@ -71,5 +75,8 @@ export const onSocketEventUpVoteCancelled = ({ responseId }) => (dispatch) => {
 };
 export const onSocketEventSyncSession = ({ session }) => (dispatch) => {
   dispatch(syncSession({ session }));
+};
+export const onSocketEventResponseTypeAdded = ({ responseType }) => (dispatch) => {
+  dispatch(responseTypeAdded({ responseType }));
 };
 
