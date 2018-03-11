@@ -69,7 +69,7 @@ export const RawSession = ({
           />
         </Grid>
         <Grid item xs={12} sm={7} lg={9}>
-          <ResponseTypes isOwner={isOwner} session={session} onAddResponse={onAddResponse} {...rest} />
+          <ResponseTypes isOwner={isOwner} session={session} onAddResponse={onAddResponse} name={name} {...rest} />
         </Grid>
       </Grid>
       {isOwner && <SessionButtons onChangeStatus={onChangeStatus} sessionStatus={session.status} />}

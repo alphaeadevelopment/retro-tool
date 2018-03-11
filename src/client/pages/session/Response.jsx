@@ -81,9 +81,10 @@ export class RawResponse extends React.Component {
   }
   render() {
     const {
-      classes, response, voted, onUpVote, onCancelUpVote, sessionStatus, topThree, isOwner,
+      classes, response, voted, onUpVote, onCancelUpVote, sessionStatus, topThree, isOwner, name,
     } = this.props;
     const voting = sessionStatus === 'voting';
+    const ownResponse = (name === response.author);
     const { formData, displayForm } = this.state;
     const initial = sessionStatus === 'initial';
     return (
@@ -97,9 +98,9 @@ export class RawResponse extends React.Component {
           {response.response} {sessionStatus === 'discuss' && <span>({response.votes})</span>}
         </Typography>
         <div>
-          {voting && voted && <IconButton onClick={onCancelUpVote}><Star /></IconButton>}
-          {voting && !voted && <IconButton onClick={onUpVote}><StarBorder /></IconButton>}
-          {initial && isOwner && this.props.onAddResponseType && !response.flagged &&
+          {voting && voted && !ownResponse && <IconButton onClick={onCancelUpVote}><Star /></IconButton>}
+          {voting && !voted && !ownResponse && <IconButton onClick={onUpVote}><StarBorder /></IconButton>}
+          {initial && isOwner && !ownResponse && this.props.onAddResponseType && !response.flagged &&
             <Tooltip title={'Block this response'}>
               <IconButton onClick={this.onClickSendFeedback}>
                 <Feedback />
