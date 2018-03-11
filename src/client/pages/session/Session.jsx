@@ -19,6 +19,9 @@ const Header = ({ className, children }) => (
 const SessionButtons = ({ sessionStatus, onChangeStatus }) => (
   <div>
     {sessionStatus === 'initial' && <Button onClick={onChangeStatus('voting')}>Open for Voting</Button>}
+    {sessionStatus === 'voting' && <Button onClick={onChangeStatus('initial')}>Re-open for comments</Button>}
+    {sessionStatus === 'voting' && <Button onClick={onChangeStatus('discuss')}>Close for Voting</Button>}
+    {sessionStatus === 'discuss' && <Button onClick={onChangeStatus('discuss')}>Re-open for Voting</Button>}
   </div>
 );
 

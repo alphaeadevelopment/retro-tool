@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import includes from 'lodash/includes';
+import filter from 'lodash/filter';
+import find from 'lodash/find';
 import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
@@ -47,19 +49,20 @@ const styles = theme => ({
 });
 export const RawResponseTypePanel = ({
   classes, responseType, responses, onAdd, onUpVote, onCancelUpVote, votes, sessionStatus, ...rest
-}) =>
-  (
+}) => {
+  const typedVotes = filter(votes, v => find(responses, r => r.id === v));
+  return (
     <Paper className={classes.root}>
       <Typography variant={'subheading'}>{responseType.title}</Typography>
       <ul className={classes.responsesCtr}>
         {responses.map(r => (
           <Response
-            onUpVote={onUpVote(r.id)}
+            onUpVote={typedVotes.length < 3 && onUpVote(r.id)}
             onCancelUpVote={onCancelUpVote(r.id)}
             key={r.id}
             className={classes.itemCtr}
             response={r}
-            voted={includes(votes, r.id)}
+            voted={includes(typedVotes, r.id)}
             sessionStatus={sessionStatus}
             {...rest}
           />
@@ -68,6 +71,7 @@ export const RawResponseTypePanel = ({
       {sessionStatus === 'initial' && <NewResponseForm onAdd={onAdd} />}
     </Paper>
   );
+};
 
 const mapStateToProps = state => ({
   votes: Selectors.getVotes(state),
