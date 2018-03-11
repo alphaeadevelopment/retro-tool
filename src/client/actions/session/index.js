@@ -42,14 +42,14 @@ export const onChangeStatus = (socket, status) => () => {
   socket.emit('changeStatus', { status });
 };
 
-export const onSocketEventSessionCreated = session => (dispatch) => {
-  dispatch(createdSession({ session }));
+export const onSocketEventSessionCreated = ({ session, name }) => (dispatch) => {
+  dispatch(createdSession({ session, name }));
 };
 export const onSocketEventLeftSession = () => (dispatch) => {
   dispatch(leftSession());
 };
-export const onSocketEventJoinedSession = session => (dispatch) => {
-  dispatch(joinedSession({ session }));
+export const onSocketEventJoinedSession = ({ session, name }) => (dispatch) => {
+  dispatch(joinedSession({ session, name }));
 };
 export const onSocketEventNewParticipant = name => (dispatch) => {
   dispatch(newParticipant({ name }));

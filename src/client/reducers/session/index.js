@@ -5,6 +5,7 @@ import * as Types from '../../actions/types';
 const initial = {
   session: null,
   votes: [],
+  name: null,
 };
 export default (state = initial, { type, payload }) => {
   switch (type) {
@@ -12,11 +13,13 @@ export default (state = initial, { type, payload }) => {
       return update(state, {
         session: { $set: payload.session },
         owner: { $set: true },
+        name: { $set: payload.name },
       });
     case Types.JOINED_SESSION:
       return update(state, {
         session: { $set: payload.session },
         owner: { $set: false },
+        name: { $set: payload.name },
       });
     case Types.LEFT_SESSION:
       return update(state, {

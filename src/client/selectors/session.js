@@ -3,3 +3,4 @@
 export const getCurrentSession = state => state.session.session;
 export const isSessionOwner = state => state.session.owner;
 export const getVotes = state => state.session.votes;
+export const getName = state => state.session.name;

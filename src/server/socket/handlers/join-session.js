@@ -7,7 +7,7 @@ export default (io, socket) => ({ name, sessionId }) => { // eslint-disable-line
     const session = sessionManager.joinSession(socket.id, name, sessionId);
     socket.join(sessionId);
     socket.broadcast.to(sessionId).emit('newParticipant', name);
-    socket.emit('joinedSession', modifySession(session, name));
+    socket.emit('joinedSession', { session: modifySession(session, name), name });
   }
   else {
     socket.emit('noSuchSession', sessionId);

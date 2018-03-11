@@ -10,12 +10,6 @@ import Typography from 'material-ui/Typography';
 import ParticipantList from './ParticipantList';
 import ResponseTypePanel from './ResponseTypePanel';
 
-const Header = ({ className, children }) => (
-  <div className={className}>
-    {children}
-  </div>
-);
-
 const SessionButtons = ({ sessionStatus, onChangeStatus }) => (
   <div>
     {sessionStatus === 'initial' && <Button onClick={onChangeStatus('voting')}>Open for Voting</Button>}
@@ -27,23 +21,43 @@ const SessionButtons = ({ sessionStatus, onChangeStatus }) => (
 
 const styles = theme => ({
   root: {
-    padding: theme.spacing.unit * 2,
   },
   sessionBody: {
     display: 'flex',
     flexDirection: 'row-reverse',
+    padding: theme.spacing.unit * 2,
   },
   header: {
-    display: 'flex',
-    alignItems: 'center',
+    'alignItems': 'center',
+    '&>div': {
+      'display': 'flex',
+      'alignItems': 'center',
+      '&:first-child': {
+        'justifyContent': 'space-between',
+        'background': theme.palette.primary.dark,
+        '& *': {
+          color: theme.palette.primary.contrastText,
+        },
+        'padding': `0 ${theme.spacing.unit * 2}px`,
+      },
+      '&:nth-child(2)': {
+        justifyContent: 'flex-start',
+      },
+    },
   },
 });
-export const RawSession = ({ classes, isOwner, session, onLeaveSession, onAddResponse, onChangeStatus, ...rest }) => (
+export const RawSession = ({ classes, name, isOwner, session, onLeaveSession, onAddResponse, onChangeStatus, ...rest }) => (
   <div className={classes.root}>
-    <Header className={classes.header}>
-      <IconButton onClick={onLeaveSession}><Left /></IconButton>
-      <Typography variant={'display1'}>Session: {session.id}</Typography>
-    </Header>
+    <div className={classes.header}>
+      <div>
+        <Typography variant={'display3'}>Retrospective Tool</Typography>
+        <Typography variant={'display1'}>{name}</Typography>
+      </div>
+      <div>
+        <IconButton onClick={onLeaveSession}><Left /></IconButton>
+        <Typography variant={'display1'}>Session: {session.id}</Typography>
+      </div>
+    </div>
     <Grid container spacing={0} className={classes.sessionBody} >
       <Grid item xs={12} sm={5} lg={3}>
         <ParticipantList owner={session.owner} participants={session.participants} />
