@@ -16,6 +16,7 @@ export const syncSession = createAction(Types.SYNC_SESSION);
 export const responseTypeAdded = createAction(Types.RESPONSE_TYPE_ADDED);
 export const userVoted = createAction(Types.USER_VOTED);
 export const userUnvoted = createAction(Types.USER_UNVOTED);
+export const feedbackReceived = createAction(Types.FEEDBACK_RECEIVED);
 
 export const doInitSocket = socket => () => {
   socket.on('initial', (res) => {
@@ -46,6 +47,9 @@ export const onChangeStatus = (socket, status) => () => {
 };
 export const onAddResponseType = (socket, question, type) => () => {
   socket.emit('addResponseType', { question, type });
+};
+export const onSendFeedback = (socket, responseId, message) => () => {
+  socket.emit('sendFeedback', { responseId, message });
 };
 
 export const onSocketEventSessionCreated = ({ session, name }) => (dispatch) => {
@@ -86,5 +90,8 @@ export const onSocketEventUserVoted = ({ name }) => (dispatch) => {
 };
 export const onSocketEventUserUnvoted = ({ name }) => (dispatch) => {
   dispatch(userUnvoted({ name }));
+};
+export const onSocketEventFeedbackReceived = ({ responseId, message }) => (dispatch) => {
+  dispatch(feedbackReceived({ responseId, message }));
 };
 

@@ -38,6 +38,7 @@ describe('session manager', () => {
       expect(session).to.have.property('participants').deep.equal({ [owner]: { name: owner, votes: 0 } });
       expect(session).to.have.property('responses');
       expect(session).to.have.property('responseTypes');
+      expect(session).to.have.property('sockets');
       expect(session.responseTypes).to.have.property('stop');
       expect(session.responseTypes.stop).to.have.property('title');
       expect(session.responseTypes).to.have.property('start');
@@ -58,19 +59,21 @@ describe('session manager', () => {
   describe('join session', () => {
     it('adds participant', () => {
       const name = 'Bob';
-      const bobSocketId = 'bobSocket';
-      updatedSession = sessionManager.joinSession(bobSocketId, name, sessionId);
+      const bobSocket = { id: 'bobSocket' };
+      updatedSession = sessionManager.joinSession(bobSocket, name, sessionId);
+      const theSocket = sessionManager.getSocket(sessionId, name);
       expect(updatedSession).to.have.property('participants');
       expect(updatedSession.participants).to.have.property(name);
       expect(updatedSession.participants[name]).to.have.property('votes');
       expect(updatedSession.participants[name]).to.have.property('name', name);
+      expect(theSocket).to.deep.equal(bobSocket);
     });
     it('prevents socket id joining two sessions', () => {
       const name = 'Harry';
-      const harrySocketId = 'harrySocket';
-      updatedSession = sessionManager.joinSession(harrySocketId, name, sessionId);
+      const harrySocket = { id: 'harrySocket1' };
+      updatedSession = sessionManager.joinSession(harrySocket, name, sessionId);
       try {
-        sessionManager.joinSession(harrySocketId, 'Harry2', sessionId);
+        sessionManager.joinSession(harrySocket, 'Another name', sessionId);
         expect.fail();
       }
       catch (e) {
@@ -79,10 +82,10 @@ describe('session manager', () => {
     });
     it('prevents same name joining session', () => {
       const name = 'Harry';
-      const harrySocketId = 'harrySocket2';
-      updatedSession = sessionManager.joinSession(harrySocketId, name, sessionId);
+      const harrySocket = { id: 'harrySocket2' };
+      updatedSession = sessionManager.joinSession(harrySocket, name, sessionId);
       try {
-        sessionManager.joinSession('new socket id', 'Harry', sessionId);
+        sessionManager.joinSession({ id: 'new socket id' }, 'Harry', sessionId);
         expect.fail();
       }
       catch (e) {
@@ -150,6 +153,13 @@ describe('session manager', () => {
       updatedSession = sessionManager.getSessionFromSocket(socketId);
       expect(updatedSession.responseTypes).to.have.property('newid').deep.equal(expected);
       expect(newResponseType).to.deep.equal(expected);
+    });
+  });
+  describe('sendFeedback', () => {
+    it('marks response as flagged with message', () => {
+      const response = sessionManager.addResponse(socketId, 'start', 'message');
+      const updatedResponse = sessionManager.sendFeedback(socketId, response.id, 'feedback');
+      expect(updatedResponse).to.have.property('flagged', true);
     });
   });
 });

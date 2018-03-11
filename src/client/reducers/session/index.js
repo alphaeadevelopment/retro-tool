@@ -103,6 +103,17 @@ export default (state = initial, { type, payload }) => {
           },
         },
       });
+    case Types.FEEDBACK_RECEIVED:
+      return update(state, {
+        session: {
+          responses: {
+            [payload.responseId]: {
+              flagged: { $set: true },
+              message: { $set: payload.message },
+            },
+          },
+        },
+      });
     default:
       return state;
   }

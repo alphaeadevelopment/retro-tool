@@ -6,3 +6,4 @@ export { default as upVoteResponse } from './up-vote-response';
 export { default as cancelUpVoteResponse } from './cancel-up-vote-response';
 export { default as changeStatus } from './change-status';
 export { default as addResponseType } from './add-response-type';
+export { default as sendFeedback } from './send-feedback';

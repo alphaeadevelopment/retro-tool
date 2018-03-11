@@ -32,13 +32,16 @@ const newSession = (id, owner) => ({
       title: 'What could be improved?',
     },
   },
+  sockets: {},
 });
 
 class SessionManager {
   ownerSockets = {}
   sessions = {}
   connections = {}
+  sockets = {}
   getSessions = () => keys(this.sessions);
+  getSocket = (sessionId, name) => this.sessions[sessionId].sockets[name];
   createSession = (sessionId, socket, owner) => {
     this.connections[socket.id] = { name: owner, sessionId };
     const session = newSession(sessionId, owner);
@@ -59,18 +62,22 @@ class SessionManager {
     const updated = clone(this.sessions[sessionId]);
     return updated;
   }
-  joinSession = (socketId, name, sessionId) => {
-    if (this.userInSession(socketId)) throw new Error('already in session');
+  joinSession = (socket, name, sessionId) => {
+    console.log('adding socket %s to session', socket.id);
+    if (this.userInSession(socket.id)) throw new Error('already in session');
     if (has(this.getSession(sessionId).participants, name)) throw new Error('name in use');
-    this.connections[socketId] = { name, sessionId };
+    this.connections[socket.id] = { name, sessionId };
     const newParticipant = {
       id: name,
       name,
       votes: 0,
     };
-    const updated = this.updateSession(socketId, {
+    const updated = this.updateSession(socket.id, {
       participants: {
         $merge: { [name]: newParticipant },
+      },
+      sockets: {
+        [name]: { $set: socket },
       },
     });
     return updated;
@@ -141,6 +148,17 @@ class SessionManager {
     this.updateSession(socketId, {
       status: { $set: status },
     });
+  }
+  sendFeedback = (socketId, responseId, message) => {
+    const updated = this.updateSession(socketId, {
+      responses: {
+        [responseId]: {
+          flagged: { $set: true },
+          feedback: { $set: message },
+        },
+      },
+    });
+    return updated.responses[responseId];
   }
 }
 

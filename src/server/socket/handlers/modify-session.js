@@ -27,5 +27,6 @@ const modifyResponses = (responses, status) => {
 
 export default (session, name) => ({
   ...session,
+  sockets: undefined,
   responses: modifyResponses(filterResponses(session.responses, session.status, name), session.status, name),
 });

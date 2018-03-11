@@ -72,6 +72,7 @@ export class RawResponseTypes extends React.Component {
                 responses={filter(session.responses, r => r.responseType === rt)}
                 onAdd={onAddResponse(rt)}
                 sessionStatus={session.status}
+                isOwner={isOwner}
                 {...rest}
               />
             </Grid>

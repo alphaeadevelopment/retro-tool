@@ -10,7 +10,7 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
   render() {
     const {
       session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onAddResponseType,
-      onChangeStatus, onUpVote, onCancelUpVote, ...rest
+      onChangeStatus, onUpVote, onCancelUpVote, onSendFeedback, ...rest
     } = this.props;
     const { socket } = this.context;
     return (
@@ -27,6 +27,7 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
             onCancelUpVote={onCancelUpVote(socket)}
             onChangeStatus={onChangeStatus(socket)}
             onAddResponseType={onAddResponseType(socket)}
+            onSendFeedback={onSendFeedback(socket)}
             {...rest}
           />
         }
@@ -53,6 +54,7 @@ const dispatchToActions = dispatch => ({
   onAddResponse: socket => responseType => value => dispatch(Actions.onAddResponse(socket, responseType, value)),
   onChangeStatus: socket => status => () => dispatch(Actions.onChangeStatus(socket, status)),
   onAddResponseType: socket => (question, type) => dispatch(Actions.onAddResponseType(socket, question, type)),
+  onSendFeedback: socket => responseId => message => dispatch(Actions.onSendFeedback(socket, responseId, message)),
 });
 
 export default connect(mapStateToProps, dispatchToActions)(RawSessionLaunch);
