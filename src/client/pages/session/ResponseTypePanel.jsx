@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
@@ -16,8 +17,13 @@ import * as Selectors from '../../selectors';
 
 const sortResponses = responses => reverse(sortBy(responses, r => r.votes));
 
-const Response = ({ response, className, voted, onUpVote, onCancelUpVote, sessionStatus }) => (
-  <li className={className}>
+const Response = ({ classes, response, voted, onUpVote, onCancelUpVote, sessionStatus, topThree }) => (
+  <li
+    className={classNames(
+      classes.responseItem,
+      { [classes.outsideTopThree]: sessionStatus === 'discuss' && !topThree },
+    )}
+  >
     <Typography>
       {response.response} {sessionStatus === 'discuss' && <span>({response.votes})</span>}
     </Typography>
@@ -37,7 +43,7 @@ const styles = theme => ({
   responsesCtr: {
     padding: 0,
   },
-  itemCtr: {
+  responseItem: {
     'display': 'flex',
     'alignItems': 'center',
     'margin': `${theme.spacing.unit}px 0`,
@@ -49,7 +55,11 @@ const styles = theme => ({
       'height': 'initial',
       'margin': `0 ${theme.spacing.unit}px`,
     },
+    '&$outsideTopThree': {
+      opacity: '0.3',
+    },
   },
+  outsideTopThree: {},
 });
 export const RawResponseTypePanel = ({
   classes, responseType, responses, onAdd, onUpVote, onCancelUpVote, votes, sessionStatus, ...rest
@@ -60,12 +70,13 @@ export const RawResponseTypePanel = ({
     <Paper className={classes.root}>
       <Typography variant={'subheading'}>{responseType.title}</Typography>
       <ul className={classes.responsesCtr}>
-        {sortedResponses.map(r => (
+        {sortedResponses.map((r, idx) => (
           <Response
+            classes={classes}
+            topThree={idx <= 2}
             onUpVote={typedVotes.length < 3 ? onUpVote(r.id) : undefined}
             onCancelUpVote={onCancelUpVote(r.id)}
             key={r.id}
-            className={classes.itemCtr}
             response={r}
             voted={includes(typedVotes, r.id)}
             sessionStatus={sessionStatus}
