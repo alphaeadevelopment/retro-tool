@@ -3,11 +3,15 @@ import mapValues from 'lodash/mapValues';
 import omit from 'lodash/omit';
 
 const ownResponsesFilter = name => response => response.author === name;
+const notFlaggedFilter = response => !response.flagged;
 
 const filterResponses = (responses, status, name) => {
   switch (status) {
     case 'initial':
       return pickBy(responses, ownResponsesFilter(name));
+    case 'voting':
+    case 'discuss':
+      return pickBy(responses, notFlaggedFilter);
     default:
       return responses;
   }

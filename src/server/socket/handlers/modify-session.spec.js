@@ -71,6 +71,50 @@ describe('filterResponses', () => {
       expect(actual.responses.abc).not.to.have.property('votes');
       expect(actual.responses.def).not.to.have.property('votes');
     });
+    it('exclude flagged responses when status=voting', () => {
+      const session = {
+        status: 'voting',
+        responses: {
+          'abc': {
+            author: 'bob',
+            responseType: 'x',
+            votes: ['a', 'b', 'c'],
+            flagged: true,
+          },
+          'def': {
+            author: 'harry',
+            responseType: 'x',
+            votes: ['a', 'b', 'c'],
+          },
+        },
+      };
+
+      const actual = modifySession(session, 'bob');
+      expect(actual.responses).not.to.have.property('abc');
+      expect(actual.responses).to.have.property('def');
+    });
+    it('exclude flagged responses when status=discuss', () => {
+      const session = {
+        status: 'discuss',
+        responses: {
+          'abc': {
+            author: 'bob',
+            responseType: 'x',
+            votes: ['a', 'b', 'c'],
+            flagged: true,
+          },
+          'def': {
+            author: 'harry',
+            responseType: 'x',
+            votes: ['a', 'b', 'c'],
+          },
+        },
+      };
+
+      const actual = modifySession(session, 'bob');
+      expect(actual.responses).not.to.have.property('abc');
+      expect(actual.responses).to.have.property('def');
+    });
   });
   describe('discuss', () => {
     it('include number of votes', () => {
