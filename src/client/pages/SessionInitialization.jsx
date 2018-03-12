@@ -6,13 +6,23 @@ import CreateSession from './CreateSession';
 
 const styles = theme => ({
   'root': {
-    'position': 'absolute',
-    'left': '50%',
-    'top': '50%',
-    'transform': 'translateX(-50%) translateY(-50%)',
     'textAlign': 'center',
+    [theme.breakpoints.up('xs')]: {
+      width: '100%',
+      position: 'absolute',
+      top: '50%',
+      transform: 'translateY(-50%)',
+    },
+    [theme.breakpoints.up('md')]: {
+      width: '75%',
+      left: '50%',
+      transform: 'translateX(-50%) translateY(-50%)',
+    },
+    [theme.breakpoints.up('lg')]: {
+      width: '50%',
+    },
     '&>div': {
-      'margin': theme.spacing.unit * 4,
+      'margin': theme.spacing.unit * 5,
       '&>button': {
         'padding': `${theme.spacing.unit * 3}px ${theme.spacing.unit * 5}px`,
         'width': '100%',

@@ -21,6 +21,17 @@ const styles = theme => ({
       width: '50%',
     },
   },
+  button: {
+    [theme.breakpoints.up('xs')]: {
+      width: '100%',
+    },
+    [theme.breakpoints.up('md')]: {
+      width: '75%',
+    },
+    [theme.breakpoints.up('lg')]: {
+      width: '50%',
+    },
+  },
 });
 class RawCreateSession extends React.Component {
   state = {
@@ -70,7 +81,7 @@ class RawCreateSession extends React.Component {
             />}
           </div>
         </Modal>
-        <Button className={classes.loginButton} variant={'raised'} onClick={this.onClickCreateSession}>
+        <Button className={classes.button} variant={'raised'} onClick={this.onClickCreateSession}>
           Create Session
         </Button>
       </div>

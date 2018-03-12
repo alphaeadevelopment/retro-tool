@@ -8,7 +8,6 @@ const styles = theme => ({
   formCtr: {
     [theme.breakpoints.up('xs')]: {
       width: '100%',
-      position: 'absolute',
       top: '50%',
       transform: 'translateY(-50%)',
     },
@@ -16,6 +15,17 @@ const styles = theme => ({
       width: '75%',
       left: '50%',
       transform: 'translateX(-50%) translateY(-50%)',
+    },
+    [theme.breakpoints.up('lg')]: {
+      width: '50%',
+    },
+  },
+  button: {
+    [theme.breakpoints.up('xs')]: {
+      width: '100%',
+    },
+    [theme.breakpoints.up('md')]: {
+      width: '75%',
     },
     [theme.breakpoints.up('lg')]: {
       width: '50%',
@@ -97,7 +107,7 @@ class RawJoinSession extends React.Component {
             />}
           </div>
         </Modal>
-        <Button className={classes.loginButton} variant={'raised'} onClick={this.onClickJoinSession}>
+        <Button className={classes.button} variant={'raised'} onClick={this.onClickJoinSession}>
           Join Session
         </Button>
       </div>
