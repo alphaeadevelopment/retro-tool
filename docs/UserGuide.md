@@ -5,10 +5,12 @@ Either install the server locally (see [here](https://github.com/alphaeadevelopm
 [online demo](https://retro-tool.herokuapp.com/)
 
 ## Create a session
+Click the 'Create Session' link and enter your name.
 
-## Share the link with participants
+## Share the generated unique link with participants
+![Session Link](./static/images/SessionLink.png "Session Link")
 
-## Monitor incoming responses
+## Monitor as participants join and submit responses
 
 ## Add additional questions
 
@@ -19,5 +21,3 @@ Either install the server locally (see [here](https://github.com/alphaeadevelopm
 ## Monitor incoming votes
 
 ## Close for discussion
-
-

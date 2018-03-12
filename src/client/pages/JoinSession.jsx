@@ -4,15 +4,24 @@ import Form from 'material-ui-jsonschema-form';
 import Modal from 'material-ui/Modal';
 import Button from 'material-ui/Button';
 
-const styles = {
+const styles = theme => ({
   formCtr: {
-    width: '50%',
-    left: '50%',
-    position: 'absolute',
-    top: '50%',
-    transform: 'translateX(-50%) translateY(-50%)',
+    [theme.breakpoints.up('xs')]: {
+      width: '100%',
+      position: 'absolute',
+      top: '50%',
+      transform: 'translateY(-50%)',
+    },
+    [theme.breakpoints.up('md')]: {
+      width: '75%',
+      left: '50%',
+      transform: 'translateX(-50%) translateY(-50%)',
+    },
+    [theme.breakpoints.up('lg')]: {
+      width: '50%',
+    },
   },
-};
+});
 const emptyFormData = (withSession) => {
   const rv = {
     name: '',
