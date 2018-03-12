@@ -49,7 +49,7 @@ export default (state = initial, { type, payload }) => {
       });
     case Types.SYNC_SESSION:
       return update(state, {
-        $set: payload.session,
+        $set: merge(payload.session, { name: state.name, owner: state.owner }),
       });
     case Types.USER_VOTED:
       return update(state, {
