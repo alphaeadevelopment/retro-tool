@@ -14,14 +14,13 @@ export class RawSocketProvider extends React.Component {
     return { socket: this.state.socket };
   }
   componentWillMount() {
-    const { initSocket, dispatch } = this.props;
+    const { dispatch } = this.props;
     const socket = io.connect(process.env.SOCKET_URL || 'http://localhost:3000');
     this.setState({
       socket,
     });
-    console.dir(socket);
-    initSocket(socket);
     bindSocketListeners(Actions, socket, dispatch);
+    bindSocketListeners(Actions.Listeners, socket, dispatch);
   }
   render() {
     const { children } = this.props;
@@ -40,9 +39,4 @@ RawSocketProvider.childContextTypes = {
 const mapStateToProps = () => ({
 });
 
-const dispatchToActions = dispatch => ({
-  dispatch,
-  initSocket: socket => dispatch(Actions.doInitSocket(socket)),
-});
-
-export default connect(mapStateToProps, dispatchToActions)(RawSocketProvider);
+export default connect(mapStateToProps)(RawSocketProvider);

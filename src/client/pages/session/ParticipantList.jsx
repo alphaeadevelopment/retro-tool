@@ -36,7 +36,7 @@ export const RawParticipantList = ({ isOwner, classes, owner, participants, resp
               <tr key={p}>
                 <td>
                   <span>{participants[p].name}</span>
-                  {owner === p && <span> (*)</span>}
+                  {owner === p && <span> *</span>}
                 </td>
                 {isOwner && <td>{numResponses}</td>}
                 <td>{participants[p].votes}</td>

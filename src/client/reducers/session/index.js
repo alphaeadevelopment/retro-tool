@@ -10,7 +10,7 @@ const initial = {
 };
 export default (state = initial, { type, payload }) => {
   switch (type) {
-    case Types.CREATED_SESSION:
+    case Types.SESSION_CREATED:
       return update(state, {
         session: { $set: payload.session },
         owner: { $set: true },

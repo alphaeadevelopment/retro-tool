@@ -46,15 +46,17 @@ const mapStateToProps = state => ({
 });
 
 const dispatchToActions = dispatch => ({
-  onCreateSession: socket => name => dispatch(Actions.onCreateSession(socket, name)),
-  onUpVote: socket => responseId => () => dispatch(Actions.onUpVoteResponse(socket, responseId)),
-  onCancelUpVote: socket => responseId => () => dispatch(Actions.onCancelUpVoteResponse(socket, responseId)),
-  onJoinSession: socket => (name, session) => dispatch(Actions.onJoinSession(socket, name, session)),
-  onLeaveSession: socket => () => dispatch(Actions.onLeaveSession(socket)),
-  onAddResponse: socket => responseType => value => dispatch(Actions.onAddResponse(socket, responseType, value)),
-  onChangeStatus: socket => status => () => dispatch(Actions.onChangeStatus(socket, status)),
-  onAddResponseType: socket => (question, type) => dispatch(Actions.onAddResponseType(socket, question, type)),
-  onSendFeedback: socket => responseId => message => dispatch(Actions.onSendFeedback(socket, responseId, message)),
+  onCreateSession: socket => name => dispatch(Actions.Emit.onCreateSession(socket, { name })),
+  onUpVote: socket => responseId => () => dispatch(Actions.Emit.onUpVoteResponse(socket, { responseId })),
+  onCancelUpVote: socket => responseId => () => dispatch(Actions.Emit.onCancelUpVoteResponse(socket, { responseId })),
+  onJoinSession: socket => (name, sessionId) => dispatch(Actions.Emit.onJoinSession(socket, { name, sessionId })),
+  onLeaveSession: socket => () => dispatch(Actions.Emit.onLeaveSession(socket)),
+  onAddResponse: socket => responseType => value =>
+    dispatch(Actions.Emit.onAddResponse(socket, { responseType, value })),
+  onChangeStatus: socket => status => () => dispatch(Actions.Emit.onChangeStatus(socket, { status })),
+  onAddResponseType: socket => (question, type) => dispatch(Actions.Emit.onAddResponseType(socket, { question, type })),
+  onSendFeedback: socket => responseId => message =>
+    dispatch(Actions.Emit.onSendFeedback(socket, { responseId, message })),
 });
 
 export default connect(mapStateToProps, dispatchToActions)(RawSessionLaunch);
