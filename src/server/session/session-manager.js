@@ -63,7 +63,6 @@ class SessionManager {
     return updated;
   }
   joinSession = (socket, name, sessionId) => {
-    console.log('adding socket %s to session', socket.id);
     if (this.userInSession(socket.id)) throw new Error('already in session');
     if (has(this.getSession(sessionId).participants, name)) throw new Error('name in use');
     this.connections[socket.id] = { name, sessionId };

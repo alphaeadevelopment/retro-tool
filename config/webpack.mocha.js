@@ -12,6 +12,9 @@ const extractScss = new ExtractTextPlugin({ filename: "style.css", allChunks: tr
 const extractCss = new ExtractTextPlugin({ filename: "main.css", allChunks: true })
 
 const alias = {
+  'branding': path.join(__dirname, '../src/client/styles/branding'),
+  'styles': path.join(__dirname, '../src/client/styles'),
+  'api-stubs': path.join(__dirname, '../src/stubs/empty-stubs.js'),
 }
 if (process.env.NODE_ENV !== 'production' && process.env.NO_STUBS === undefined) {
   alias['api-stubs'] = path.join(__dirname, '../src/stubs/api-stubs.js');
@@ -24,7 +27,10 @@ const babelExclude = /node_modules/
 
 var config = {
   entry: {
-    main: [path.join(__dirname, '../src/server', 'main.js')],
+    main: [
+      path.join(__dirname, '../src/client', 'index.jsx'),
+      path.join(__dirname, '../src/server', 'main.js'),
+    ],
   },
   output: {
     path: path.join(__dirname, '../dist'),

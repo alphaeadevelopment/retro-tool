@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test:ci -- --watch",
-    "test:ci": "mocha --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit \"src/**/*.spec.js\"",
-    "test:server": "npm run test:server:ci -- --watch",
-    "test:server:ci": "mocha-webpack --webpack-config config/webpack.server.js --glob '*.spec.js' --recursive --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit src/server",
+    "test:ci": "mocha-webpack --webpack-config config/webpack.mocha.js --glob \"*.spec.js*\" --recursive --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit src",
     "postinstall": "npm run build",
     "build": "webpack --config config/webpack.client.js",
     "start": "node src/server/index.js",
