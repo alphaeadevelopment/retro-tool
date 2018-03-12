@@ -22,3 +22,7 @@ npm start
 
 ## Note about persistence
 Session data is currently only held in-memory, so any restart/crash of the server will result in lost data.
+
+## Contributions and feedback
+Please feel free to fork this repository and submit pull requests, or send feedback/suggestions
+to me directly at alphaeadevelopment@gmail.com
