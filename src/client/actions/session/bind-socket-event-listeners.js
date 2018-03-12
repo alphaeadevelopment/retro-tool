@@ -18,6 +18,7 @@ const listeners = {
   onSocketEventUserVoted: {},
   onSocketEventUserUnvoted: {},
   onSocketEventFeedbackReceived: {},
+  onSocketEventApplicationError: {},
 };
 
 const listenerFunctions = mapValues(listeners, (options, handlerName) => {
