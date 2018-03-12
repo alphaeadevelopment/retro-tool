@@ -14,3 +14,4 @@ export const USER_UNVOTED = 'USER_UNVOTED';
 export const FEEDBACK_RECEIVED = 'FEEDBACK_RECEIVED';
 export const EMITTED_EVENT = 'EMITTED_EVENT';
 export const APPLICATION_ERROR = 'APPLICATION_ERROR';
+export const INIT = 'INIT';

@@ -7,6 +7,8 @@ const initial = {};
 
 export default (state = initial, { type, payload }) => {
   switch (type) {
+    case Types.INIT:
+      return update(state, { $set: initial });
     case Types.SESSION_CREATED:
       return update(state, { $set: merge(payload.session, { name: payload.name, owner: true }) });
     case Types.JOINED_SESSION:

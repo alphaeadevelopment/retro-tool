@@ -21,16 +21,16 @@ describe('session manager', () => {
   let socketId;
   let socket;
   let owner = 'owner';
-  beforeEach(() => {
-    sessionId = 'sessionId';
-    socketId = 'socketId';
-    owner = 'owner';
-    socket = {
-      id: socketId,
-    };
-    session = sessionManager.createSession(sessionId, socket, owner);
-  });
   describe('new session', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
     it('creates a new session', () => {
       expect(session).to.not.be.null;
       expect(session).to.have.property('id', sessionId);
@@ -50,13 +50,56 @@ describe('session manager', () => {
       expect(sessionManager.getOwnerSocket(sessionId)).to.equal(socket);
     });
   });
+  describe('isOwner', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
+    it('returns true for owner socket', () => {
+      const actual = sessionManager.isOwner(socketId);
+      expect(actual).to.equal(true);
+    });
+    it('returns false for socket with no session', () => {
+      const actual = sessionManager.isOwner('other socket');
+      expect(actual).to.equal(false);
+    });
+    it('returns false for other user socket', () => {
+      const otherSocketId = 'other socket';
+      sessionManager.joinSession({ id: otherSocketId }, 'Bob', sessionId);
+      const actual = sessionManager.isOwner(otherSocketId);
+      expect(actual).to.equal(false);
+    });
+  });
   describe('get session from socket id', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
     it('returns session', () => {
       const actual = sessionManager.getSessionFromSocket(socketId);
       expect(actual).to.deep.equal(session);
     });
   });
   describe('join session', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
     it('adds participant', () => {
       const name = 'Bob';
       const bobSocket = { id: 'bobSocket' };
@@ -94,6 +137,15 @@ describe('session manager', () => {
     });
   });
   describe('addResponse', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
     it('adds response', () => {
       const type = 'start';
       const message = 'Message';
@@ -107,6 +159,15 @@ describe('session manager', () => {
     });
   });
   describe('upVoteResponse', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
     it('adds upvote to response', () => {
       const type = 'start';
       const message = 'Message';
@@ -118,6 +179,15 @@ describe('session manager', () => {
     });
   });
   describe('cancelUpVoteResponse', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
     it('removes upvote to response', () => {
       const type = 'start';
       const message = 'Message';
@@ -133,6 +203,15 @@ describe('session manager', () => {
     });
   });
   describe('setStatus', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
     it('changes status', () => {
       const status = 'voting';
       sessionManager.setStatus(socketId, status);
@@ -141,6 +220,15 @@ describe('session manager', () => {
     });
   });
   describe('addResponseType', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
     it('adds new response type', () => {
       const question = 'How well did we do?';
       const type = 'number';
@@ -156,6 +244,15 @@ describe('session manager', () => {
     });
   });
   describe('sendFeedback', () => {
+    beforeEach(() => {
+      sessionId = 'sessionId';
+      socketId = 'socketId';
+      owner = 'owner';
+      socket = {
+        id: socketId,
+      };
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
     it('marks response as flagged with message', () => {
       const response = sessionManager.addResponse(socketId, 'start', 'message');
       const updatedResponse = sessionManager.sendFeedback(socketId, response.id, 'feedback');

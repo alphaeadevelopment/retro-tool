@@ -52,7 +52,8 @@ class SessionManager {
   getOwnerSocket = sessionId => this.ownerSockets[sessionId]
   isOwner = (socketId) => {
     const sessionId = this.getSessionId(socketId);
-    return socketId === this.ownerSockets[sessionId];
+    const socket = this.ownerSockets[sessionId];
+    return (socket && socket.id === socketId) || false;
   }
   sessionExists = sessionId => includes(keys(this.sessions), sessionId)
   userInSession = socketId => this.connections[socketId] && true

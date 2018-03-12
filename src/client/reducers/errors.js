@@ -9,16 +9,22 @@ const createError = (payload) => {
     [id]: { id, message: payload.message, timestamp: new Date().getTime() },
   });
 };
-const initial = {};
+const initial = { meta: { init: false }, errors: {} };
 export default (state = initial, { type, payload }) => {
   switch (type) {
+    case Types.INIT:
+      return state.meta.init ?
+        update(state, { errors: { $set: createError({ message: 'connection reset' }) } }) :
+        update(state, { meta: { init: { $set: true } } });
     case Types.APPLICATION_ERROR:
       return update(state, {
-        $merge: createError(payload),
+        errors: {
+          $merge: createError(payload),
+        },
       });
     case Types.DISMISS_ERROR:
       return update(state, {
-        $apply: errors => omit(errors, payload.errorId),
+        errors: { $apply: errors => omit(errors, payload.errorId) },
       });
     default:
       return state;

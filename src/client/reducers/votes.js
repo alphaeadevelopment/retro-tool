@@ -6,6 +6,8 @@ const initial = [];
 
 export default (state = initial, { type, payload }) => {
   switch (type) {
+    case Types.INIT:
+      return update(state, { $set: initial });
     case Types.UP_VOTE_REGISTERED:
       return update(state, {
         $push: [payload.responseId],
