@@ -1,4 +1,3 @@
-import faker from 'faker';
-import startCase from 'lodash/startCase';
+import uuid from 'uuid/v1';
 
-export default () => startCase(`${faker.random.words()}`).replace(/ /g, '');
+export default () => uuid();

@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import { withStyles } from 'material-ui/styles';
 import JoinSession from './JoinSession';
 import CreateSession from './CreateSession';
@@ -18,10 +19,10 @@ const styles = theme => ({
     },
   },
 });
-export const RawSessionInit = ({ classes, onCreateSession, onJoinSession }) => (
+export const RawSessionInit = ({ classes, onCreateSession, onJoinSession, sessionId }) => (
   <div className={classes.root}>
-    <JoinSession onJoinSession={onJoinSession} />
+    <JoinSession onJoinSession={onJoinSession} sessionId={sessionId} />
     <CreateSession onCreateSession={onCreateSession} />
   </div>
 );
-export default withStyles(styles)(RawSessionInit);
+export default withRouter(withStyles(styles)(RawSessionInit));

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Session from './session';
 import SessionInitialization from './SessionInitialization';
@@ -7,16 +8,30 @@ import * as Selectors from '../selectors';
 import * as Actions from '../actions';
 
 export class RawSessionLaunch extends React.Component { // eslint-disable-line react/prefer-stateless-function
+  state = {
+    sessionId: null,
+  }
+  componentDidMount = () => {
+    const { match } = this.props;
+    const { params } = match;
+    const { sessionId } = params;
+    this.setState({ sessionId });
+  }
   render() {
     const {
       session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onAddResponseType,
-      onChangeStatus, onUpVote, onCancelUpVote, onSendFeedback, ...rest
+      onChangeStatus, onUpVote, onCancelUpVote, onSendFeedback, match, ...rest
     } = this.props;
+    const { sessionId } = this.state;
     const { socket } = this.context;
     return (
       <div>
         {!session.id &&
-          <SessionInitialization onJoinSession={onJoinSession(socket)} onCreateSession={onCreateSession(socket)} />
+          <SessionInitialization
+            sessionId={sessionId}
+            onJoinSession={onJoinSession(socket)}
+            onCreateSession={onCreateSession(socket)}
+          />
         }
         {session.id &&
           <Session
@@ -59,4 +74,4 @@ const dispatchToActions = dispatch => ({
     dispatch(Actions.Emit.onSendFeedback(socket, { responseId, message })),
 });
 
-export default connect(mapStateToProps, dispatchToActions)(RawSessionLaunch);
+export default withRouter(connect(mapStateToProps, dispatchToActions)(RawSessionLaunch));

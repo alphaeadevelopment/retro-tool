@@ -13,22 +13,32 @@ const styles = {
     transform: 'translateX(-50%) translateY(-50%)',
   },
 };
-const emptyFormData = {
-  name: '',
-  session: '',
+const emptyFormData = (withSession) => {
+  const rv = {
+    name: '',
+  };
+  if (withSession) {
+    rv.session = '';
+  }
+  return rv;
 };
 class RawJoinSession extends React.Component {
   state = {
-    formData: emptyFormData,
+    formData: emptyFormData(!this.props.sessionId),
     displayForm: false,
+  }
+  componentWillReceiveProps = (nextProps) => {
+    if (nextProps.sessionId && !this.props.sessionId) {
+      this.setState({ displayForm: true, formData: emptyFormData(false) });
+    }
   }
   onChange = ({ formData }) => {
     this.setState({ formData });
   }
   onSubmit = ({ formData }) => {
-    const { onJoinSession } = this.props;
+    const { onJoinSession, sessionId } = this.props;
     const { name, session } = formData;
-    onJoinSession(name, session);
+    onJoinSession(name, session || sessionId);
     this.setState({ displayForm: false });
     this.clearForm();
   }
@@ -40,32 +50,37 @@ class RawJoinSession extends React.Component {
     this.clearForm();
   }
   clearForm = () => {
-    this.setState({ formData: emptyFormData });
+    this.setState({ formData: emptyFormData(!this.props.sessionId) });
   }
-  formSchema = {
-    type: 'object',
-    properties: {
-      name: {
-        title: 'Your Name',
-        type: 'string',
+  formSchema = (withSession) => {
+    const rv = {
+      type: 'object',
+      title: 'Join Session',
+      properties: {
+        name: {
+          title: 'Your Name',
+          type: 'string',
+        },
       },
-      session: {
-        title: 'Session Id',
+    };
+    if (withSession) {
+      rv.properties.session = {
+        title: 'Session',
         type: 'string',
-      },
-    },
+      };
+    }
+    return rv;
   }
   render() {
     const { formData, displayForm } = this.state;
     const { authErrorMessage, classes } = this.props;
-
     return (
       <div className={classes.login}>
         {authErrorMessage && <p className={classes.errorMessage}>{authErrorMessage}</p>}
         <Modal open={displayForm} onClose={this.onCancel} disableEnforceFocus>
           <div className={classes.formCtr}>
             {displayForm && <Form
-              schema={this.formSchema}
+              schema={this.formSchema(!this.props.sessionId)}
               onCancel={this.onCancel}
               onSubmit={this.onSubmit}
               formData={formData}

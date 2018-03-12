@@ -1,3 +1,4 @@
+/* globals window */
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
@@ -56,7 +57,7 @@ export const RawSession = ({
         </div>
         <div>
           <IconButton onClick={onLeaveSession}><Left /></IconButton>
-          <Typography variant={'display1'}>Session: {session.id}</Typography>
+          {isOwner && <Typography variant={'display1'}>{window.location.href}{session.id}</Typography>}
         </div>
       </div>
       <Grid container spacing={0} className={classes.sessionBody} >

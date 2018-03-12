@@ -12,26 +12,27 @@ const extractScss = new ExtractTextPlugin({ filename: 'style.css', allChunks: tr
 const extractCss = new ExtractTextPlugin({ filename: 'main.css', allChunks: true })
 
 const VENDOR_LIBS = [
-  'babel-register',
   'babel-polyfill',
+  'babel-register',
   'body-parser',
   'classnames',
   'immutability-helper',
-  'material-ui',
-  'material-ui-icons',
   'lodash',
+  'material-ui-icons',
+  'material-ui',
   'moment',
-  'react',
   'react-dom',
   'react-hot-loader',
   'react-redux',
   'react-router-dom',
-  'redux',
+  'react',
   'redux-logger',
   'redux-thunk',
+  'redux',
   'reselect',
   'rx',
   'typeface-roboto',
+  'uuid',
 ];
 
 const alias = {

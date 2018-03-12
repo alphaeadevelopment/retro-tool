@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import 'styles/main.scss'; // eslint-disable-line import/no-unresolved,import/no-extraneous-dependencies
 import { MuiThemeProvider } from 'material-ui/styles';
@@ -8,7 +9,8 @@ import Errors from './Errors';
 
 export const RawApp = () => (
   <MuiThemeProvider theme={theme}>
-    <SessionLaunch />
+
+    <Route path={'/:sessionId?'} component={SessionLaunch} />
     <Errors />
   </MuiThemeProvider>
 );
