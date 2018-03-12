@@ -1,7 +1,7 @@
 # Retrospective Tool
 
 ## Install
-Either install the server locally (see [here](../blob/master/README.md)) for instructions or use the
+Either install the server locally (see [here](https://github.com/alphaeadevelopment/retro-tool/blob/master/docs/README.md)) for instructions or use the
 [online demo](https://retro-tool.herokuapp.com/)
 
 ## Create a session
