@@ -1,5 +1,6 @@
 /* globals window */
 import React from 'react';
+import parseuri from 'parseuri';
 import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Left from 'material-ui-icons/KeyboardArrowLeft';
@@ -47,17 +48,19 @@ const styles = theme => ({
 });
 export const RawSession = ({
   classes, name, isOwner, session, onLeaveSession, onAddResponse, onChangeStatus, ...rest
-}) =>
-  (
+}) => {
+  const { protocol, authority } = parseuri(window.location.href);
+  const homeUrl = `${protocol}://${authority}`;
+  return (
     <div className={classes.root}>
       <div className={classes.header}>
         <div>
-          <Typography variant={'display3'}>Retrospective Tool</Typography>
+          <Typography variant={'display3'}><a href={homeUrl}>Retrospective Tool</a></Typography>
           <Typography variant={'display1'}>{name}</Typography>
         </div>
         <div>
           <IconButton onClick={onLeaveSession}><Left /></IconButton>
-          {isOwner && <Typography variant={'display1'}>{window.location.href}{session.id}</Typography>}
+          {isOwner && <Typography variant={'display1'}>{homeUrl}/#/{session.id}</Typography>}
         </div>
       </div>
       <Grid container spacing={0} className={classes.sessionBody} >
@@ -76,4 +79,5 @@ export const RawSession = ({
       {isOwner && <SessionButtons onChangeStatus={onChangeStatus} sessionStatus={session.status} />}
     </div>
   );
+};
 export default withStyles(styles)(RawSession);
