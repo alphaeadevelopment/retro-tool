@@ -15,10 +15,10 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
     const { socket } = this.context;
     return (
       <div>
-        {!session &&
+        {!session.id &&
           <SessionInitialization onJoinSession={onJoinSession(socket)} onCreateSession={onCreateSession(socket)} />
         }
-        {session &&
+        {session.id &&
           <Session
             onLeaveSession={onLeaveSession(socket, session.id)}
             session={session}

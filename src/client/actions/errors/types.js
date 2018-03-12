@@ -1,0 +1,1 @@
+export const DISMISS_ERROR = 'DISMISS_ERROR';

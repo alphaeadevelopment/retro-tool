@@ -13,12 +13,13 @@ const styles = {
     transform: 'translateX(-50%) translateY(-50%)',
   },
 };
+const emptyFormData = {
+  name: '',
+  session: '',
+};
 class RawJoinSession extends React.Component {
   state = {
-    formData: {
-      name: '',
-      session: '',
-    },
+    formData: emptyFormData,
     displayForm: false,
   }
   onChange = ({ formData }) => {
@@ -29,12 +30,17 @@ class RawJoinSession extends React.Component {
     const { name, session } = formData;
     onJoinSession(name, session);
     this.setState({ displayForm: false });
+    this.clearForm();
   }
   onClickJoinSession = () => {
     this.setState({ displayForm: true });
   }
   onCancel = () => {
     this.setState({ displayForm: false });
+    this.clearForm();
+  }
+  clearForm = () => {
+    this.setState({ formData: emptyFormData });
   }
   formSchema = {
     type: 'object',

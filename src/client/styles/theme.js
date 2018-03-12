@@ -17,6 +17,20 @@ const theme = {
         fontSize: 'inherit',
       },
     },
+    MuiTypography: {
+      subheading: {
+        fontWeight: '500',
+      },
+      display1: {
+        fontSize: '1.2rem',
+      },
+      display2: {
+        fontSize: '1.5rem',
+      },
+      display3: {
+        fontSize: '2rem',
+      },
+    },
   },
 };
 

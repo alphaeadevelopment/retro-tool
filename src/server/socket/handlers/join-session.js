@@ -10,10 +10,10 @@ export default (io, socket) => ({ name, sessionId }) => { // eslint-disable-line
       socket.emit('joinedSession', { session: modifySession(session, name), name });
     }
     catch (e) {
-      socket.emit('applicationError', { message: e.message });
+      socket.emit('applicationError', { message: e.message, parameters: { name, sessionId } });
     }
   }
   else {
-    socket.emit('applicationError', { message: 'no such session' });
+    socket.emit('applicationError', { message: 'no such session', parameters: { sessionId } });
   }
 };
