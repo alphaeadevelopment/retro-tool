@@ -8,8 +8,11 @@ import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import ResponseTypePanel from './ResponseTypePanel';
 
-const styles = () => ({
+const styles = theme => ({
   root: {
+    '&>div:first-child': {
+      marginBottom: theme.spacing.unit * 2,
+    },
   },
   formCtr: {
     width: '50%',

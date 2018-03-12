@@ -12,17 +12,19 @@ const styles = theme => ({
     'transform': 'translateX(-50%) translateY(-50%)',
     'textAlign': 'center',
     '&>div': {
-      'margin': theme.spacing.unit * 2,
+      'margin': theme.spacing.unit * 4,
       '&>button': {
-        width: '100%',
+        'padding': `${theme.spacing.unit * 3}px ${theme.spacing.unit * 5}px`,
+        'width': '100%',
+        'fontSize': '1.5rem',
       },
     },
   },
 });
 export const RawSessionInit = ({ classes, onCreateSession, onJoinSession, sessionId }) => (
   <div className={classes.root}>
-    <JoinSession onJoinSession={onJoinSession} sessionId={sessionId} />
     <CreateSession onCreateSession={onCreateSession} />
+    <JoinSession onJoinSession={onJoinSession} sessionId={sessionId} />
   </div>
 );
 export default withRouter(withStyles(styles)(RawSessionInit));

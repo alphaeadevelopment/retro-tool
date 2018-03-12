@@ -2,6 +2,7 @@
 import React from 'react';
 import parseuri from 'parseuri';
 import { withStyles } from 'material-ui/styles';
+import Divider from 'material-ui/Divider';
 import Grid from 'material-ui/Grid';
 import Left from 'material-ui-icons/KeyboardArrowLeft';
 import IconButton from 'material-ui/IconButton';
@@ -10,8 +11,8 @@ import Typography from 'material-ui/Typography';
 import ParticipantList from './ParticipantList';
 import ResponseTypes from './ResponseTypes';
 
-const SessionButtons = ({ sessionStatus, onChangeStatus }) => (
-  <div>
+const SessionButtons = ({ className, sessionStatus, onChangeStatus }) => (
+  <div className={className}>
     {sessionStatus === 'initial' && <Button onClick={onChangeStatus('voting')}>Open for Voting</Button>}
     {sessionStatus === 'voting' && <Button onClick={onChangeStatus('initial')}>Re-open for comments</Button>}
     {sessionStatus === 'voting' && <Button onClick={onChangeStatus('discuss')}>Close Voting</Button>}
@@ -20,14 +21,14 @@ const SessionButtons = ({ sessionStatus, onChangeStatus }) => (
 );
 
 const styles = theme => ({
-  root: {
+  'root': {
   },
-  sessionBody: {
+  'sessionBody': {
     display: 'flex',
     flexDirection: 'row-reverse',
     padding: theme.spacing.unit * 2,
   },
-  header: {
+  'header': {
     'alignItems': 'center',
     '&>div': {
       'display': 'flex',
@@ -44,6 +45,9 @@ const styles = theme => ({
         justifyContent: 'flex-start',
       },
     },
+  },
+  'sessionButtons': {
+    marginTop: theme.spacing.unit * 2,
   },
 });
 export const RawSession = ({
@@ -76,7 +80,14 @@ export const RawSession = ({
           <ResponseTypes isOwner={isOwner} session={session} onAddResponse={onAddResponse} name={name} {...rest} />
         </Grid>
       </Grid>
-      {isOwner && <SessionButtons onChangeStatus={onChangeStatus} sessionStatus={session.status} />}
+      {isOwner && <Divider />}
+      {isOwner &&
+        <SessionButtons
+          className={classes.sessionButtons}
+          onChangeStatus={onChangeStatus}
+          sessionStatus={session.status}
+        />
+      }
     </div>
   );
 };
