@@ -47,7 +47,7 @@ export const RawResponseTypePanel = ({
           />
         ))}
       </ul>
-      {sessionStatus === 'initial' && allowMore && <NewResponseForm onAdd={onAdd} type={responseType.type} />}
+      {sessionStatus === 'initial' && allowMore && <NewResponseForm onAdd={onAdd} responseType={responseType} />}
     </Paper>
   );
 };

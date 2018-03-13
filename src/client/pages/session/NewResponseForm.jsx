@@ -1,8 +1,8 @@
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
-import TextField from 'material-ui/TextField';
-import IconButton from 'material-ui/IconButton';
-import Done from 'material-ui-icons/Done';
+import Form from 'material-ui-jsonschema-form';
+import getValueSchema from './get-value-schema';
+import getDefaultValue from './get-default-value';
 
 const styles = {
   root: {
@@ -18,24 +18,33 @@ const styles = {
 };
 export class RawNewResponseForm extends React.Component {
   state = {
-    value: '',
+    formSchema: {
+      type: 'object',
+      properties: {
+        value: getValueSchema(this.props.responseType),
+      },
+    },
+    formData: {
+      value: getDefaultValue(this.props.repsonseType),
+    },
   }
-  onChange = (e) => {
-    this.setState({ value: e.target.value });
+  onChange = ({ formData }) => {
+    this.setState({ formData });
   }
-  onSubmit = () => {
-    if (this.props.onAdd) this.props.onAdd(this.state.value);
-    this.setState({ value: '' });
+  onSubmit = ({ formData }) => {
+    if (this.props.onAdd) this.props.onAdd(formData.value);
+    this.setState({ formData: { value: getDefaultValue(this.props.repsonseType) } });
   }
   render() {
-    const { value } = this.state;
+    const { formSchema, formData } = this.state;
     const { classes } = this.props;
     return (
       <div className={classes.root}>
-        <TextField value={value} onChange={this.onChange} />
-        <IconButton onClick={this.onSubmit}><Done className={classes.doneIcon} /></IconButton>
+        <Form schema={formSchema} formData={formData} onChange={this.onChange} onSubmit={this.onSubmit} />
       </div>
     );
   }
 }
+// <TextField value={value} onChange={this.onChange} />
+// <IconButton onClick={this.onSubmit}><Done className={classes.doneIcon} /></IconButton>
 export default withStyles(styles)(RawNewResponseForm);
