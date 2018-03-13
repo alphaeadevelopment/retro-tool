@@ -57,6 +57,7 @@ class RawCreateSession extends React.Component {
   }
   formSchema = {
     type: 'object',
+    title: 'Host new session',
     properties: {
       name: {
         title: 'Your Name',
@@ -82,7 +83,7 @@ class RawCreateSession extends React.Component {
           </div>
         </Modal>
         <Button className={classes.button} variant={'raised'} onClick={this.onClickCreateSession}>
-          Create Session
+          Host New Session
         </Button>
       </div>
     );
