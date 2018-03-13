@@ -69,7 +69,7 @@ const dispatchToActions = dispatch => ({
   onAddResponse: socket => responseType => value =>
     dispatch(Actions.Emit.onAddResponse(socket, { responseType, value })),
   onChangeStatus: socket => status => () => dispatch(Actions.Emit.onChangeStatus(socket, { status })),
-  onAddResponseType: socket => (question, type) => dispatch(Actions.Emit.onAddResponseType(socket, { question, type })),
+  onAddResponseType: socket => data => dispatch(Actions.Emit.onAddResponseType(socket, data)),
   onSendFeedback: socket => responseId => message =>
     dispatch(Actions.Emit.onSendFeedback(socket, { responseId, message })),
 });

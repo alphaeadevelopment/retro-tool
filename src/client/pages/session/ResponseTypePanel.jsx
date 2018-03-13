@@ -28,6 +28,7 @@ export const RawResponseTypePanel = ({
 }) => {
   const typedVotes = filter(votes, v => find(responses, r => r.id === v));
   const sortedResponses = (sessionStatus === 'discuss') ? sortResponses(responses) : responses;
+  const allowMore = Boolean(responseType.allowMultiple) || responses.length === 0;
   return (
     <Paper className={classes.root}>
       <Typography variant={'subheading'}>{responseType.title}</Typography>
@@ -46,7 +47,7 @@ export const RawResponseTypePanel = ({
           />
         ))}
       </ul>
-      {sessionStatus === 'initial' && <NewResponseForm onAdd={onAdd} />}
+      {sessionStatus === 'initial' && allowMore && <NewResponseForm onAdd={onAdd} type={responseType.type} />}
     </Paper>
   );
 };

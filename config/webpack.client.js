@@ -178,7 +178,6 @@ else {
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'server',
-      analyzerPort: process.env.ANALYZER_PORT || 3001,
       openAnalyzer: false,
     }),
   );

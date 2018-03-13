@@ -27,14 +27,14 @@ export class RawResponseTypes extends React.Component {
     displayForm: false,
     formData: {
       question: '',
+      allowMultiple: true,
       type: '',
     },
   }
   onSubmit = ({ formData }) => {
-    const { question, type } = formData;
     this.setState({ displayForm: false });
     this.clearForm();
-    if (this.props.onAddResponseType) this.props.onAddResponseType(question, type);
+    if (this.props.onAddResponseType) this.props.onAddResponseType(formData);
   }
   onCancel = () => {
     this.setState({ displayForm: false });
@@ -47,7 +47,7 @@ export class RawResponseTypes extends React.Component {
     this.setState({ displayForm: true });
   }
   clearForm = () => {
-    this.setState({ formData: { question: '', type: '' } });
+    this.setState({ formData: { question: '', type: '', allowMultiple: false } });
   }
   formSchema = {
     type: 'object',
@@ -59,6 +59,10 @@ export class RawResponseTypes extends React.Component {
       type: {
         title: 'Type',
         type: 'string',
+      },
+      allowMultiple: {
+        title: 'Allow Multiple',
+        type: 'boolean',
       },
     },
   }

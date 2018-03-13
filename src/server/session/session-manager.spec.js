@@ -237,7 +237,24 @@ describe('session manager', () => {
         title: question,
         type,
       };
-      const newResponseType = sessionManager.addResponseType(socketId, question, type);
+      const newResponseType = sessionManager.addResponseType(socketId, { question, type });
+      updatedSession = sessionManager.getSessionFromSocket(socketId);
+      expect(updatedSession.responseTypes).to.have.property('newid').deep.equal(expected);
+      expect(newResponseType).to.deep.equal(expected);
+    });
+    it('adds new response type with arbritary fields', () => {
+      const question = 'How well did we do?';
+      const type = 'number';
+      const boolValue = true;
+      const numValue = 7;
+      const expected = {
+        id: 'newid',
+        title: question,
+        type,
+        boolValue,
+        numValue,
+      };
+      const newResponseType = sessionManager.addResponseType(socketId, { question, type, boolValue, numValue });
       updatedSession = sessionManager.getSessionFromSocket(socketId);
       expect(updatedSession.responseTypes).to.have.property('newid').deep.equal(expected);
       expect(newResponseType).to.deep.equal(expected);

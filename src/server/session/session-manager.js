@@ -22,14 +22,20 @@ const newSession = (id, owner) => ({
     continue: {
       id: 'continue',
       title: 'What went well?',
+      allowMultiple: true,
+      type: 'text',
     },
     stop: {
       id: 'stop',
       title: 'What did not work well?',
+      allowMultiple: true,
+      type: 'text',
     },
     start: {
       id: 'start',
       title: 'What could be improved?',
+      allowMultiple: true,
+      type: 'text',
     },
   },
   sockets: {},
@@ -92,9 +98,10 @@ class SessionManager {
     const updated = this.updateSession(socketId, { participants: { $apply: p => without(p, name) } });
     return updated.id;
   }
-  addResponseType = (socketId, question, type) => {
+  addResponseType = (socketId, data) => {
     const id = generate();
-    const newResponseType = { id, title: question, type };
+    const { question, ...rest } = data;
+    const newResponseType = { id, title: question, ...rest };
     this.updateSession(socketId, { responseTypes: { $merge: { [id]: newResponseType } } });
     return newResponseType;
   }
