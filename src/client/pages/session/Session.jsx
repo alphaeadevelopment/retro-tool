@@ -68,7 +68,7 @@ export const RawSession = ({
         </div>
       </div>
       <Grid container spacing={0} className={classes.sessionBody} >
-        <Grid item xs={12} sm={5} lg={3}>
+        <Grid item sm={12} md={5} lg={3}>
           <ParticipantList
             responses={session.responses}
             owner={session.owner}
@@ -76,7 +76,7 @@ export const RawSession = ({
             participants={session.participants}
           />
         </Grid>
-        <Grid item xs={12} sm={7} lg={9}>
+        <Grid item sm={12} md={7} lg={9}>
           <ResponseTypes isOwner={isOwner} session={session} onAddResponse={onAddResponse} name={name} {...rest} />
         </Grid>
       </Grid>

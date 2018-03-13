@@ -28,7 +28,7 @@ export class RawResponseTypes extends React.Component {
     formData: {
       question: '',
       allowMultiple: true,
-      type: '',
+      type: 'Text',
     },
   }
   onSubmit = ({ formData }) => {
@@ -47,7 +47,7 @@ export class RawResponseTypes extends React.Component {
     this.setState({ displayForm: true });
   }
   clearForm = () => {
-    this.setState({ formData: { question: '', type: '', allowMultiple: false } });
+    this.setState({ formData: { question: '', type: 'Text', allowMultiple: true } });
   }
   formSchema = {
     type: 'object',
@@ -59,6 +59,7 @@ export class RawResponseTypes extends React.Component {
       type: {
         title: 'Type',
         type: 'string',
+        enum: ['Text', 'Number', 'Yes/No'],
       },
       allowMultiple: {
         title: 'Allow Multiple',
