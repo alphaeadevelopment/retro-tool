@@ -28,7 +28,6 @@ export class RawErrors extends React.Component {
     open: {},
   }
   componentWillReceiveProps = (nextProps) => {
-    console.log(nextProps);
     const openChanges = {};
     forEach(keys(nextProps.errors), (e) => {
       if (this.state.open[e] === undefined) openChanges[e] = true;
