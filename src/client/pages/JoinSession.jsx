@@ -8,6 +8,7 @@ const styles = theme => ({
   formCtr: {
     [theme.breakpoints.up('xs')]: {
       width: '100%',
+      position: 'absolute',
       top: '50%',
       transform: 'translateY(-50%)',
     },
