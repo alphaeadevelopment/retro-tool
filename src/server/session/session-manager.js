@@ -6,6 +6,8 @@ import without from 'lodash/without';
 import clone from 'lodash/clone';
 import generate from 'shortid';
 
+import socketManager from './socket-manager';
+
 const newSession = (id, owner) => ({
   id,
   status: 'initial',
@@ -42,24 +44,9 @@ const newSession = (id, owner) => ({
 });
 
 class SessionManager {
-  sockets = {}
   sessions = {}
   connections = {}
-  sockets = {}
   tokens = {}
-  saveSocket = (sessionId, name, socket) => {
-    this.sockets = update(this.sockets, { [sessionId]: { [name]: { $set: socket } } });
-  }
-  removeSocket = (socketId) => {
-    const { name, sessionId } = this.getSessionIdAndName(socketId);
-    if (sessionId && name) {
-      this.sockets = update(this.sockets, { [sessionId]: { $unset: [name] } });
-    }
-  }
-  getSocket = (sessionId, name) => {
-    const sessionSockets = this.sockets[sessionId] || {};
-    return sessionSockets[name];
-  }
   getSessions = () => keys(this.sessions);
   getOwner = (sessionId) => {
     const session = this.sessions[sessionId] || {};
@@ -69,14 +56,13 @@ class SessionManager {
     this.connections[socket.id] = { name: owner, sessionId };
     const session = newSession(sessionId, owner);
     this.sessions[sessionId] = session;
-    this.sockets[sessionId] = {};
-    this.saveSocket(sessionId, owner, socket);
+    socketManager.saveSocket(owner, socket);
     this.tokens = update(this.tokens, { $merge: { [token]: { name: owner, sessionId } } });
     return clone(session);
   }
   getOwnerSocket = (sessionId) => {
     const owner = this.getOwner(sessionId);
-    return this.getSocket(sessionId, owner);
+    return socketManager.getSocket(owner);
   }
   isOwner = (socketId) => {
     const { name, sessionId } = this.getSessionIdAndName(socketId);
@@ -109,7 +95,7 @@ class SessionManager {
         $merge: { [name]: newParticipant },
       },
     });
-    this.saveSocket(sessionId, name, socket);
+    socketManager.saveSocket(name, socket);
     return updated;
   }
   getName = socketId => this.connections[socketId] && this.connections[socketId].name
@@ -120,13 +106,13 @@ class SessionManager {
   leaveSession = (socketId) => {
     const name = this.getName(socketId);
     const updated = this.updateSessionBySocketId(socketId, { participants: { $unset: [name] } });
-    this.removeSocket(socketId);
+    socketManager.removeSocket(name);
     this.connections = update(this.connections, { $unset: [socketId] });
     return updated.id;
   }
   disconnect = (socketId) => {
     const name = this.getName(socketId);
-    this.removeSocket(socketId);
+    socketManager.removeSocket(name);
     if (name) {
       this.updateSessionBySocketId(socketId, {
         participants: { [name]: { connected: { $set: false } } },
@@ -141,8 +127,7 @@ class SessionManager {
     const updatedSession = this.updateSession(sessionId, {
       participants: { [name]: { connected: { $set: true } } },
     });
-    this.saveSocket(sessionId, name, socket);
-    this.sockets[socket.id] = socket;
+    socketManager.saveSocket(name, socket);
     return { session: updatedSession, name };
   }
   addResponseType = (socketId, data) => {

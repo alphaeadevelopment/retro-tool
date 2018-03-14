@@ -9,10 +9,19 @@ chai.use(sinonChai);
 
 const inject = require('inject-loader!./session-manager'); // eslint-disable-line import/no-unresolved
 
+const saveSocketStub = sinon.stub();
+const getSocketStub = sinon.stub();
+const removeSocketStub = sinon.stub();
+const socketManager = {
+  saveSocket: saveSocketStub,
+  getSocket: getSocketStub,
+  removeSocket: removeSocketStub,
+};
 const shortidStub = sinon.stub();
 shortidStub.returns('newid');
 const sessionManager = inject({
   'shortid': shortidStub,
+  './socket-manager': socketManager,
 }).default;
 
 describe('session manager', () => {
@@ -20,7 +29,7 @@ describe('session manager', () => {
   let sessionId;
   let updatedSession;
   const socketId = 'socketId';
-  let socket = {
+  const socket = {
     id: socketId,
   };
   const owner = 'owner';
@@ -28,9 +37,12 @@ describe('session manager', () => {
   describe('new session', () => {
     beforeEach(() => {
       sessionId = generate();
-      session = sessionManager.createSession(sessionId, socket, owner, token);
+      saveSocketStub.resetHistory();
+      getSocketStub.withArgs(owner).returns(socket);
     });
     it('creates a new session', () => {
+      session = sessionManager.createSession(sessionId, socket, owner, token);
+      expect(saveSocketStub).calledWith(owner, socket);
       expect(session).to.not.be.null;
       expect(session).to.have.property('id', sessionId);
       expect(session).to.have.property('owner', owner);
@@ -46,7 +58,6 @@ describe('session manager', () => {
       expect(session).to.have.property('status', 'initial');
       expect(sessionManager.getSession(sessionId)).deep.equal(session);
       expect(sessionManager.getOwnerSocket(sessionId)).to.deep.equal(socket);
-      expect(sessionManager.getSocket(sessionId, owner)).to.deep.equal(socket);
     });
   });
   describe('isOwner', () => {
@@ -88,13 +99,12 @@ describe('session manager', () => {
       const name = 'Bob';
       const bobSocket = { id: 'bobSocket' };
       updatedSession = sessionManager.joinSession(bobSocket, name, sessionId);
-      const theSocket = sessionManager.getSocket(sessionId, name);
       expect(updatedSession).to.have.property('participants');
       expect(updatedSession.participants).to.have.property(name);
       expect(updatedSession.participants[name]).to.have.property('votes');
       expect(updatedSession.participants[name]).to.have.property('connected', true);
       expect(updatedSession.participants[name]).to.have.property('name', name);
-      expect(theSocket).to.deep.equal(bobSocket);
+      expect(saveSocketStub).calledWith(name, bobSocket);
     });
     it('prevents socket id joining two sessions', () => {
       const name = 'Harry';
@@ -234,6 +244,7 @@ describe('session manager', () => {
   describe('disconnect', () => {
     beforeEach(() => {
       sessionId = generate();
+      removeSocketStub.resetHistory();
       session = sessionManager.createSession(sessionId, socket, owner, token);
     });
     it('disconnects the socket', () => {
@@ -241,10 +252,9 @@ describe('session manager', () => {
 
       const disconnectedSession = sessionManager.getSessionId(socketId);
       updatedSession = sessionManager.getSession(sessionId);
-      const updatedSocket = sessionManager.getSocket(sessionId, owner);
       expect(disconnectedSession).to.be.undefined;
-      expect(updatedSocket).to.be.undefined;
       expect(updatedSession.participants[owner]).to.have.property('connected', false);
+      expect(removeSocketStub).calledWith(owner);
     });
     it('disconnects an unknown socket without error', () => {
       try {
@@ -259,6 +269,7 @@ describe('session manager', () => {
     beforeEach(() => {
       sessionId = generate();
       token = generate();
+      saveSocketStub.resetHistory();
       session = sessionManager.createSession(sessionId, socket, owner, token);
     });
     it('reconnects the socket', () => {
@@ -271,10 +282,9 @@ describe('session manager', () => {
       const reconnectedSession = reconnection.session;
       const reconnectedName = reconnection.name;
 
-      socket = sessionManager.getSocket(sessionId, owner);
       expect(reconnectedSession).to.deep.equal(session);
       expect(reconnectedName).to.equal(owner);
-      expect(socket).not.to.be.undefined;
+      expect(saveSocketStub).calledWith(owner, newSocket);
     });
     it('reconnecting unknown socket fails gracefully', () => {
       try {
