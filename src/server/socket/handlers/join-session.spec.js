@@ -75,7 +75,7 @@ describe('joinSession', () => {
     joinSession(io, socket)({ name, sessionId });
 
     // assert
-    expect(socketEmitSpy).calledWith('applicationError', { message: 'no such session' });
+    expect(socketEmitSpy).calledWith('applicationError', { message: 'no such session', parameters: { sessionId } });
   });
   it('error on joining session', () => {
     // arrange
@@ -88,6 +88,9 @@ describe('joinSession', () => {
     joinSession(io, socket)({ name, sessionId });
 
     // assert
-    expect(socketEmitSpy).calledWith('applicationError', { message: 'already in session' });
+    expect(socketEmitSpy).calledWith(
+      'applicationError',
+      { message: 'already in session', parameters: { name, sessionId } },
+    );
   });
 });

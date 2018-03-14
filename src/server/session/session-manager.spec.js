@@ -3,42 +3,40 @@
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import generate from 'shortid';
 
 chai.use(sinonChai);
 
 const inject = require('inject-loader!./session-manager'); // eslint-disable-line import/no-unresolved
 
-const shortid = sinon.stub();
-shortid.returns('newid');
+const shortidStub = sinon.stub();
+shortidStub.returns('newid');
 const sessionManager = inject({
-  shortid,
+  'shortid': shortidStub,
 }).default;
 
 describe('session manager', () => {
   let session;
-  let updatedSession;
   let sessionId;
-  let socketId;
-  let socket;
-  let owner = 'owner';
+  let updatedSession;
+  const socketId = 'socketId';
+  let socket = {
+    id: socketId,
+  };
+  const owner = 'owner';
+  let token = 'token';
   describe('new session', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
-      session = sessionManager.createSession(sessionId, socket, owner);
+      sessionId = generate();
+      session = sessionManager.createSession(sessionId, socket, owner, token);
     });
     it('creates a new session', () => {
       expect(session).to.not.be.null;
       expect(session).to.have.property('id', sessionId);
       expect(session).to.have.property('owner', owner);
-      expect(session).to.have.property('participants').deep.equal({ [owner]: { name: owner, votes: 0 } });
+      expect(session).to.have.property('participants').deep.equal({ [owner]: { name: owner, votes: 0, connected: true } });
       expect(session).to.have.property('responses');
       expect(session).to.have.property('responseTypes');
-      expect(session).to.have.property('sockets');
       expect(session.responseTypes).to.have.property('stop');
       expect(session.responseTypes.stop).to.have.property('title');
       expect(session.responseTypes).to.have.property('start');
@@ -47,18 +45,14 @@ describe('session manager', () => {
       expect(session.responseTypes.continue).to.have.property('title');
       expect(session).to.have.property('status', 'initial');
       expect(sessionManager.getSession(sessionId)).deep.equal(session);
-      expect(sessionManager.getOwnerSocket(sessionId)).to.equal(socket);
+      expect(sessionManager.getOwnerSocket(sessionId)).to.deep.equal(socket);
+      expect(sessionManager.getSocket(sessionId, owner)).to.deep.equal(socket);
     });
   });
   describe('isOwner', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
-      session = sessionManager.createSession(sessionId, socket, owner);
+      sessionId = generate();
+      session = sessionManager.createSession(sessionId, socket, owner, token);
     });
     it('returns true for owner socket', () => {
       const actual = sessionManager.isOwner(socketId);
@@ -77,13 +71,8 @@ describe('session manager', () => {
   });
   describe('get session from socket id', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
-      session = sessionManager.createSession(sessionId, socket, owner);
+      sessionId = generate();
+      session = sessionManager.createSession(sessionId, socket, owner, token);
     });
     it('returns session', () => {
       const actual = sessionManager.getSessionFromSocket(socketId);
@@ -92,13 +81,8 @@ describe('session manager', () => {
   });
   describe('join session', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
-      session = sessionManager.createSession(sessionId, socket, owner);
+      sessionId = generate();
+      session = sessionManager.createSession(sessionId, socket, owner, token);
     });
     it('adds participant', () => {
       const name = 'Bob';
@@ -108,6 +92,7 @@ describe('session manager', () => {
       expect(updatedSession).to.have.property('participants');
       expect(updatedSession.participants).to.have.property(name);
       expect(updatedSession.participants[name]).to.have.property('votes');
+      expect(updatedSession.participants[name]).to.have.property('connected', true);
       expect(updatedSession.participants[name]).to.have.property('name', name);
       expect(theSocket).to.deep.equal(bobSocket);
     });
@@ -138,12 +123,7 @@ describe('session manager', () => {
   });
   describe('addResponse', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
+      sessionId = generate();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('adds response', () => {
@@ -160,12 +140,7 @@ describe('session manager', () => {
   });
   describe('upVoteResponse', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
+      sessionId = generate();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('adds upvote to response', () => {
@@ -180,12 +155,7 @@ describe('session manager', () => {
   });
   describe('cancelUpVoteResponse', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
+      sessionId = generate();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('removes upvote to response', () => {
@@ -204,12 +174,7 @@ describe('session manager', () => {
   });
   describe('setStatus', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
+      sessionId = generate();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('changes status', () => {
@@ -221,12 +186,7 @@ describe('session manager', () => {
   });
   describe('addResponseType', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
+      sessionId = generate();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('adds new response type', () => {
@@ -262,18 +222,83 @@ describe('session manager', () => {
   });
   describe('sendFeedback', () => {
     beforeEach(() => {
-      sessionId = 'sessionId';
-      socketId = 'socketId';
-      owner = 'owner';
-      socket = {
-        id: socketId,
-      };
+      sessionId = generate();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('marks response as flagged with message', () => {
       const response = sessionManager.addResponse(socketId, 'start', 'message');
       const updatedResponse = sessionManager.sendFeedback(socketId, response.id, 'feedback');
       expect(updatedResponse).to.have.property('flagged', true);
+    });
+  });
+  describe('disconnect', () => {
+    beforeEach(() => {
+      sessionId = generate();
+      session = sessionManager.createSession(sessionId, socket, owner, token);
+    });
+    it('disconnects the socket', () => {
+      sessionManager.disconnect(socketId);
+
+      const disconnectedSession = sessionManager.getSessionId(socketId);
+      updatedSession = sessionManager.getSession(sessionId);
+      const updatedSocket = sessionManager.getSocket(sessionId, owner);
+      expect(disconnectedSession).to.be.undefined;
+      expect(updatedSocket).to.be.undefined;
+      expect(updatedSession.participants[owner]).to.have.property('connected', false);
+    });
+    it('disconnects an unknown socket without error', () => {
+      try {
+        sessionManager.disconnect('abc');
+      }
+      catch (e) {
+        expect.fail();
+      }
+    });
+  });
+  describe('reconnect', () => {
+    beforeEach(() => {
+      sessionId = generate();
+      token = generate();
+      session = sessionManager.createSession(sessionId, socket, owner, token);
+    });
+    it('reconnects the socket', () => {
+      sessionManager.disconnect(socketId);
+      const newSocketId = 'newSocketId';
+      const newSocket = {
+        id: newSocketId,
+      };
+      const reconnection = sessionManager.reconnect(newSocket, token);
+      const reconnectedSession = reconnection.session;
+      const reconnectedName = reconnection.name;
+
+      socket = sessionManager.getSocket(sessionId, owner);
+      expect(reconnectedSession).to.deep.equal(session);
+      expect(reconnectedName).to.equal(owner);
+      expect(socket).not.to.be.undefined;
+    });
+    it('reconnecting unknown socket fails gracefully', () => {
+      try {
+        sessionManager.reconnect(socket, 'garbage');
+        expect.fail('should have thrown error');
+      }
+      catch (e) {
+        expect(e.message).to.equal('unknown token');
+      }
+    });
+  });
+  describe('rejoin', () => {
+    beforeEach(() => {
+      sessionId = generate();
+      session = sessionManager.createSession(sessionId, socket, owner);
+    });
+    it('can leave and rejoin session', () => {
+      sessionManager.leaveSession(socket.id);
+      updatedSession = sessionManager.getSession(sessionId);
+      expect(updatedSession.participants).not.to.have.property(owner);
+
+      sessionManager.joinSession(socket, owner, sessionId, token);
+      updatedSession = sessionManager.getSession(sessionId);
+      expect(updatedSession.participants).to.have.property(owner);
     });
   });
 });

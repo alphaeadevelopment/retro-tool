@@ -17,6 +17,13 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
     const { sessionId } = params;
     this.setState({ sessionId });
   }
+  componentWillReceiveProps = (nextProps) => {
+    const { token, onReconnectToSession } = this.props;
+    const { socket } = this.context;
+    if (token && !this.props.isConnected && nextProps.isConnected) {
+      onReconnectToSession(socket, token);
+    }
+  }
   render() {
     const {
       session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onAddResponseType,
@@ -58,9 +65,12 @@ const mapStateToProps = state => ({
   session: Selectors.getCurrentSession(state),
   isOwner: Selectors.isSessionOwner(state),
   name: Selectors.getName(state),
+  token: Selectors.getToken(state),
+  isConnected: Selectors.isConnected(state),
 });
 
 const dispatchToActions = dispatch => ({
+  onReconnectToSession: (socket, token) => dispatch(Actions.Emit.onReconnectToSession(socket, { token })),
   onCreateSession: socket => name => dispatch(Actions.Emit.onCreateSession(socket, { name })),
   onUpVote: socket => responseId => () => dispatch(Actions.Emit.onUpVoteResponse(socket, { responseId })),
   onCancelUpVote: socket => responseId => () => dispatch(Actions.Emit.onCancelUpVoteResponse(socket, { responseId })),

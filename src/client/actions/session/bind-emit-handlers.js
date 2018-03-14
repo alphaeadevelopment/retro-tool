@@ -19,11 +19,13 @@ const handlers = {
   onChangeStatus: {},
   onAddResponseType: {},
   onSendFeedback: {},
+  onReconnectToSession: {},
 };
 
 const handlerFunctions = mapValues(handlers, (options, handler) => {
   const event = camelCase(handler.substring(2));
   const handlerFunc = (socket, obj) => (dispatch) => {
+    console.info('Emit event %s(%o) to socket %s', event, obj, socket.id);
     socket.emit(event, obj);
     if (options.dispatch) dispatch(emittedEvent({ event, ...obj }));
   };

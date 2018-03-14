@@ -13,6 +13,7 @@ const newSession = (id, owner) => ({
     [owner]: {
       name: owner,
       votes: 0,
+      connected: true,
     },
   },
   owner,
@@ -38,38 +39,61 @@ const newSession = (id, owner) => ({
       type: 'text',
     },
   },
-  sockets: {},
 });
 
 class SessionManager {
-  ownerSockets = {}
+  sockets = {}
   sessions = {}
   connections = {}
   sockets = {}
+  tokens = {}
+  saveSocket = (sessionId, name, socket) => {
+    this.sockets = update(this.sockets, { [sessionId]: { [name]: { $set: socket } } });
+  }
+  removeSocket = (socketId) => {
+    const { name, sessionId } = this.getSessionIdAndName(socketId);
+    if (sessionId && name) {
+      this.sockets = update(this.sockets, { [sessionId]: { $unset: [name] } });
+    }
+  }
+  getSocket = (sessionId, name) => {
+    const sessionSockets = this.sockets[sessionId] || {};
+    return sessionSockets[name];
+  }
   getSessions = () => keys(this.sessions);
-  getSocket = (sessionId, name) => this.sessions[sessionId].sockets[name];
-  createSession = (sessionId, socket, owner) => {
+  getOwner = (sessionId) => {
+    const session = this.sessions[sessionId] || {};
+    return session.owner;
+  }
+  createSession = (sessionId, socket, owner, token) => {
     this.connections[socket.id] = { name: owner, sessionId };
     const session = newSession(sessionId, owner);
-    this.sessions[session.id] = session;
-    this.ownerSockets[session.id] = socket;
+    this.sessions[sessionId] = session;
+    this.sockets[sessionId] = {};
+    this.saveSocket(sessionId, owner, socket);
+    this.tokens = update(this.tokens, { $merge: { [token]: { name: owner, sessionId } } });
     return clone(session);
   }
-  getOwnerSocket = sessionId => this.ownerSockets[sessionId]
+  getOwnerSocket = (sessionId) => {
+    const owner = this.getOwner(sessionId);
+    return this.getSocket(sessionId, owner);
+  }
   isOwner = (socketId) => {
-    const sessionId = this.getSessionId(socketId);
-    const socket = this.ownerSockets[sessionId];
-    return (socket && socket.id === socketId) || false;
+    const { name, sessionId } = this.getSessionIdAndName(socketId);
+    const session = sessionId ? this.getSession(sessionId) : {};
+    return sessionId ? name === session.owner : false;
   }
   sessionExists = sessionId => includes(keys(this.sessions), sessionId)
   userInSession = socketId => this.connections[socketId] && true
-  updateSession = (socketId, spec) => {
+  updateSessionBySocketId = (socketId, spec) => {
     const sessionId = this.getSessionId(socketId);
-    this.sessions[sessionId] = update(this.sessions[sessionId], spec);
-    const updated = clone(this.sessions[sessionId]);
-    return updated;
+    return this.updateSession(sessionId, spec);
   }
-  joinSession = (socket, name, sessionId) => {
+  updateSession = (sessionId, spec) => {
+    this.sessions = update(this.sessions, { [sessionId]: spec });
+    return clone(this.sessions[sessionId]);
+  }
+  joinSession = (socket, name, sessionId, token) => {
     if (this.userInSession(socket.id)) throw new Error('already in session');
     if (has(this.getSession(sessionId).participants, name)) throw new Error('name in use');
     this.connections[socket.id] = { name, sessionId };
@@ -77,32 +101,55 @@ class SessionManager {
       id: name,
       name,
       votes: 0,
+      connected: true,
     };
-    const updated = this.updateSession(socket.id, {
+    this.tokens = update(this.tokens, { [token]: { $set: { name, sessionId } } });
+    const updated = this.updateSessionBySocketId(socket.id, {
       participants: {
         $merge: { [name]: newParticipant },
       },
-      sockets: {
-        [name]: { $set: socket },
-      },
     });
+    this.saveSocket(sessionId, name, socket);
     return updated;
   }
   getName = socketId => this.connections[socketId] && this.connections[socketId].name
   getSessionId = socketId => this.connections[socketId] && this.connections[socketId].sessionId
   getSession = sessionId => clone(this.sessions[sessionId])
   getSessionFromSocket = socketId => this.getSession(this.getSessionId(socketId));
-  getSessionIdAndName = socketId => this.connections[socketId] && clone(this.connections[socketId])
+  getSessionIdAndName = socketId => ((this.connections[socketId]) ? clone(this.connections[socketId]) : {})
   leaveSession = (socketId) => {
     const name = this.getName(socketId);
-    const updated = this.updateSession(socketId, { participants: { $apply: p => without(p, name) } });
+    const updated = this.updateSessionBySocketId(socketId, { participants: { $unset: [name] } });
+    this.removeSocket(socketId);
+    this.connections = update(this.connections, { $unset: [socketId] });
     return updated.id;
+  }
+  disconnect = (socketId) => {
+    const name = this.getName(socketId);
+    this.removeSocket(socketId);
+    if (name) {
+      this.updateSessionBySocketId(socketId, {
+        participants: { [name]: { connected: { $set: false } } },
+      });
+    }
+    this.connections = update(this.connections, { $unset: [socketId] });
+  }
+  reconnect = (socket, token) => {
+    const { name, sessionId } = this.tokens[token] || {};
+    if (!name && !sessionId) throw new Error('unknown token');
+    this.connections[socket.id] = { name, sessionId };
+    const updatedSession = this.updateSession(sessionId, {
+      participants: { [name]: { connected: { $set: true } } },
+    });
+    this.saveSocket(sessionId, name, socket);
+    this.sockets[socket.id] = socket;
+    return { session: updatedSession, name };
   }
   addResponseType = (socketId, data) => {
     const id = generate();
     const { question, ...rest } = data;
     const newResponseType = { id, title: question, ...rest };
-    this.updateSession(socketId, { responseTypes: { $merge: { [id]: newResponseType } } });
+    this.updateSessionBySocketId(socketId, { responseTypes: { $merge: { [id]: newResponseType } } });
     return newResponseType;
   }
   addResponse = (socketId, responseType, value) => {
@@ -111,7 +158,7 @@ class SessionManager {
     const newResponse = {
       id, author: name, response: value, responseType, votes: [],
     };
-    this.updateSession(
+    this.updateSessionBySocketId(
       socketId,
       { responses: { $merge: { [id]: { ...newResponse } } } },
     );
@@ -119,7 +166,7 @@ class SessionManager {
   }
   upVoteResponse = (socketId, responseId) => {
     const name = this.getName(socketId);
-    this.updateSession(socketId, {
+    this.updateSessionBySocketId(socketId, {
       responses: {
         [responseId]: {
           votes: {
@@ -136,7 +183,7 @@ class SessionManager {
   }
   cancelUpVoteResponse = (socketId, responseId) => {
     const name = this.getName(socketId);
-    this.updateSession(socketId, {
+    this.updateSessionBySocketId(socketId, {
       responses: {
         [responseId]: {
           votes: {
@@ -152,12 +199,12 @@ class SessionManager {
     });
   }
   setStatus = (socketId, status) => {
-    this.updateSession(socketId, {
+    this.updateSessionBySocketId(socketId, {
       status: { $set: status },
     });
   }
   sendFeedback = (socketId, responseId, message) => {
-    const updated = this.updateSession(socketId, {
+    const updated = this.updateSessionBySocketId(socketId, {
       responses: {
         [responseId]: {
           flagged: { $set: true },

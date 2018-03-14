@@ -1,5 +1,6 @@
 import React from 'react';
 import keys from 'lodash/keys';
+import classNames from 'classnames';
 import filter from 'lodash/filter';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
@@ -15,6 +16,10 @@ const styles = theme => ({
         width: '100%',
       },
     },
+  },
+  disconnected: {
+    textDecoration: 'line-through',
+    opacity: 0.6,
   },
 });
 export const RawParticipantList = ({ isOwner, classes, owner, participants, responses }) => (
@@ -35,7 +40,9 @@ export const RawParticipantList = ({ isOwner, classes, owner, participants, resp
             return (
               <tr key={p}>
                 <td>
-                  <span>{participants[p].name}</span>
+                  <span className={classNames({ [classes.disconnected]: !participants[p].connected })}>
+                    {participants[p].name}
+                  </span>
                   {owner === p && <span> *</span>}
                 </td>
                 {isOwner && <td>{numResponses}</td>}
