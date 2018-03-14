@@ -10,9 +10,9 @@ const inject = require('inject-loader!./send-feedback');
 
 describe('sendFeedback', () => {
   const io = {};
-  let sendFeedback;
+  let addFeedback;
   const getSocketStub = sinon.stub();
-  const sendFeedbackStub = sinon.stub();
+  const addFeedbackStub = sinon.stub();
   const socketEmitSpy = sinon.spy();
   const authorSocketEmitSpy = sinon.spy();
   const joinSpy = sinon.spy();
@@ -29,7 +29,7 @@ describe('sendFeedback', () => {
     emit: authorSocketEmitSpy,
   };
   const sessionManager = {
-    sendFeedback: sendFeedbackStub,
+    addFeedback: addFeedbackStub,
   };
   const socketManager = {
     getSocket: getSocketStub,
@@ -39,7 +39,7 @@ describe('sendFeedback', () => {
   const responseId = 'responseId';
   before(() => {
     author = 'author';
-    sendFeedback = inject({
+    addFeedback = inject({
       '../../session': sessionManager,
       '../../session/socket-manager': socketManager,
     }).default;
@@ -54,13 +54,13 @@ describe('sendFeedback', () => {
   it('join session and broadcasts - control', () => {
     // arrange
     getSocketStub.withArgs(author).returns(authorSocket);
-    sendFeedbackStub.withArgs(socket.id, responseId, message).callsFake((socketId, r) => ({ id: r, author }));
+    addFeedbackStub.withArgs(socket.id, responseId, message).callsFake((socketId, r) => ({ id: r, author }));
 
     // act
-    sendFeedback(io, socket)({ responseId, message });
+    addFeedback(io, socket)({ responseId, message });
 
     // assert
-    expect(sendFeedbackStub).calledWith(socket.id, responseId, message);
+    expect(addFeedbackStub).calledWith(socket.id, responseId, message);
     expect(authorSocketEmitSpy).calledWith('feedbackReceived', { responseId, message });
     expect(socketEmitSpy).calledWith('feedbackReceived', { responseId, message });
   });

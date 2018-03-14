@@ -9,6 +9,7 @@ chai.use(sinonChai);
 
 const inject = require('inject-loader!./session-manager'); // eslint-disable-line import/no-unresolved
 
+const newSessionStub = sinon.stub();
 const saveSocketStub = sinon.stub();
 const getSocketStub = sinon.stub();
 const removeSocketStub = sinon.stub();
@@ -17,17 +18,34 @@ const socketManager = {
   getSocket: getSocketStub,
   removeSocket: removeSocketStub,
 };
+const daoStubs = {
+  save: sinon.stub(),
+  upVoteResponse: sinon.stub(),
+  setStatus: sinon.stub(),
+  cancelUpVoteResponse: sinon.stub(),
+  getSession: sinon.stub(),
+  sessionExists: sinon.stub(),
+  addFeedback: sinon.stub(),
+  addResponse: sinon.stub(),
+  addResponseType: sinon.stub(),
+  addParticipant: sinon.stub(),
+  removeParticipant: sinon.stub(),
+  participantDisconnected: sinon.stub(),
+  participantReconnected: sinon.stub(),
+};
 const shortidStub = sinon.stub();
-shortidStub.returns('newid');
+const dummyId = 'newId';
+shortidStub.returns(dummyId);
 const sessionManager = inject({
   'shortid': shortidStub,
   './socket-manager': socketManager,
+  './dao': daoStubs,
+  './new-session': newSessionStub,
 }).default;
 
 describe('session manager', () => {
   let session;
   let sessionId;
-  let updatedSession;
   const socketId = 'socketId';
   const socket = {
     id: socketId,
@@ -36,28 +54,29 @@ describe('session manager', () => {
   let token = 'token';
   describe('new session', () => {
     beforeEach(() => {
+      newSessionStub.resetHistory();
+      daoStubs.save.resetHistory();
+      daoStubs.getSession.resetHistory();
       sessionId = generate();
       saveSocketStub.resetHistory();
       getSocketStub.withArgs(owner).returns(socket);
     });
     it('creates a new session', () => {
+      // assemble
+      const createdSession = { id: sessionId, owner };
+      daoStubs.save.callsFake(s => s);
+      newSessionStub.returns(createdSession);
+      daoStubs.getSession.callsFake(() => createdSession);
+      // act
       session = sessionManager.createSession(sessionId, socket, owner, token);
+      // assert
+      expect(daoStubs.save).calledWith(sinon.match.object);
       expect(saveSocketStub).calledWith(owner, socket);
       expect(session).to.not.be.null;
-      expect(session).to.have.property('id', sessionId);
-      expect(session).to.have.property('owner', owner);
-      expect(session).to.have.property('participants').deep.equal({ [owner]: { name: owner, votes: 0, connected: true } });
-      expect(session).to.have.property('responses');
-      expect(session).to.have.property('responseTypes');
-      expect(session.responseTypes).to.have.property('stop');
-      expect(session.responseTypes.stop).to.have.property('title');
-      expect(session.responseTypes).to.have.property('start');
-      expect(session.responseTypes.start).to.have.property('title');
-      expect(session.responseTypes).to.have.property('continue');
-      expect(session.responseTypes.continue).to.have.property('title');
-      expect(session).to.have.property('status', 'initial');
+      expect(session).to.equal(createdSession);
       expect(sessionManager.getSession(sessionId)).deep.equal(session);
       expect(sessionManager.getOwnerSocket(sessionId)).to.deep.equal(socket);
+      expect(daoStubs.getSession).calledWith(sessionId);
     });
   });
   describe('isOwner', () => {
@@ -80,6 +99,31 @@ describe('session manager', () => {
       expect(actual).to.equal(false);
     });
   });
+  describe('sessionExists', () => {
+    beforeEach(() => {
+      daoStubs.sessionExists.resetHistory();
+      sessionId = generate();
+      session = sessionManager.createSession(sessionId, socket, owner, token);
+    });
+    it('returns true for existing session', () => {
+      // assemble
+      const expected = true;
+      daoStubs.sessionExists.withArgs(sessionId).returns(expected);
+
+      const actual = sessionManager.sessionExists(sessionId);
+      // exps
+      expect(actual).to.equal(expected);
+    });
+    it('returns false for non-existent session', () => {
+      // assemble
+      const expected = false;
+      daoStubs.sessionExists.withArgs('abc').returns(expected);
+
+      const actual = sessionManager.sessionExists('abc');
+      // exps
+      expect(actual).to.equal(expected);
+    });
+  });
   describe('get session from socket id', () => {
     beforeEach(() => {
       sessionId = generate();
@@ -93,23 +137,29 @@ describe('session manager', () => {
   describe('join session', () => {
     beforeEach(() => {
       sessionId = generate();
+      daoStubs.save.callsFake(s => s);
+      newSessionStub.returns({ id: sessionId, owner });
+      daoStubs.addParticipant.resetHistory();
+      daoStubs.getSession.resetHistory();
       session = sessionManager.createSession(sessionId, socket, owner, token);
     });
     it('adds participant', () => {
+      // assemble
+      daoStubs.getSession.returns(session);
+
       const name = 'Bob';
       const bobSocket = { id: 'bobSocket' };
-      updatedSession = sessionManager.joinSession(bobSocket, name, sessionId);
-      expect(updatedSession).to.have.property('participants');
-      expect(updatedSession.participants).to.have.property(name);
-      expect(updatedSession.participants[name]).to.have.property('votes');
-      expect(updatedSession.participants[name]).to.have.property('connected', true);
-      expect(updatedSession.participants[name]).to.have.property('name', name);
-      expect(saveSocketStub).calledWith(name, bobSocket);
+
+      // act
+      sessionManager.joinSession(bobSocket, name, sessionId, token);
+
+      // assert
+      expect(daoStubs.addParticipant).to.be.calledWith(sessionId, { id: name, name, votes: 0, connected: true });
     });
     it('prevents socket id joining two sessions', () => {
       const name = 'Harry';
       const harrySocket = { id: 'harrySocket1' };
-      updatedSession = sessionManager.joinSession(harrySocket, name, sessionId);
+      sessionManager.joinSession(harrySocket, name, sessionId);
       try {
         sessionManager.joinSession(harrySocket, 'Another name', sessionId);
         expect.fail();
@@ -119,9 +169,9 @@ describe('session manager', () => {
       }
     });
     it('prevents same name joining session', () => {
-      const name = 'Harry';
-      const harrySocket = { id: 'harrySocket2' };
-      updatedSession = sessionManager.joinSession(harrySocket, name, sessionId);
+      // assemble
+      daoStubs.getSession.returns({ ...session, participants: { Harry: {} } });
+      // act
       try {
         sessionManager.joinSession({ id: 'new socket id' }, 'Harry', sessionId);
         expect.fail();
@@ -134,110 +184,111 @@ describe('session manager', () => {
   describe('addResponse', () => {
     beforeEach(() => {
       sessionId = generate();
+      daoStubs.addResponse.resetHistory();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('adds response', () => {
       const type = 'start';
       const message = 'Message';
-      const response = sessionManager.addResponse(socketId, type, message);
-      expect(response).to.have.property('responseType', type);
-      expect(response).to.have.property('author', owner);
-      expect(response).to.have.property('response', message);
-      expect(response).to.have.property('id');
-      updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.responses).to.have.property(response.id).deep.equal(response);
+      const expected = { id: dummyId, responseType: type, author: owner, response: message, votes: [] };
+      const fakedResponse = { responses: { [dummyId]: expected } };
+      daoStubs.addResponse.callsFake(() => fakedResponse);
+
+      const actual = sessionManager.addResponse(socketId, type, message);
+      expect(daoStubs.addResponse).calledWith(sessionId, expected);
+
+      expect(actual).to.deep.equal(expected);
     });
   });
   describe('upVoteResponse', () => {
     beforeEach(() => {
       sessionId = generate();
+      daoStubs.upVoteResponse.resetHistory();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('adds upvote to response', () => {
-      const type = 'start';
-      const message = 'Message';
-      const response = sessionManager.addResponse(socketId, type, message);
-      sessionManager.upVoteResponse(socketId, response.id);
-      updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.responses[response.id]).to.have.property('votes').deep.equal([owner]);
-      expect(updatedSession.participants[owner]).to.have.property('votes').equal(1);
+      sessionManager.upVoteResponse(socketId, dummyId);
+      expect(daoStubs.upVoteResponse).calledWith(sessionId, dummyId);
     });
   });
   describe('cancelUpVoteResponse', () => {
     beforeEach(() => {
       sessionId = generate();
+      daoStubs.cancelUpVoteResponse.resetHistory();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('removes upvote to response', () => {
-      const type = 'start';
-      const message = 'Message';
-      const response = sessionManager.addResponse(socketId, type, message);
-      sessionManager.upVoteResponse(socketId, response.id);
-      updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.responses[response.id]).to.have.property('votes').deep.equal([owner]);
-      expect(updatedSession.participants[owner]).to.have.property('votes').equal(1);
-      sessionManager.cancelUpVoteResponse(socketId, response.id);
-      updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.responses[response.id]).to.have.property('votes').deep.equal([]);
-      expect(updatedSession.participants[owner]).to.have.property('votes').equal(0);
+      sessionManager.cancelUpVoteResponse(socketId, dummyId);
+      expect(daoStubs.cancelUpVoteResponse).calledWith(sessionId, dummyId);
     });
   });
   describe('setStatus', () => {
     beforeEach(() => {
       sessionId = generate();
+      daoStubs.setStatus.resetHistory();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('changes status', () => {
       const status = 'voting';
       sessionManager.setStatus(socketId, status);
-      updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.status).to.equal(status);
+      expect(daoStubs.setStatus).calledWith(sessionId, status);
     });
   });
   describe('addResponseType', () => {
     beforeEach(() => {
+      daoStubs.addResponseType.resetHistory();
       sessionId = generate();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('adds new response type', () => {
+      // assemble
       const question = 'How well did we do?';
       const type = 'number';
       const expected = {
-        id: 'newid',
+        id: dummyId,
         title: question,
         type,
       };
+      // act
       const newResponseType = sessionManager.addResponseType(socketId, { question, type });
-      updatedSession = sessionManager.getSessionFromSocket(socketId);
-      expect(updatedSession.responseTypes).to.have.property('newid').deep.equal(expected);
+      // assert
+      expect(daoStubs.addResponseType).calledWith(sessionId, expected);
       expect(newResponseType).to.deep.equal(expected);
     });
     it('adds new response type with arbritary fields', () => {
+      // assemble
       const question = 'How well did we do?';
       const type = 'number';
       const boolValue = true;
       const numValue = 7;
       const expected = {
-        id: 'newid',
+        id: dummyId,
         title: question,
         type,
         boolValue,
         numValue,
       };
+      // act
       const newResponseType = sessionManager.addResponseType(socketId, { question, type, boolValue, numValue });
-      updatedSession = sessionManager.getSessionFromSocket(socketId);
-      expect(updatedSession.responseTypes).to.have.property('newid').deep.equal(expected);
+      // assert
+      expect(daoStubs.addResponseType).calledWith(sessionId, expected);
       expect(newResponseType).to.deep.equal(expected);
     });
   });
-  describe('sendFeedback', () => {
+  describe('addFeedback', () => {
     beforeEach(() => {
+      daoStubs.addFeedback.resetHistory();
       sessionId = generate();
       session = sessionManager.createSession(sessionId, socket, owner);
     });
     it('marks response as flagged with message', () => {
-      const response = sessionManager.addResponse(socketId, 'start', 'message');
-      const updatedResponse = sessionManager.sendFeedback(socketId, response.id, 'feedback');
+      // assemble
+      daoStubs.addFeedback.callsFake((s, r, message) => ({ responses: { [r]: { flagged: true, feedback: message } } }));
+      // act
+      const responseId = generate();
+      const updatedResponse = sessionManager.addFeedback(socketId, responseId, 'feedback');
+      // assert
+      expect(daoStubs.addFeedback).calledWith(sessionId, responseId, 'feedback');
       expect(updatedResponse).to.have.property('flagged', true);
     });
   });
@@ -248,13 +299,10 @@ describe('session manager', () => {
       session = sessionManager.createSession(sessionId, socket, owner, token);
     });
     it('disconnects the socket', () => {
+      // act
       sessionManager.disconnect(socketId);
-
-      const disconnectedSession = sessionManager.getSessionId(socketId);
-      updatedSession = sessionManager.getSession(sessionId);
-      expect(disconnectedSession).to.be.undefined;
-      expect(updatedSession.participants[owner]).to.have.property('connected', false);
-      expect(removeSocketStub).calledWith(owner);
+      // assert
+      expect(daoStubs.participantDisconnected).calledWith(sessionId, owner);
     });
     it('disconnects an unknown socket without error', () => {
       try {
@@ -267,24 +315,17 @@ describe('session manager', () => {
   });
   describe('reconnect', () => {
     beforeEach(() => {
+      daoStubs.participantReconnected.resetHistory();
       sessionId = generate();
       token = generate();
       saveSocketStub.resetHistory();
       session = sessionManager.createSession(sessionId, socket, owner, token);
     });
     it('reconnects the socket', () => {
-      sessionManager.disconnect(socketId);
-      const newSocketId = 'newSocketId';
-      const newSocket = {
-        id: newSocketId,
-      };
-      const reconnection = sessionManager.reconnect(newSocket, token);
-      const reconnectedSession = reconnection.session;
-      const reconnectedName = reconnection.name;
-
-      expect(reconnectedSession).to.deep.equal(session);
-      expect(reconnectedName).to.equal(owner);
-      expect(saveSocketStub).calledWith(owner, newSocket);
+      // act
+      sessionManager.reconnect(socketId, token);
+      // assert
+      expect(daoStubs.participantReconnected).calledWith(sessionId, owner);
     });
     it('reconnecting unknown socket fails gracefully', () => {
       try {
@@ -294,21 +335,6 @@ describe('session manager', () => {
       catch (e) {
         expect(e.message).to.equal('unknown token');
       }
-    });
-  });
-  describe('rejoin', () => {
-    beforeEach(() => {
-      sessionId = generate();
-      session = sessionManager.createSession(sessionId, socket, owner);
-    });
-    it('can leave and rejoin session', () => {
-      sessionManager.leaveSession(socket.id);
-      updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.participants).not.to.have.property(owner);
-
-      sessionManager.joinSession(socket, owner, sessionId, token);
-      updatedSession = sessionManager.getSession(sessionId);
-      expect(updatedSession.participants).to.have.property(owner);
     });
   });
 });

@@ -1,64 +1,26 @@
 import update from 'immutability-helper';
-import keys from 'lodash/keys';
-import includes from 'lodash/includes';
 import has from 'lodash/has';
-import without from 'lodash/without';
 import clone from 'lodash/clone';
 import generate from 'shortid';
 
 import socketManager from './socket-manager';
-
-const newSession = (id, owner) => ({
-  id,
-  status: 'initial',
-  participants: {
-    [owner]: {
-      name: owner,
-      votes: 0,
-      connected: true,
-    },
-  },
-  owner,
-  responses: {
-  },
-  responseTypes: {
-    continue: {
-      id: 'continue',
-      title: 'What went well?',
-      allowMultiple: true,
-      type: 'text',
-    },
-    stop: {
-      id: 'stop',
-      title: 'What did not work well?',
-      allowMultiple: true,
-      type: 'text',
-    },
-    start: {
-      id: 'start',
-      title: 'What could be improved?',
-      allowMultiple: true,
-      type: 'text',
-    },
-  },
-});
+import dao from './dao';
+import newSession from './new-session';
 
 class SessionManager {
-  sessions = {}
   connections = {}
   tokens = {}
-  getSessions = () => keys(this.sessions);
   getOwner = (sessionId) => {
-    const session = this.sessions[sessionId] || {};
+    const session = dao.getSession(sessionId) || {};
     return session.owner;
   }
   createSession = (sessionId, socket, owner, token) => {
     this.connections[socket.id] = { name: owner, sessionId };
     const session = newSession(sessionId, owner);
-    this.sessions[sessionId] = session;
+    const saved = dao.save(session);
     socketManager.saveSocket(owner, socket);
     this.tokens = update(this.tokens, { $merge: { [token]: { name: owner, sessionId } } });
-    return clone(session);
+    return saved;
   }
   getOwnerSocket = (sessionId) => {
     const owner = this.getOwner(sessionId);
@@ -69,19 +31,12 @@ class SessionManager {
     const session = sessionId ? this.getSession(sessionId) : {};
     return sessionId ? name === session.owner : false;
   }
-  sessionExists = sessionId => includes(keys(this.sessions), sessionId)
+  sessionExists = sessionId => dao.sessionExists(sessionId)
   userInSession = socketId => this.connections[socketId] && true
-  updateSessionBySocketId = (socketId, spec) => {
-    const sessionId = this.getSessionId(socketId);
-    return this.updateSession(sessionId, spec);
-  }
-  updateSession = (sessionId, spec) => {
-    this.sessions = update(this.sessions, { [sessionId]: spec });
-    return clone(this.sessions[sessionId]);
-  }
   joinSession = (socket, name, sessionId, token) => {
     if (this.userInSession(socket.id)) throw new Error('already in session');
-    if (has(this.getSession(sessionId).participants, name)) throw new Error('name in use');
+    const session = this.getSession(sessionId);
+    if (has(session.participants, name)) throw new Error('name in use');
     this.connections[socket.id] = { name, sessionId };
     const newParticipant = {
       id: name,
@@ -90,33 +45,28 @@ class SessionManager {
       connected: true,
     };
     this.tokens = update(this.tokens, { [token]: { $set: { name, sessionId } } });
-    const updated = this.updateSessionBySocketId(socket.id, {
-      participants: {
-        $merge: { [name]: newParticipant },
-      },
-    });
+    const updated = dao.addParticipant(sessionId, newParticipant);
     socketManager.saveSocket(name, socket);
     return updated;
   }
   getName = socketId => this.connections[socketId] && this.connections[socketId].name
   getSessionId = socketId => this.connections[socketId] && this.connections[socketId].sessionId
-  getSession = sessionId => clone(this.sessions[sessionId])
+  getSession = sessionId => dao.getSession(sessionId)
   getSessionFromSocket = socketId => this.getSession(this.getSessionId(socketId));
   getSessionIdAndName = socketId => ((this.connections[socketId]) ? clone(this.connections[socketId]) : {})
   leaveSession = (socketId) => {
-    const name = this.getName(socketId);
-    const updated = this.updateSessionBySocketId(socketId, { participants: { $unset: [name] } });
+    console.log(socketId);
+    const { sessionId, name } = this.getSessionIdAndName(socketId);
+    dao.removeParticipant(sessionId, name);
     socketManager.removeSocket(name);
     this.connections = update(this.connections, { $unset: [socketId] });
-    return updated.id;
+    return sessionId;
   }
   disconnect = (socketId) => {
-    const name = this.getName(socketId);
+    const { sessionId, name } = this.getSessionIdAndName(socketId);
     socketManager.removeSocket(name);
     if (name) {
-      this.updateSessionBySocketId(socketId, {
-        participants: { [name]: { connected: { $set: false } } },
-      });
+      dao.participantDisconnected(sessionId, name);
     }
     this.connections = update(this.connections, { $unset: [socketId] });
   }
@@ -124,79 +74,42 @@ class SessionManager {
     const { name, sessionId } = this.tokens[token] || {};
     if (!name && !sessionId) throw new Error('unknown token');
     this.connections[socket.id] = { name, sessionId };
-    const updatedSession = this.updateSession(sessionId, {
-      participants: { [name]: { connected: { $set: true } } },
-    });
+    const updatedSession = dao.participantReconnected(sessionId, name);
     socketManager.saveSocket(name, socket);
     return { session: updatedSession, name };
   }
   addResponseType = (socketId, data) => {
     const id = generate();
+    const sessionId = this.getSessionId(socketId);
     const { question, ...rest } = data;
     const newResponseType = { id, title: question, ...rest };
-    this.updateSessionBySocketId(socketId, { responseTypes: { $merge: { [id]: newResponseType } } });
+    dao.addResponseType(sessionId, newResponseType);
     return newResponseType;
   }
   addResponse = (socketId, responseType, value) => {
-    const name = this.getName(socketId);
+    const { sessionId, name } = this.getSessionIdAndName(socketId);
     const id = generate();
     const newResponse = {
       id, author: name, response: value, responseType, votes: [],
     };
-    this.updateSessionBySocketId(
-      socketId,
-      { responses: { $merge: { [id]: { ...newResponse } } } },
-    );
-    return newResponse;
+    const updatedSession = dao.addResponse(sessionId, newResponse);
+    return updatedSession.responses[id];
   }
   upVoteResponse = (socketId, responseId) => {
-    const name = this.getName(socketId);
-    this.updateSessionBySocketId(socketId, {
-      responses: {
-        [responseId]: {
-          votes: {
-            $push: [name],
-          },
-        },
-      },
-      participants: {
-        [name]: {
-          votes: { $apply: v => v + 1 },
-        },
-      },
-    });
+    const { sessionId, name } = this.getSessionIdAndName(socketId);
+    dao.upVoteResponse(sessionId, responseId, name);
   }
   cancelUpVoteResponse = (socketId, responseId) => {
-    const name = this.getName(socketId);
-    this.updateSessionBySocketId(socketId, {
-      responses: {
-        [responseId]: {
-          votes: {
-            $apply: v => without(v, name),
-          },
-        },
-      },
-      participants: {
-        [name]: {
-          votes: { $apply: v => v - 1 },
-        },
-      },
-    });
+    const { sessionId, name } = this.getSessionIdAndName(socketId);
+    dao.cancelUpVoteResponse(sessionId, responseId, name);
   }
   setStatus = (socketId, status) => {
-    this.updateSessionBySocketId(socketId, {
-      status: { $set: status },
-    });
+    const sessionId = this.getSessionId(socketId);
+    return dao.setStatus(sessionId, status);
   }
-  sendFeedback = (socketId, responseId, message) => {
-    const updated = this.updateSessionBySocketId(socketId, {
-      responses: {
-        [responseId]: {
-          flagged: { $set: true },
-          feedback: { $set: message },
-        },
-      },
-    });
+  addFeedback = (socketId, responseId, message) => {
+    const sessionId = this.getSessionId(socketId);
+    const updated = dao.addFeedback(sessionId, responseId, message);
     return updated.responses[responseId];
   }
 }

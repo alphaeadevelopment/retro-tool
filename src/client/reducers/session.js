@@ -40,7 +40,7 @@ export default (state = initial, { type, payload }) => {
     case Types.UP_VOTE_REGISTERED:
       return update(state, {
         participants: {
-          [state.name]: {
+          [payload.name]: {
             votes: { $apply: v => v + 1 },
           },
         },
@@ -48,7 +48,7 @@ export default (state = initial, { type, payload }) => {
     case Types.UP_VOTE_CANCELLED:
       return update(state, {
         participants: {
-          [state.name]: {
+          [payload.name]: {
             votes: { $apply: v => v - 1 },
           },
         },
