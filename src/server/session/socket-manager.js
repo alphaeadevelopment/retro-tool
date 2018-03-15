@@ -8,7 +8,10 @@ class SocketManager {
   removeSocket = (name) => {
     this.sockets = update(this.sockets, { $unset: [name] });
   }
-  getSocket = name => this.sockets[name]
+  getSocket = (name) => {
+    console.log(name);
+    return this.sockets[name];
+  }
 }
 
 export default new SocketManager();

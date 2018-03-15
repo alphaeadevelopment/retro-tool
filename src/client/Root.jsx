@@ -1,6 +1,7 @@
 import React from 'react';
 import 'typeface-roboto'; // eslint-disable-line import/extensions
-import Reboot from 'material-ui/Reboot';
+// https://github.com/mui-org/material-ui/releases/tag/v1.0.0-beta.37
+import Reboot from 'material-ui/Reboot'; // becomes CssBaseline
 import { createStore, applyMiddleware, compose } from 'redux';
 import { HashRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';

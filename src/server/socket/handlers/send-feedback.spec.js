@@ -30,21 +30,32 @@ describe('sendFeedback', () => {
   const sessionManagerStubs = {
     addFeedback: sinon.stub(),
   };
+  const connectionManagerStubs = {
+    registerSocket: sinon.stub(),
+    deregisterSocket: sinon.stub(),
+    socketRegistered: sinon.stub(),
+    getConnection: sinon.stub(),
+    getConnectionByToken: sinon.stub(),
+  };
   const socketManager = {
     getSocket: getSocketStub,
   };
   let author;
   const message = 'Rubbish';
+  const name = 'name';
+  const sessionId = 'sessionId';
   const responseId = 'responseId';
+  const connection = { name, sessionId };
   before(() => {
     author = 'author';
     addFeedback = inject({
-      '../../session': sessionManagerStubs,
+      '../../session': { default: sessionManagerStubs, connectionManager: connectionManagerStubs },
       '../../session/socket-manager': socketManager,
     }).default;
     broadcastToStub.returns({
       emit: broadcastEmitSpy,
     });
+    connectionManagerStubs.getConnection.returns(Promise.resolve(connection));
   });
   beforeEach(() => {
     socketEmitSpy.resetHistory();
@@ -54,19 +65,18 @@ describe('sendFeedback', () => {
     // arrange
     getSocketStub.withArgs(author).returns(authorSocket);
     sessionManagerStubs.addFeedback
-      .withArgs(socket.id, responseId, message)
+      .withArgs(connection, responseId, message)
       .callsFake((socketId, r) => Promise.resolve({ id: r, author }));
 
     // act
     addFeedback(io, socket)({ responseId, message })
       .then(() => {
         // assert
-        expect(sessionManagerStubs.addFeedback).calledWith(socket.id, responseId, message);
+        expect(sessionManagerStubs.addFeedback).calledWith(connection, responseId, message);
         expect(authorSocketEmitSpy).calledWith('feedbackReceived', { responseId, message });
         expect(socketEmitSpy).calledWith('feedbackReceived', { responseId, message });
         done();
       })
       .catch(e => done(e));
-
   });
 });

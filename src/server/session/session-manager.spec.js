@@ -80,7 +80,7 @@ describe('session manager', () => {
         .then((createdSession) => {
           // assert
           expect(daoStubs.save).calledWith(sinon.match.object);
-          expect(connectionManagerStubs.registerSocket).calledWith(socketId, owner, sessionId);
+          // expect(connectionManagerStubs.registerSocket).calledWith(socketId, owner, sessionId);
           expect(socketManagerStubs.saveSocket).calledWith(owner, socket);
           expect(createdSession).to.not.be.null;
           expect(createdSession).to.equal(stubReturnSession);
@@ -93,23 +93,23 @@ describe('session manager', () => {
     xit('returns owner socket');
   });
   describe('isOwner', () => {
-    beforeEach((done) => {
+    beforeEach(() => {
       sessionId = generate();
       daoStubs.save.resetHistory();
       const stubReturnSession = { id: sessionId, owner };
       daoStubs.save.callsFake(s => Promise.resolve(s));
       newSessionStub.returns(stubReturnSession);
       daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      sessionManager.createSession(sessionId, socket, owner, token)
-        .then((s) => {
-          session = s;
-          done();
-        })
-        .catch(e => done(e));
+      // sessionManager.createSession(sessionId, socket, owner, token)
+      //   .then((s) => {
+      //     session = s;
+      //     done();
+      //   })
+      //   .catch(e => done(e));
     });
     it('returns true for owner socket', (done) => {
-      connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
-      sessionManager.isOwner(socketId)
+      // connectionManagerStubs.getConnection.returns(Promise.resolve());
+      sessionManager.isOwner({ sessionId, name: owner })
         .then((actual) => {
           expect(actual).to.equal(true);
           done();
@@ -156,51 +156,48 @@ describe('session manager', () => {
     });
   });
   describe('join session', () => {
+    let stubReturnSession;
     beforeEach(() => {
       sessionId = generate();
       daoStubs.save.resetHistory();
       daoStubs.getSession.resetHistory();
-      const stubReturnSession = { id: sessionId, owner };
+      stubReturnSession = { id: sessionId, owner };
       daoStubs.save.callsFake(s => Promise.resolve(s));
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
-      daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      // sessionManager.createSession(sessionId, socket, owner, token)
-      //   .then((s) => {
-      //     session = s;
-      //     done();
-      //   });
     });
     it('adds participant', (done) => {
       // assemble
-      daoStubs.getSession.returns(Promise.resolve(session));
+      daoStubs.getSession.returns(Promise.resolve(stubReturnSession));
       daoStubs.addParticipant.returns(Promise.resolve(session));
 
       const name = 'Bob';
       const bobSocket = { id: 'bobSocket' };
 
       // act
-      sessionManager.joinSession(bobSocket, name, sessionId, token).then(() => {
-        // assert
-        expect(daoStubs.addParticipant).to.be.calledWith(sessionId, { id: name, name, votes: 0, connected: true });
-        done();
-      });
-    });
-    it('prevents socket id joining two sessions', (done) => {
-      connectionManagerStubs.socketRegistered.returns(Promise.resolve(true));
-      sessionManager.joinSession(socket, 'Harry', sessionId)
+      sessionManager.joinSession(bobSocket, name, sessionId, token)
         .then(() => {
-          expect.fail();
-        })
-        .catch((e) => {
-          expect(e.message).to.equal('already in session');
+          // assert
+          expect(daoStubs.addParticipant).to.be.calledWith(sessionId, { id: name, name, votes: 0, connected: true });
           done();
         })
         .catch(e => done(e));
     });
+    // it('prevents socket id joining two sessions', (done) => {
+    //   // connectionManagerStubs.socketRegistered.returns(Promise.resolve(true));
+    //   daoStubs.getSession.returns(Promise.resolve({ ...stubReturnSession, participants: { Harry: {} } }));
+    //   sessionManager.joinSession(socket, 'Harry', sessionId)
+    //     .then(() => {
+    //       expect.fail();
+    //     })
+    //     .catch((e) => {
+    //       expect(e.message).to.equal('already in session');
+    //       done();
+    //     })
+    //     .catch(e => done(e));
+    // });
     it('prevents same name joining session', (done) => {
       // assemble
-      connectionManagerStubs.socketRegistered.returns(Promise.resolve(false));
       daoStubs.getSession.returns(Promise.resolve({ ...session, participants: { Harry: {} } }));
       // act
       sessionManager.joinSession({ id: 'new socket id' }, 'Harry', sessionId)
@@ -229,7 +226,7 @@ describe('session manager', () => {
       //     session = s;
       //     done();
       //   });
-      connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
+      // connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
     });
     it('adds response', (done) => {
       // assemble
@@ -240,7 +237,7 @@ describe('session manager', () => {
       daoStubs.addResponse.callsFake(() => Promise.resolve(fakedResponse));
 
       // act
-      sessionManager.addResponse(socketId, type, message).then((actual) => {
+      sessionManager.addResponse({ sessionId, name: owner }, type, message).then((actual) => {
         expect(daoStubs.addResponse).calledWith(sessionId, expected);
         expect(actual).to.deep.equal(expected);
         done();
@@ -257,11 +254,11 @@ describe('session manager', () => {
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
       daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
+      // connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
     });
     it('adds upvote to response', (done) => {
       daoStubs.upVoteResponse.returns(Promise.resolve());
-      sessionManager.upVoteResponse(socketId, dummyId).then(() => {
+      sessionManager.upVoteResponse({ sessionId, name: owner }, dummyId).then(() => {
         expect(daoStubs.upVoteResponse).calledWith(sessionId, dummyId);
         done();
       })
@@ -278,11 +275,11 @@ describe('session manager', () => {
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
       daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
+      // connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
     });
     it('removes upvote to response', (done) => {
       daoStubs.cancelUpVoteResponse.returns(Promise.resolve());
-      sessionManager.cancelUpVoteResponse(socketId, dummyId).then(() => {
+      sessionManager.cancelUpVoteResponse({ sessionId, name: owner }, dummyId).then(() => {
         expect(daoStubs.cancelUpVoteResponse).calledWith(sessionId, dummyId);
         done();
       }).catch(e => done(e));
@@ -298,13 +295,13 @@ describe('session manager', () => {
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
       daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
+      // connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
     });
     it('changes status', (done) => {
       const status = 'voting';
       const dummyResponse = {};
       daoStubs.setStatus.returns(Promise.resolve(dummyResponse));
-      sessionManager.setStatus(socketId, status).then((actual) => {
+      sessionManager.setStatus({ sessionId }, status).then((actual) => {
         expect(daoStubs.setStatus).calledWith(sessionId, status);
         expect(actual).to.equal(dummyResponse);
         done();
@@ -321,7 +318,8 @@ describe('session manager', () => {
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
       daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
+      daoStubs.addResponseType.resetHistory();
+      // connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
     });
     it('adds new response type', (done) => {
       // assemble
@@ -334,7 +332,7 @@ describe('session manager', () => {
       };
       daoStubs.addResponseType.returns(Promise.resolve(expected));
       // act
-      sessionManager.addResponseType(socketId, { question, type })
+      sessionManager.addResponseType({ sessionId, name: owner }, { question, type })
         .then((newResponseType) => {
           // assert
           expect(daoStubs.addResponseType).calledWith(sessionId, expected);
@@ -357,7 +355,7 @@ describe('session manager', () => {
         numValue,
       };
       // act
-      sessionManager.addResponseType(socketId, { question, type, boolValue, numValue })
+      sessionManager.addResponseType({ sessionId, name: owner }, { question, type, boolValue, numValue })
         .then((newResponseType) => {
           // assert
           expect(daoStubs.addResponseType).calledWith(sessionId, expected);
@@ -378,14 +376,14 @@ describe('session manager', () => {
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
       daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
+      // connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
     });
     it('marks response as flagged with message', (done) => {
       // assemble
       daoStubs.addFeedback.callsFake((s, r, message) => Promise.resolve({ responses: { [r]: { flagged: true, feedback: message } } }));
       // act
       const responseId = generate();
-      sessionManager.addFeedback(socketId, responseId, 'feedback')
+      sessionManager.addFeedback({ sessionId, name: owner }, responseId, 'feedback')
         .then((updatedResponse) => {
           // assert
           expect(daoStubs.addFeedback).calledWith(sessionId, responseId, 'feedback');
@@ -406,12 +404,12 @@ describe('session manager', () => {
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
       daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
+      // connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
     });
     it('disconnects the socket', (done) => {
       daoStubs.participantDisconnected.returns(Promise.resolve());
       // act
-      sessionManager.disconnect(socketId)
+      sessionManager.disconnect({ sessionId, name: owner })
         .then(() => {
           // assert
           expect(daoStubs.participantDisconnected).calledWith(sessionId, owner);
@@ -438,13 +436,13 @@ describe('session manager', () => {
       daoStubs.save.callsFake(s => Promise.resolve(s));
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
-      daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
+      daoStubs.getSession.returns(Promise.resolve(stubReturnSession));
     });
     it('reconnects the socket', (done) => {
-      connectionManagerStubs.getConnectionByToken.returns(Promise.resolve({ sessionId, name: owner }));
+      // connectionManagerStubs.getConnectionByToken.returns(Promise.resolve({ sessionId, name: owner }));
       daoStubs.participantReconnected.returns(Promise.resolve());
       // act
-      sessionManager.reconnect(socketId, token)
+      sessionManager.reconnect({ sessionId, name: owner }, socket)
         .then(() => {
           // assert
           expect(daoStubs.participantReconnected).calledWith(sessionId, owner);

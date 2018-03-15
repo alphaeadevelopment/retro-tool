@@ -1,24 +1,32 @@
-import sessionManager from '../../session';
+import sessionManager, { connectionManager } from '../../session';
 import modifySession from './modify-session';
-
+import emitError from './emit-error';
 
 export default (io, socket) => ({ token }) => { // eslint-disable-line no-unused-vars
   console.log('reconnect with token %s', token);
-  sessionManager.reconnect(socket, token)
-    .then(({ session, name }) => {
-      const sessionId = session.id;
-      console.log('reconnect %s with session %s', name, sessionId);
-      socket.join(sessionId);
-
-      socket.emit('reconnected', { name, session: modifySession(session, name) });
-      socket.to(sessionId).emit('participantReconnected', { name });
+  const onError = emitError(socket);
+  connectionManager.getConnectionByToken(token)
+    .then((connection) => {
+      const { sessionId, name } = connection;
+      sessionManager.reconnect(connection, socket)
+        .then((session) => {
+          console.log('reconnect %s with session %s', name, sessionId);
+          connectionManager.registerSocket(socket.id, name, sessionId)
+            .then(() => {
+              socket.join(sessionId);
+              socket.emit('reconnected', { name, session: modifySession(session, name) });
+              socket.to(sessionId).emit('participantReconnected', { name });
+            })
+            .catch(e => onError(e));
+        })
+        .catch((e) => {
+          if (e.message === 'unknown token') {
+            socket.emit('unknownToken', { token });
+          }
+          else {
+            onError(e, { token });
+          }
+        });
     })
-    .catch((e) => {
-      if (e.message === 'unknown token') {
-        socket.emit('unknownToken', { token });
-      }
-      else {
-        socket.emit('applicationError', { message: e.message, parameters: { token } });
-      }
-    });
+    .catch(e => onError(e));
 };

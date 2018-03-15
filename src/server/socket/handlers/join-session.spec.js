@@ -27,15 +27,24 @@ describe('joinSession', () => {
     sessionExists: sinon.stub(),
     joinSession: sinon.stub(),
   };
+  const connectionManagerStubs = {
+    registerSocket: sinon.stub(),
+    deregisterSocket: sinon.stub(),
+    socketRegistered: sinon.stub(),
+    getConnection: sinon.stub(),
+    getConnectionByToken: sinon.stub(),
+  };
   before(() => {
     joinSession = inject({
-      '../../session': sessionManagerStubs,
+      '../../session': { default: sessionManagerStubs, connectionManager: connectionManagerStubs },
       './modify-session': modifySessionStub,
     }).default;
     broadcastToStub.returns({
       emit: broadcastEmitSpy,
     });
     modifySessionStub.callsFake(s => s);
+    connectionManagerStubs.socketRegistered.returns(Promise.resolve(false));
+    connectionManagerStubs.registerSocket.returns(Promise.resolve());
   });
   beforeEach(() => {
     sessionManagerStubs.sessionExists.resetHistory();
@@ -57,7 +66,7 @@ describe('joinSession', () => {
       .then(() => {
         // assert
         expect(sessionManagerStubs.sessionExists).calledWith(sessionId);
-        expect(sessionManagerStubs.joinSession).calledWith(socket, name, sessionId, sinon.match.string);
+        expect(sessionManagerStubs.joinSession).calledWith(socket, name, sessionId);
         expect(joinSpy).calledWith(sessionId);
         expect(broadcastEmitSpy).calledWith('newParticipant', sinon.match({ name }));
         expect(socketEmitSpy).calledWith('joinedSession', sinon.match({ session, name }));
@@ -87,7 +96,7 @@ describe('joinSession', () => {
     const name = 'name';
     const sessionId = 'sessionId';
     sessionManagerStubs.sessionExists.returns(Promise.resolve(true));
-    sessionManagerStubs.joinSession.returns(Promise.reject(new Error('already in session')));
+    sessionManagerStubs.joinSession.returns(Promise.reject(new Error('name in use')));
 
     // act
     joinSession(io, socket)({ name, sessionId })
@@ -95,7 +104,7 @@ describe('joinSession', () => {
         // assert
         expect(socketEmitSpy).calledWith(
           'applicationError',
-          { message: 'already in session', parameters: { name, sessionId } },
+          { message: 'name in use', parameters: { name, sessionId } },
         );
         done();
       })

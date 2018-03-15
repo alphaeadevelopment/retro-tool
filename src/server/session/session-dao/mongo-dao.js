@@ -40,9 +40,6 @@ class MongoDao {
     coll => coll.count({ _id: sessionId }),
   ).then(r => r === 1)
 
-  updateSession = (sessionId, spec) => {
-
-  }
   save = session => this.withCollection(
     this.sessionsCollection,
     (coll) => {
@@ -182,5 +179,12 @@ class MongoDao {
       return coll.findOne(query);
     },
   ).then(r => omit(r, '_id'))
+
+  registerSocket = (socketId, name, sessionId, token) => this.withCollection(
+    this.socketsCollection,
+    (coll) => {
+      return coll.insert({ _id: socketId, name, sessionId, token });
+    })
+    .then(r => omit(r.ops[0], '_id'));
 }
 export default new MongoDao(process.env.DATABASE_NAME || 'sessions', process.env.MONGODB_URL);

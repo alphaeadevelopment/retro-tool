@@ -14,7 +14,7 @@
     "build": "webpack --config config/webpack.client.js",
     "start": "DAO=${DAO:-mongo} DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGDB_URL:-mongodb://localhost:27017/retro-tool-test} node src/server/index.js",
     "start:watch": "nodemon src/server/index.js",
-    "start:debug": "nodemon --inspect-brk src/server/index.js"
+    "start:debug": "DAO=${DAO:-mongo} DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGDB_URL:-mongodb://localhost:27017/retro-tool-test} nodemon --inspect-brk src/server/index.js"
   },
   "author": "Graham King <gking2224@gmail.com>",
   "license": "ISC",
@@ -68,7 +68,7 @@
     "immutability-helper": "^2.6.6",
     "js-services": "^1.0.10",
     "lodash": "^4.17.5",
-    "material-ui": "^1.0.0-beta.37",
+    "material-ui": "^1.0.0-beta.36",
     "material-ui-icons": "^1.0.0-beta.36",
     "material-ui-jsonschema-form": "^1.0.3",
     "mongodb": "^3.0.4",
