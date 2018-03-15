@@ -6,6 +6,7 @@ class MongoDao {
   sessionsCollection = 'sessions'
   socketsCollection = 'sockets'
   constructor(dbName, url) {
+    console.info('Creating Mongo DAO %s at %s', dbName, url);
     this.dbName = dbName;
     this.url = url;
   }

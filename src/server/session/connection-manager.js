@@ -1,7 +1,6 @@
 import dao from './session-dao';
 
 class ConnectionManager {
-
   registerSocket = (socketId, name, sessionId, token) => {
     return dao.registerSocket(socketId, name, sessionId, token);
   }
