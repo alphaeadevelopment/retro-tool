@@ -12,7 +12,6 @@ describe('sendFeedback', () => {
   const io = {};
   let addFeedback;
   const getSocketStub = sinon.stub();
-  const addFeedbackStub = sinon.stub();
   const socketEmitSpy = sinon.spy();
   const authorSocketEmitSpy = sinon.spy();
   const joinSpy = sinon.spy();
@@ -28,8 +27,8 @@ describe('sendFeedback', () => {
   const authorSocket = {
     emit: authorSocketEmitSpy,
   };
-  const sessionManager = {
-    addFeedback: addFeedbackStub,
+  const sessionManagerStubs = {
+    addFeedback: sinon.stub(),
   };
   const socketManager = {
     getSocket: getSocketStub,
@@ -40,7 +39,7 @@ describe('sendFeedback', () => {
   before(() => {
     author = 'author';
     addFeedback = inject({
-      '../../session': sessionManager,
+      '../../session': sessionManagerStubs,
       '../../session/socket-manager': socketManager,
     }).default;
     broadcastToStub.returns({
@@ -51,17 +50,23 @@ describe('sendFeedback', () => {
     socketEmitSpy.resetHistory();
     broadcastToStub.resetHistory();
   });
-  it('join session and broadcasts - control', () => {
+  it('join session and broadcasts - control', (done) => {
     // arrange
     getSocketStub.withArgs(author).returns(authorSocket);
-    addFeedbackStub.withArgs(socket.id, responseId, message).callsFake((socketId, r) => ({ id: r, author }));
+    sessionManagerStubs.addFeedback
+      .withArgs(socket.id, responseId, message)
+      .callsFake((socketId, r) => Promise.resolve({ id: r, author }));
 
     // act
-    addFeedback(io, socket)({ responseId, message });
+    addFeedback(io, socket)({ responseId, message })
+      .then(() => {
+        // assert
+        expect(sessionManagerStubs.addFeedback).calledWith(socket.id, responseId, message);
+        expect(authorSocketEmitSpy).calledWith('feedbackReceived', { responseId, message });
+        expect(socketEmitSpy).calledWith('feedbackReceived', { responseId, message });
+        done();
+      })
+      .catch(e => done(e));
 
-    // assert
-    expect(addFeedbackStub).calledWith(socket.id, responseId, message);
-    expect(authorSocketEmitSpy).calledWith('feedbackReceived', { responseId, message });
-    expect(socketEmitSpy).calledWith('feedbackReceived', { responseId, message });
   });
 });

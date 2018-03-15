@@ -5,7 +5,7 @@ import generate from 'shortid';
 import dao from './mongo-dao';
 import * as sessionMother from './session-mother';
 
-describe.only('mongo dao', () => {
+describe('mongo dao', () => {
   describe('save', () => {
     it('saves session', (done) => {
       // assemble
