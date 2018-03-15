@@ -6,14 +6,19 @@ import keys from 'lodash/keys';
 
 class InMemoryDao {
   sessions = {}
-  sessionExists = sessionId => includes(keys(this.sessions), sessionId)
-  updateSession = (sessionId, spec) => {
-    this.sessions = update(this.sessions, { [sessionId]: spec });
-    return clone(this.sessions[sessionId]);
-  }
+  sessionExists = sessionId => Promise.resolve(includes(keys(this.sessions), sessionId))
+  updateSession = (sessionId, spec) => new Promise((res, rej) => {
+    try {
+      this.sessions = update(this.sessions, { [sessionId]: spec });
+      res(clone(this.sessions[sessionId]));
+    }
+    catch (e) {
+      rej(e);
+    }
+  })
   save = (session) => {
     this.sessions = update(this.sessions, { $merge: { [session.id]: session } });
-    return this.sessions[session.id];
+    return Promise.resolve(this.sessions[session.id]);
   }
   addParticipant = (sessionId, newParticipant) => this.updateSession(sessionId, {
     participants: {
@@ -70,6 +75,6 @@ class InMemoryDao {
     },
   });
   setStatus = (sessionId, status) => this.updateSession(sessionId, { status: { $set: status } })
-  getSession = sessionId => clone(this.sessions[sessionId])
+  getSession = sessionId => Promise.resolve(clone(this.sessions[sessionId]))
 }
 export default new InMemoryDao();
