@@ -13,7 +13,7 @@
     "postinstall": "npm run build",
     "build": "webpack --config config/webpack.client.js",
     "start": "DAO=${DAO:-mongo} DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGDB_URL:-mongodb://localhost:27017/retro-tool-test} node src/server/index.js",
-    "start:watch": "nodemon src/server/index.js",
+    "start:watch": "DAO=${DAO:-mongo} DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGDB_URL:-mongodb://localhost:27017/retro-tool-test} nodemon src/server/index.js",
     "start:debug": "DAO=${DAO:-mongo} DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGDB_URL:-mongodb://localhost:27017/retro-tool-test} nodemon --inspect-brk src/server/index.js"
   },
   "author": "Graham King <gking2224@gmail.com>",

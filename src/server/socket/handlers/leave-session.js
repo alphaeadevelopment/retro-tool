@@ -11,9 +11,12 @@ export default (io, socket) => () => { // eslint-disable-line no-unused-vars
       if (name) {
         sessionManager.leaveSession(connection)
           .then((sessionId) => {
-            socket.broadcast.to(sessionId).emit('participantLeft', { name });
-            socket.leave(sessionId);
-            socket.emit('leftSession');
+            connectionManager.deregisterSocket(socket.id)
+              .then(() => {
+                socket.broadcast.to(sessionId).emit('participantLeft', { name });
+                socket.leave(sessionId);
+                socket.emit('leftSession');
+              });
           })
           .catch(e => onError(e));
       }

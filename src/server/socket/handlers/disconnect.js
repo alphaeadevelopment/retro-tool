@@ -8,7 +8,7 @@ export default (io, socket) => (data) => { // eslint-disable-line no-unused-vars
       const { sessionId, name } = connection;
       sessionManager.disconnect(connection)
         .then(() => {
-          connectionManager.deregisterSocket(socket.id);
+          // connectionManager.deregisterSocket(socket.id);
           io.to(sessionId).emit('participantDisconnected', { name });
         })
         .catch(e => onError(e));

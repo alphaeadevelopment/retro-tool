@@ -4,6 +4,7 @@ import omit from 'lodash/omit';
 
 class MongoDao {
   sessionsCollection = 'sessions'
+  socketsCollection = 'sockets'
   constructor(dbName, url) {
     this.dbName = dbName;
     this.url = url;
@@ -18,7 +19,6 @@ class MongoDao {
           try {
             fn.call(self, coll)
               .then((d) => {
-                const { result, ops, insertedCount, insertedIds } = d;
                 res(d);
                 client.close();
               })
@@ -186,5 +186,40 @@ class MongoDao {
       return coll.insert({ _id: socketId, name, sessionId, token });
     })
     .then(r => omit(r.ops[0], '_id'));
+
+  deregisterSocket = socketId => this.withCollection(
+    this.socketsCollection,
+    (coll) => {
+      return coll.deleteOne({ _id: socketId });
+    })
+    .then(r => null);
+
+  isSocketRegistered = socketId => this.withCollection(
+    this.socketsCollection,
+    (coll) => {
+      const query = { _id: socketId };
+      return coll.count(query);
+    })
+    .then(r => r === 1);
+
+  getConnection = socketId => this.withCollection(
+    this.socketsCollection,
+    (coll) => {
+      const query = { _id: socketId };
+      return coll.findOne(query);
+    })
+    .then(r => r);
+
+  getConnectionByToken = token => this.withCollection(
+    this.socketsCollection,
+    (coll) => {
+      const query = { token };
+      console.log('find by query %o', query);
+      return coll.findOne(query);
+    })
+    .then((r) => {
+      console.log('got result %o', r);
+      return { ...omit(r, '_id'), socketId: r._id }; // eslint-disable-line no-underscore-dangle
+    });
 }
 export default new MongoDao(process.env.DATABASE_NAME || 'sessions', process.env.MONGODB_URL);
