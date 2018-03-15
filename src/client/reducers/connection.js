@@ -17,6 +17,8 @@ export default (state = initial, { type, payload }) => {
       return update(state, { name: { $set: payload.name }, owner: { $set: false } });
     case Types.RECONNECTED:
       return update(state, { name: { $set: payload.name }, owner: { $set: payload.session.owner === payload.name } });
+    case Types.DISCONNECT:
+      return update(state, { connected: { $set: false } });
     default:
       return state;
   }

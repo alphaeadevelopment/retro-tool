@@ -4,7 +4,7 @@ import pickBy from 'lodash/pickBy';
 import camelCase from 'lodash/camelCase';
 import startsWith from 'lodash/startsWith';
 
-const HANDLER_PREFIX = 'onSocketEvent';
+const HANDLER_PREFIX = 'on';
 
 const getEvent = e => camelCase(e.substring(HANDLER_PREFIX.length));
 

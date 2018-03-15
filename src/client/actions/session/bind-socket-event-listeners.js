@@ -5,49 +5,50 @@ import snakeCase from 'lodash/snakeCase';
 import * as Types from '../types';
 
 const listeners = {
-  onSocketEventSessionCreated: {
+  onSessionCreated: {
     fn: ({ token }) => {
       window.localStorage.setItem('token', token);
     },
   },
-  onSocketEventLeftSession: {
+  onLeftSession: {
     fn: () => {
       window.localStorage.removeItem('token');
     },
   },
-  onSocketEventJoinedSession: {
+  onJoinedSession: {
     fn: ({ token }) => {
       window.localStorage.setItem('token', token);
     },
   },
-  onSocketEventUnknownToken: {
+  onUnknownToken: {
     fn: () => {
       window.localStorage.removeItem('token');
     },
   },
-  onSocketEventNewParticipant: {},
-  onSocketEventReconnected: {},
-  onSocketEventNoSuchSession: {},
-  onSocketEventParticipantLeft: {},
-  onSocketEventParticipantReconnected: {},
-  onSocketEventParticipantDisconnected: {},
-  onSocketEventResponseAdded: {},
-  onSocketEventUpVoteRegistered: {},
-  onSocketEventUpVoteCancelled: {},
-  onSocketEventSyncSession: {},
-  onSocketEventResponseTypeAdded: {},
-  onSocketEventUserVoted: {},
-  onSocketEventUserUnvoted: {},
-  onSocketEventFeedbackReceived: {},
-  onSocketEventApplicationError: {},
-  onSocketEventInit: {},
-};
+  onNewParticipant: {},
+  onReconnected: {},
+  onNoSuchSession: {},
+  onParticipantLeft: {},
+  onParticipantReconnected: {},
+  onParticipantDisconnected: {},
+  onResponseAdded: {},
+  onUpVoteRegistered: {},
+  onUpVoteCancelled: {},
+  onSyncSession: {},
+  onResponseTypeAdded: {},
+  onUserVoted: {},
+  onUserUnvoted: {},
+  onFeedbackReceived: {},
+  onApplicationError: {},
+  onInit: {},
+  onDisconnect: {},
+}; // remember to add action type to ./types.js
 
 const listenerFunctions = mapValues(listeners, (options, handlerName) => {
-  const type = snakeCase(handlerName.substring(13)).toUpperCase();
+  const type = snakeCase(handlerName.substring(2)).toUpperCase();
   const action = createAction(Types[type]);
   const handlerFunc = obj => (dispatch) => {
-    console.log('Received %s(%o)', type, obj);
+    console.log('Received %s(%o)', type, obj); // eslint-disable-line no-console
     if (options.fn) options.fn.call(null, obj);
     dispatch(action(obj));
   };

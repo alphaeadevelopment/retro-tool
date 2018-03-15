@@ -19,7 +19,6 @@ export class RawSocketProvider extends React.Component {
     this.setState({
       socket,
     });
-    bindSocketListeners(Actions, socket, dispatch);
     bindSocketListeners(Actions.Listeners, socket, dispatch);
   }
   render() {

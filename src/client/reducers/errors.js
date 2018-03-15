@@ -26,6 +26,12 @@ export default (state = initial, { type, payload }) => {
       return update(state, {
         errors: { $apply: errors => omit(errors, payload.errorId) },
       });
+    case Types.DISCONNECT:
+      return update(state, {
+        errors: {
+          $merge: createError({ message: 'server disconnected' }),
+        },
+      });
     default:
       return state;
   }

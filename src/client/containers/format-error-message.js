@@ -3,6 +3,7 @@ const messageMap = {
   'name in use': 'That name is already taken by another user',
   'no such session': 'Unknown session',
   'connection reset': 'Connection to the server was reset',
+  'server disconnected': 'The server has disconnected',
 };
 
 export default ({ message }) => {
