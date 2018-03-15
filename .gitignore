@@ -4,3 +4,4 @@ config/module-config
 mochawesome-report-unit
 
 .tmp
+data

@@ -6,6 +6,10 @@
   "scripts": {
     "test": "npm run test:ci -- --watch",
     "test:ci": "mocha-webpack --webpack-config config/webpack.mocha.js --glob \"*.spec.js*\" --recursive --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit src",
+    "test:server": "npm run test:server:ci -- --watch",
+    "test:server:ci": "mocha-webpack --webpack-config config/webpack.mocha.server.js --glob \"*.spec.js*\" --recursive --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit src/server",
+    "test:it:server": "DAO=${DAO:-mongo} DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGDB_URL:-mongodb://localhost:27017/retro-tool-test}  npm run test:it:server:ci -- --watch",
+    "test:it:server:ci": "mocha-webpack --webpack-config config/webpack.mocha.server.js --glob \"*.spec.it.js*\" --recursive --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit src/server",
     "postinstall": "npm run build",
     "build": "webpack --config config/webpack.client.js",
     "start": "node src/server/index.js",
@@ -67,6 +71,7 @@
     "material-ui": "^1.0.0-beta.36",
     "material-ui-icons": "^1.0.0-beta.36",
     "material-ui-jsonschema-form": "^1.0.3",
+    "mongodb": "^3.0.4",
     "parseuri": "0.0.5",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
