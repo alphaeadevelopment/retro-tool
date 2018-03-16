@@ -1,16 +1,19 @@
 import React from 'react';
 import size from 'lodash/size';
+import d3 from 'd3';
 import { withStyles } from 'material-ui/styles';
 import NVD3Chart from 'react-nvd3';
 import getChartData from './get-chart-data';
 
-const styles = {
+const styles = theme => ({
   root: {
     '& svg': {
       height: 300,
+      width: '100%',
     },
+    'marginTop': theme.spacing.unit * 2,
   },
-};
+});
 
 export const RawResponsesChart = ({
   responses,

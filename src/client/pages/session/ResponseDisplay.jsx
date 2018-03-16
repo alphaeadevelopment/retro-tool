@@ -12,7 +12,7 @@ const styles = {
 const YourResponses = ({ responses }) => (
   <ul>
     {keys(responses).map(r => (
-      <li key={r}>
+      <li key={r} style={{ listStyle: 'none' }}>
         <span>{getResponseValue(responses[r].response)}</span>
       </li>
     ))}
@@ -26,7 +26,7 @@ const YourResponse = ({ responses }) => {
   );
 };
 
-const getYesNoComponent = (responseType, isOwner, sessionStatus) => {
+const getChartResponseComponent = (responseType, isOwner, sessionStatus) => {
   if (isOwner) {
     return ResponsesChart;
   }
@@ -41,7 +41,9 @@ const getYesNoComponent = (responseType, isOwner, sessionStatus) => {
 export const getDisplayComponent = (responseType, isOwner, sessionStatus) => {
   switch (responseType.type) {
     case 'Yes/No':
-      return getYesNoComponent(responseType, isOwner, sessionStatus);
+      return getChartResponseComponent(responseType, isOwner, sessionStatus);
+    case 'Number':
+      return getChartResponseComponent(responseType, isOwner, sessionStatus);
     case 'text':
     default:
       return ResponsesList;
