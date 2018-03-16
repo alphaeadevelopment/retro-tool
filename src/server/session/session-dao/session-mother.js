@@ -10,6 +10,8 @@ export const fakeSession = (id, owner) => ({
       connected: true,
     },
   },
+  numParticipants: 1,
+  connectedParticipants: 1,
   owner,
   responses: {
   },

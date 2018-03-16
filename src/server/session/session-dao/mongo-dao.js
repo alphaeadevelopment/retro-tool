@@ -55,6 +55,10 @@ class MongoDao {
       const query = { _id: sessionId };
       const spec = {
         $set: {},
+        $inc: {
+          numParticipants: 1,
+          connectedParticipants: 1,
+        },
       };
       spec.$set[`participants.${newParticipant.name}`] = newParticipant;
       return coll.updateOne(query, spec);
@@ -68,6 +72,10 @@ class MongoDao {
       const spec = {
         $unset: {
         },
+        $inc: {
+          numParticipants: -1,
+          connectedParticipants: -1,
+        },
       };
       spec.$unset[`participants.${name}`] = '';
       return coll.updateOne(query, spec);
@@ -79,6 +87,9 @@ class MongoDao {
       const query = { '_id': sessionId };
       const spec = {
         $set: {},
+        $inc: {
+          connectedParticipants: -1,
+        },
       };
       spec.$set[`participants.${name}.connected`] = false;
       return coll.updateOne(query, spec);
@@ -91,6 +102,9 @@ class MongoDao {
       const query = { '_id': sessionId };
       const spec = {
         $set: {},
+        $inc: {
+          connectedParticipants: 1,
+        },
       };
       spec.$set[`participants.${name}.connected`] = true;
       return coll.updateOne(query, spec);
@@ -215,12 +229,10 @@ class MongoDao {
     this.socketsCollection,
     (coll) => {
       const query = { token };
-      console.log('find by query %o', query);
       return coll.findOne(query);
     })
     .then((r) => {
-      console.log('got result %o', r);
-      return { ...omit(r, '_id'), socketId: r._id }; // eslint-disable-line no-underscore-dangle
+      return r && { ...omit(r, '_id'), socketId: r._id }; // eslint-disable-line no-underscore-dangle
     });
 }
 export default new MongoDao(process.env.DATABASE_NAME || 'sessions', process.env.MONGODB_URL);

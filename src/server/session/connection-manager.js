@@ -24,7 +24,7 @@ class ConnectionManager {
       .catch(e => rej(e));
   });
 
-  getConnectionByToken = token => dao.getConnectionByToken(token)
+  getConnectionByToken = token => dao.getConnectionByToken(token).then(r => r || {})
 }
 
 export default new ConnectionManager();
