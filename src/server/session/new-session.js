@@ -11,6 +11,8 @@ export default (id, owner) => ({
   owner,
   responses: {
   },
+  numParticipants: 1,
+  connectedParticipants: 1,
   responseTypes: {
     continue: {
       id: 'continue',
