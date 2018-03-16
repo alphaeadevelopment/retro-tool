@@ -95,7 +95,7 @@ export class RawResponse extends React.Component {
         )}
       >
         <Typography className={classNames(classes.responseText, { [classes.flagged]: response.flagged })}>
-          {response.response} {sessionStatus === 'discuss' && <span>({response.votes})</span>}
+          {String(response.response)} {sessionStatus === 'discuss' && <span>({response.votes})</span>}
         </Typography>
         <div>
           {voting && voted && !ownResponse && <IconButton onClick={onCancelUpVote}><Star /></IconButton>}

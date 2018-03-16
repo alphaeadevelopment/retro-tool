@@ -1,5 +1,5 @@
-export default (type) => {
-  switch (type) {
+export default (responseType) => {
+  switch (responseType.type) {
     case 'Number':
       return '';
     case 'Yes/No':

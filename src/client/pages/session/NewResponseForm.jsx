@@ -25,7 +25,7 @@ export class RawNewResponseForm extends React.Component {
       },
     },
     formData: {
-      value: getDefaultValue(this.props.repsonseType),
+      value: getDefaultValue(this.props.responseType),
     },
   }
   onChange = ({ formData }) => {
@@ -33,7 +33,7 @@ export class RawNewResponseForm extends React.Component {
   }
   onSubmit = ({ formData }) => {
     if (this.props.onAdd) this.props.onAdd(formData.value);
-    this.setState({ formData: { value: getDefaultValue(this.props.repsonseType) } });
+    this.setState({ formData: { value: getDefaultValue(this.props.responseType) } });
   }
   render() {
     const { formSchema, formData } = this.state;
