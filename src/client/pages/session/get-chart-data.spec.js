@@ -51,4 +51,22 @@ describe('getChartData', () => {
     ];
     expect(getChartData(responses)).to.deep.equal(expected);
   });
+  it('de-normalise responses', () => {
+    const responses = [
+      { response: ['a', 'b', 'c'] },
+      { response: ['a'] },
+    ];
+    const expected = [
+      {
+        label: 'a', value: 2,
+      },
+      {
+        label: 'b', value: 1,
+      },
+      {
+        label: 'c', value: 1,
+      },
+    ];
+    expect(getChartData(responses)).to.deep.equal(expected);
+  });
 });
