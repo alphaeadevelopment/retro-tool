@@ -16,7 +16,8 @@ export default (io, socket) => () => { // eslint-disable-line no-unused-vars
                 socket.broadcast.to(sessionId).emit('participantLeft', { name });
                 socket.leave(sessionId);
                 socket.emit('leftSession');
-              });
+              })
+              .catch(e => onError(e));
           })
           .catch(e => onError(e));
       }

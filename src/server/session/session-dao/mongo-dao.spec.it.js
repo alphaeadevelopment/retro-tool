@@ -1,4 +1,4 @@
-/* globals xdescribe, xit, before describe, it, beforeEach */ // eslint-disable-line no-unused-vars
+/* globals xdescribe, xit, before, describe, it, beforeEach */ // eslint-disable-line no-unused-vars
 /* eslint-disable no-unused-expressions,import/no-webpack-loader-syntax,import/no-extraneous-dependencies */
 import { expect } from 'chai';
 import generate from 'shortid';
@@ -203,6 +203,33 @@ describe('mongo dao', () => {
           expect(updatedSession.connectedParticipants).to.equal(0);
           done();
         }).catch(e => done(e));
+      });
+    });
+    describe('zeroConnectedParticipants', () => {
+      const sessionId2 = generate();
+      before((done) => {
+        const zeroSession = {
+          id: sessionId2,
+          connectedParticipants: 2,
+        };
+        // act
+        dao.save(zeroSession)
+          .then(() => {
+            done();
+          })
+          .catch(e => done(e));
+      });
+      it.only('removes participant', (done) => {
+        dao.resetAllConnections()
+          .then(() => {
+            dao.getSession(sessionId2)
+              .then((sess) => {
+                expect(sess.connectedParticipants).to.equal(0);
+                done();
+              })
+              .catch(e => done(e));
+          })
+          .catch(e => done(e));
       });
     });
   });
