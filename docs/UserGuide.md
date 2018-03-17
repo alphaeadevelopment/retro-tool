@@ -32,11 +32,11 @@ Block inappropriate or duplicated responses:
 
 Provide a reason:
 
-![Block Response Dialog](./static/images/block-response-dialog.png "Block Response Dialog")
+![Block Response Dialog](./static/images/block-dialog.png "Block Response Dialog")
 
 The user will receive a notification and reason:
 
-![Block Response Notification](./static/images/block-notification.png "Block Response Notification")
+![Block Response Notification](./static/images/block-response-notification.png "Block Response Notification")
 
 ## Start voting
 
