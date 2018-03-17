@@ -81,6 +81,7 @@ class MongoDao {
       return coll.updateOne(query, spec);
     },
   ).then(r => this.getSession(sessionId));
+
   participantDisconnected = (sessionId, name) => this.withCollection(
     this.sessionsCollection,
     (coll) => {
@@ -95,6 +96,17 @@ class MongoDao {
       return coll.updateOne(query, spec);
     },
   ).then(() => this.getSession(sessionId));
+
+  resetAllConnections = () => this.withCollection(
+    this.sessionsCollection,
+    (coll) => {
+      const query = {};
+      const spec = {
+        $set: { connectedParticipants: 0 },
+      };
+      return coll.updateMany(query, spec);
+    },
+  );
 
   participantReconnected = (sessionId, name) => this.withCollection(
     this.sessionsCollection,
@@ -197,16 +209,12 @@ class MongoDao {
 
   registerSocket = (socketId, name, sessionId, token) => this.withCollection(
     this.socketsCollection,
-    (coll) => {
-      return coll.insert({ _id: socketId, name, sessionId, token });
-    })
+    coll => coll.insert({ _id: socketId, name, sessionId, token }))
     .then(r => omit(r.ops[0], '_id'));
 
   deregisterSocket = socketId => this.withCollection(
     this.socketsCollection,
-    (coll) => {
-      return coll.deleteOne({ _id: socketId });
-    })
+    coll => coll.deleteOne({ _id: socketId }))
     .then(r => null);
 
   isSocketRegistered = socketId => this.withCollection(
@@ -231,8 +239,8 @@ class MongoDao {
       const query = { token };
       return coll.findOne(query);
     })
-    .then((r) => {
-      return r && { ...omit(r, '_id'), socketId: r._id }; // eslint-disable-line no-underscore-dangle
-    });
+    .then(r =>
+      r && { ...omit(r, '_id'), socketId: r._id }, // eslint-disable-line no-underscore-dangle
+    );
 }
 export default new MongoDao(process.env.DATABASE_NAME || 'sessions', process.env.MONGODB_URL);
