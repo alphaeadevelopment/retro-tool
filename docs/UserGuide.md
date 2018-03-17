@@ -36,13 +36,13 @@ Provide a reason:
 
 The user will receive a notification and reason:
 
-![Block Response Notification](./static/images/block-response-notification.png "Block Response Notification")
+![Block Response Notification](./static/images/block-notification.png "Block Response Notification")
 
 ## Start voting
 
 Session owner can open for votes.
 
-![Open For Voting](./static/images/open-for-voting.png "Open For Voting")
+![Open For Voting](./static/images/open-for-voting-button.png "Open For Voting")
 
 At this point, all participants can see others' responses and vote on their top three responses. Blocked responses are not shown.
 
