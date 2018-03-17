@@ -1,10 +1,10 @@
 # Retrospective Tool
 
 ## Install
-Either install the server locally (see [here](https://github.com/alphaeadevelopment/retro-tool/blob/master/docs/README.md)) for instructions or use the
+Either [install and run the server on your local machine](https://github.com/alphaeadevelopment/retro-tool/blob/master/docs/README.md) or use the
 [free hosted service](https://retro-tool.herokuapp.com/).
 
-_IMPORTANT: Please note that no assurances are given or implied with regards to the resilience or security of data on the hosted service. Sessions with no connected participants are frequently purged in order to keep the size of the data store within the hosted platform's free tier_
+_IMPORTANT: No assurances are made in respect of either the resilience or the security of data submitted to the hosted service. Although the hosted service does persist session data in a mongo database, it will periodically sweep and purge any sessions that have no connected users. This is to ensure that the size of the datastore remains within free usage limits._
 
 ## Start a new session
 Click the 'Host new session' link and enter your name when prompted.

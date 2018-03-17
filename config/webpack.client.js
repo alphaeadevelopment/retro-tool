@@ -154,7 +154,6 @@ const config = {
   ],
   target: 'web',
 };
-console.log(config.resolve.alias);
 
 // PROD ONLY
 if (process.env.NODE_ENV === 'production') {
