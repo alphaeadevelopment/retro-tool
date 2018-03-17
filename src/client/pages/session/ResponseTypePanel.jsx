@@ -6,6 +6,7 @@ import Typography from 'material-ui/Typography';
 import NewResponseForm from './NewResponseForm';
 import * as Selectors from '../../selectors';
 import ResponseDisplay from './ResponseDisplay';
+import showResponseForm from './show-response-form';
 
 const styles = theme => ({
   root: {
@@ -14,14 +15,14 @@ const styles = theme => ({
   },
 });
 export const RawResponseTypePanel = ({
-  classes, responseType, responses, onAdd, sessionStatus, ...rest
+  classes, name, responseType, responses, onAdd, sessionStatus, ...rest
 }) => {
-  const allowMore = (responseType.type !== 'Choices' && Boolean(responseType.allowMultiple)) || responses.length === 0;
+  const showForm = showResponseForm(responseType, responses, sessionStatus, name);
   return (
     <Paper className={classes.root}>
       <Typography variant={'subheading'}>{responseType.title}</Typography>
       <ResponseDisplay sessionStatus={sessionStatus} responses={responses} responseType={responseType} {...rest} />
-      {sessionStatus === 'initial' && allowMore && <NewResponseForm onAdd={onAdd} responseType={responseType} />}
+      {showForm && <NewResponseForm onAdd={onAdd} responseType={responseType} />}
     </Paper>
   );
 };

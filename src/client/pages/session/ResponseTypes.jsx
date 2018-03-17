@@ -51,44 +51,45 @@ const styles = theme => ({
     transform: 'translateX(-50%) translateY(-50%)',
   },
 });
-export class RawResponseTypes extends React.Component {
-  state = {
-    displayForm: false,
-    formData: {
-      question: '',
-      allowMultiple: true,
-      type: 'Text',
-      choices: [''],
-    },
-    schema: defaultSchema,
+
+const getFormSchemaForType = (type) => {
+  if (type === 'Choices') {
+    return update(defaultSchema, { properties: { $merge: choicesProperty } });
   }
+  return defaultSchema;
+};
+const defaultFormData = () => ({
+  question: '',
+  allowMultiple: true,
+  type: 'Text',
+  choices: [''],
+});
+const defaultState = () => ({
+  displayForm: false,
+  formData: defaultFormData(),
+  schema: getFormSchemaForType('Text'),
+});
+export class RawResponseTypes extends React.Component {
+  state = defaultState()
   onSubmit = ({ formData }) => {
-    this.setState({ displayForm: false });
     this.clearForm();
     if (this.props.onAddResponseType) this.props.onAddResponseType(formData);
   }
   onCancel = () => {
-    this.setState({ displayForm: false });
     this.clearForm();
   }
   onChange = ({ formData }) => {
     const newState = { formData };
     if (formData.type !== this.state.formData.type) {
-      newState.schema = this.getFormSchemaForType(formData.type);
+      newState.schema = getFormSchemaForType(formData.type);
     }
     this.setState(newState);
   }
   onClickAddResponseType = () => {
     this.setState({ displayForm: true });
   }
-  getFormSchemaForType = (type) => {
-    if (type === 'Choices') {
-      return update(defaultSchema, { properties: { $merge: choicesProperty } });
-    }
-    return defaultSchema;
-  }
   clearForm = () => {
-    this.setState({ formData: { question: '', type: 'Text', allowMultiple: true } });
+    this.setState(defaultState());
   }
   render() {
     const { isOwner, classes, session, onAddResponse, ...rest } = this.props;

@@ -41,8 +41,8 @@ const getChartResponseComponent = (responseType, isOwner, sessionStatus) => {
 export const getDisplayComponent = (responseType, isOwner, sessionStatus) => {
   switch (responseType.type) {
     case 'Yes/No':
-      return getChartResponseComponent(responseType, isOwner, sessionStatus);
     case 'Number':
+    case 'Choices':
       return getChartResponseComponent(responseType, isOwner, sessionStatus);
     case 'text':
     default:
