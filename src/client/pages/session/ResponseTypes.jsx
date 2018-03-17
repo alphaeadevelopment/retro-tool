@@ -51,24 +51,26 @@ const styles = theme => ({
     transform: 'translateX(-50%) translateY(-50%)',
   },
 });
+
+const defaultState = () => ({
+  displayForm: false,
+  formData: {
+    question: '',
+    allowMultiple: true,
+    type: 'Text',
+    choices: [''],
+  },
+  schema: defaultSchema,
+});
 export class RawResponseTypes extends React.Component {
-  state = {
-    displayForm: false,
-    formData: {
-      question: '',
-      allowMultiple: true,
-      type: 'Text',
-      choices: [''],
-    },
-    schema: defaultSchema,
-  }
+  state = defaultState()
   onSubmit = ({ formData }) => {
-    this.setState({ displayForm: false });
+    this.setState(defaultState());
     this.clearForm();
     if (this.props.onAddResponseType) this.props.onAddResponseType(formData);
   }
   onCancel = () => {
-    this.setState({ displayForm: false });
+    this.setState(defaultState());
     this.clearForm();
   }
   onChange = ({ formData }) => {
