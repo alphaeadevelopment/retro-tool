@@ -1,8 +1,9 @@
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import Form from 'material-ui-jsonschema-form';
-import getValueSchema from './get-value-schema';
+import getSchema from './get-schema-for-response-type';
 import getDefaultValue from './get-default-value';
+import getUiSchema from './get-ui-schema-for-response-type';
 
 const styles = {
   root: {
@@ -21,8 +22,11 @@ export class RawNewResponseForm extends React.Component {
     formSchema: {
       type: 'object',
       properties: {
-        value: getValueSchema(this.props.responseType),
+        value: getSchema(this.props.responseType),
       },
+    },
+    uiSchema: {
+      value: getUiSchema(this.props.responseType),
     },
     formData: {
       value: getDefaultValue(this.props.responseType),
@@ -36,11 +40,11 @@ export class RawNewResponseForm extends React.Component {
     this.setState({ formData: { value: getDefaultValue(this.props.responseType) } });
   }
   render() {
-    const { formSchema, formData } = this.state;
+    const { formSchema, formData, uiSchema } = this.state;
     const { classes } = this.props;
     return (
       <div className={classes.root}>
-        <Form schema={formSchema} formData={formData} onChange={this.onChange} onSubmit={this.onSubmit} />
+        <Form schema={formSchema} uiSchema={uiSchema} formData={formData} onChange={this.onChange} onSubmit={this.onSubmit} />
       </div>
     );
   }

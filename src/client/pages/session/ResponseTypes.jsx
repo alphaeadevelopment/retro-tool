@@ -1,4 +1,5 @@
 import React from 'react';
+import update from 'immutability-helper';
 import Form from 'material-ui-jsonschema-form';
 import keys from 'lodash/keys';
 import filter from 'lodash/filter';
@@ -8,6 +9,34 @@ import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import ResponseTypePanel from './ResponseTypePanel';
 
+const defaultSchema = {
+  type: 'object',
+  properties: {
+    question: {
+      title: 'Title',
+      type: 'string',
+    },
+    type: {
+      title: 'Type',
+      type: 'string',
+      enum: ['Text', 'Number', 'Yes/No', 'Choices'],
+    },
+    allowMultiple: {
+      title: 'Allow Multiple',
+      type: 'boolean',
+    },
+  },
+};
+const choicesProperty = {
+  choices: {
+    title: 'Choices',
+    type: 'array',
+    items: {
+      type: 'string',
+      default: '',
+    },
+  },
+};
 const styles = theme => ({
   root: {
     '&>div:first-child': {
@@ -29,7 +58,9 @@ export class RawResponseTypes extends React.Component {
       question: '',
       allowMultiple: true,
       type: 'Text',
+      choices: [''],
     },
+    schema: defaultSchema,
   }
   onSubmit = ({ formData }) => {
     this.setState({ displayForm: false });
@@ -41,35 +72,27 @@ export class RawResponseTypes extends React.Component {
     this.clearForm();
   }
   onChange = ({ formData }) => {
-    this.setState({ formData });
+    const newState = { formData };
+    if (formData.type !== this.state.formData.type) {
+      newState.schema = this.getFormSchemaForType(formData.type);
+    }
+    this.setState(newState);
   }
   onClickAddResponseType = () => {
     this.setState({ displayForm: true });
   }
+  getFormSchemaForType = (type) => {
+    if (type === 'Choices') {
+      return update(defaultSchema, { properties: { $merge: choicesProperty } });
+    }
+    return defaultSchema;
+  }
   clearForm = () => {
     this.setState({ formData: { question: '', type: 'Text', allowMultiple: true } });
   }
-  formSchema = {
-    type: 'object',
-    properties: {
-      question: {
-        title: 'Title',
-        type: 'string',
-      },
-      type: {
-        title: 'Type',
-        type: 'string',
-        enum: ['Text', 'Number', 'Yes/No'],
-      },
-      allowMultiple: {
-        title: 'Allow Multiple',
-        type: 'boolean',
-      },
-    },
-  }
   render() {
     const { isOwner, classes, session, onAddResponse, ...rest } = this.props;
-    const { displayForm, formData } = this.state;
+    const { displayForm, formData, schema } = this.state;
     return (
       <div className={classes.root}>
         <Grid container>
@@ -89,7 +112,7 @@ export class RawResponseTypes extends React.Component {
         <Modal open={displayForm} onClose={this.onCancel} disableEnforceFocus>
           <div className={classes.formCtr}>
             {displayForm && <Form
-              schema={this.formSchema}
+              schema={schema}
               onCancel={this.onCancel}
               onSubmit={this.onSubmit}
               formData={formData}

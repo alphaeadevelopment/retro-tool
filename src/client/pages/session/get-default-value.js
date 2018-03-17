@@ -4,6 +4,8 @@ export default (responseType) => {
       return '';
     case 'Yes/No':
       return false;
+    case 'Choices':
+      return [];
     case 'Text':
     default:
       return '';

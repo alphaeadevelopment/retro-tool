@@ -154,6 +154,7 @@ const config = {
   ],
   target: 'web',
 };
+console.log(config.resolve.alias);
 
 // PROD ONLY
 if (process.env.NODE_ENV === 'production') {
@@ -166,24 +167,24 @@ else {
   config.plugins.push(
     // new CleanWebpackPlugin([path.join(__dirname, '../dist')], { root: process.cwd() }),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.LoaderOptionsPlugin({
-      options: {
-        eslint: {
-          configFile: path.join(__dirname, '../.eslintrc.js'),
-          failOnWarning: false,
-          failOnError: true,
-          ignorePatten: ['node_modules', 'dist', '**/config-client/**']
-        },
-      },
-    }),
+    // new webpack.LoaderOptionsPlugin({
+    //   options: {
+    //     eslint: {
+    //       configFile: path.join(__dirname, '../.eslintrc.js'),
+    //       failOnWarning: false,
+    //       failOnError: false,
+    //       ignorePatten: ['node_modules', 'dist', '**/config-client/**']
+    //     },
+    //   },
+    // }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'server',
       openAnalyzer: false,
     }),
   );
   config.entry.main.splice(0, 0, 'webpack-hot-middleware/client');
-  config.module.rules.push(
-    { enforce: 'pre', test: /\.jsx?$/, loader: 'eslint-loader', exclude: babelExclude },
-  );
+  // config.module.rules.push(
+  //   { enforce: 'pre', test: /\.jsx?$/, loader: 'eslint-loader', exclude: babelExclude },
+  // );
 }
 module.exports = config

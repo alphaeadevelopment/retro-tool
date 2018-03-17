@@ -1,6 +1,5 @@
 import React from 'react';
 import size from 'lodash/size';
-import d3 from 'd3';
 import { withStyles } from 'material-ui/styles';
 import NVD3Chart from 'react-nvd3';
 import getChartData from './get-chart-data';

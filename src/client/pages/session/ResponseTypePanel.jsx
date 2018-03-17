@@ -16,7 +16,7 @@ const styles = theme => ({
 export const RawResponseTypePanel = ({
   classes, responseType, responses, onAdd, sessionStatus, ...rest
 }) => {
-  const allowMore = Boolean(responseType.allowMultiple) || responses.length === 0;
+  const allowMore = (responseType.type !== 'Choices' && Boolean(responseType.allowMultiple)) || responses.length === 0;
   return (
     <Paper className={classes.root}>
       <Typography variant={'subheading'}>{responseType.title}</Typography>
