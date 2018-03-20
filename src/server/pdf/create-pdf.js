@@ -1,4 +1,6 @@
 import PDFDocument from 'pdfkit';
+import path from 'path';
+import fs from 'fs';
 import base64 from 'base64-stream';
 import forEach from 'lodash/forEach';
 import pickBy from 'lodash/pickBy';
@@ -23,6 +25,8 @@ export default session => new Promise((res, rej) => {
   try {
     console.log('Creating PDF');
     const pdf = new PDFDocument({ autoFirstPage: false });
+    pdf.registerFont('Roboto', fs.readFileSync(path.join(__dirname, './roboto-latin-300.a1471d1d.woff')));
+    pdf.font('Roboto');
     const addPage = newPage(pdf);
 
     sessionInfo(session, addPage());
@@ -31,18 +35,6 @@ export default session => new Promise((res, rej) => {
       const responses = getResponses(session.responses, rt);
       responseType(rt, responses, addPage());
     });
-
-    //
-    // retroToolResponses.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250)
-    //   .fill('#FF3300');
-
-    // retroToolResponses.scale(0.6).translate(470, -380).path('M 250,75 L 323,301 131,161 369,161 177,301 z').fill('red', 'even-odd')
-    //   .restore();
-
-    // retroToolResponses.addPage().fillColor('blue').text('Here is a link!', 100, 100).underline(100, 100, 160, 27, {
-    //   color: '#0000FF',
-    // })
-    // .link(100, 100, 160, 27, 'http://google.com/');
 
     pdf.end();
     const stream = pdf.pipe(base64.encode());

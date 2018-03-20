@@ -8,6 +8,6 @@ const inOrder = r => reverse(orderBy(r, 'votes'));
 
 export default (responseType, responses, page) => {
   forEach(inOrder(responses), (r) => {
-    addText(page, `${r.response}: ${r.votes} votes`, 'body');
+    addText(page, `${r.response}: ${r.votes}`, 'body');
   });
 };

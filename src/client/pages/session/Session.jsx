@@ -45,7 +45,11 @@ const styles = theme => ({
         justifyContent: 'flex-start',
       },
     },
+    '& $pdfLink': {
+      marginLeft: '3em',
+    },
   },
+  'pdfLink': {},
   'sessionButtons': {
     marginTop: theme.spacing.unit * 2,
   },
@@ -67,8 +71,8 @@ export const RawSession = ({
           {isOwner && <Typography variant={'display1'}>{homeUrl}/#/{session.id}</Typography>}
         </div>
         {session.status === 'discuss' &&
-          <div>
-            <a href={`/pdf/${session.id}`}>Download PDF</a>
+          <div className={classes.pdfLink}>
+            <a href={`/pdf/${session.id}`}>Download as PDF</a>
           </div>
         }
       </div>

@@ -1,5 +1,6 @@
 import responseByVotes from './responses-by-votes';
 import responsesByOccurrence from './responses-by-occurrence';
+import addText from './add-text';
 
 const getResponseRenderer = (responseType) => {
   switch (responseType.type) {
@@ -14,7 +15,7 @@ const getResponseRenderer = (responseType) => {
 };
 
 export default (rt, responses, page) => {
-  page.fontSize(25).text(rt.title).fontSize(20).moveDown(2);
+  addText(page, rt.title, 'heading').moveDown();
   const renderer = getResponseRenderer(rt);
   renderer(rt, responses, page);
 };
