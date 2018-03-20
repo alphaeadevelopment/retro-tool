@@ -1,6 +1,7 @@
 import modifySession from './modify-session';
 import sessionManager, { connectionManager } from '../../session';
 import emitError from './emit-error';
+import createPdf from '../../pdf/create-pdf';
 
 export default (io, socket) => ({ status }) => { // eslint-disable-line no-unused-vars
   const onError = emitError(socket);
@@ -10,6 +11,21 @@ export default (io, socket) => ({ status }) => { // eslint-disable-line no-unuse
       sessionManager.setStatus(connection, status)
         .then((session) => {
           io.to(sessionId).emit('syncSession', { status, session: modifySession(session, name) });
+          if (status === 'discuss') {
+            createPdf(session)
+              .then((data) => {
+                sessionManager.savePdfData({ sessionId, data })
+                  .then(() => null)
+                  .catch((e) => {
+                    console.error(e);
+                    console.error('Error saving pdf');
+                  });
+              })
+              .catch((e) => {
+                console.error(e);
+                console.error('Error generating pdf');
+              });
+          }
         })
         .catch(e => onError(e));
     })

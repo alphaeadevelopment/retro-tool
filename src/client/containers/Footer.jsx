@@ -27,7 +27,7 @@ export const RawFooter = ({ classes }) => (
       </Typography>
       <Typography variant={'body1'}>
         <span>Powered by </span>
-        <a target={'_new'} href={'https://github.com/alphaeadevelopment'}>Alphaea Development</a>
+        <a target={'_new'} href={'http://alphaea.uk'}>Alphaea Development</a>
       </Typography>
     </div>
   </div>

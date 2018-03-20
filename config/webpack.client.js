@@ -52,7 +52,7 @@ const outputPath = path.join(__dirname, '../dist');
 
 const config = {
   entry: {
-    main: ['babel-polyfill', 'react-hot-loader/patch', path.join(__dirname, '../src/client', 'index.jsx')],
+    main: ['babel-polyfill', 'react-hot-loader/patch', path.join(__dirname, '../src/client/favicon.ico'), path.join(__dirname, '../src/client', 'index.jsx')],
     vendor: VENDOR_LIBS,
   },
   output: {
@@ -114,6 +114,13 @@ const config = {
           {
             test: /\.(pem|txt)$/,
             use: 'raw-loader',
+          },
+          {
+            test: [/\.ico$/],
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+            },
           },
           {
             exclude: [/\.(js|jsx|mjs)$/, /\.html$/, /\.json$/],

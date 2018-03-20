@@ -183,6 +183,17 @@ class SessionManager {
     // })
     // .catch(e => rej(e));
   })
+  savePdfData = ({ sessionId, data }) => new Promise((res, rej) => {
+    // connectionManager.getConnection(socketId)
+    //   .then(({ sessionId }) => {
+    dao.savePdfData(sessionId, data)
+      .then(() => {
+        res();
+      })
+      .catch(e => rej(e));
+    // })
+    // .catch(e => rej(e));
+  })
 }
 
 export default new SessionManager();

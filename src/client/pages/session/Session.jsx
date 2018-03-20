@@ -45,7 +45,11 @@ const styles = theme => ({
         justifyContent: 'flex-start',
       },
     },
+    '& $pdfLink': {
+      marginLeft: '3em',
+    },
   },
+  'pdfLink': {},
   'sessionButtons': {
     marginTop: theme.spacing.unit * 2,
   },
@@ -66,6 +70,11 @@ export const RawSession = ({
           <IconButton onClick={onLeaveSession}><Left /></IconButton>
           {isOwner && <Typography variant={'display1'}>{homeUrl}/#/{session.id}</Typography>}
         </div>
+        {session.status === 'discuss' &&
+          <div className={classes.pdfLink}>
+            <a href={`/pdf/${session.id}`}>Download as PDF</a>
+          </div>
+        }
       </div>
       <Grid container spacing={0} className={classes.sessionBody} >
         <Grid item sm={12} md={5} lg={3}>
