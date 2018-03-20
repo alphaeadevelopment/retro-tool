@@ -66,6 +66,11 @@ export const RawSession = ({
           <IconButton onClick={onLeaveSession}><Left /></IconButton>
           {isOwner && <Typography variant={'display1'}>{homeUrl}/#/{session.id}</Typography>}
         </div>
+        {session.status === 'discuss' &&
+          <div>
+            <a href={`/pdf/${session.id}`}>Download PDF</a>
+          </div>
+        }
       </div>
       <Grid container spacing={0} className={classes.sessionBody} >
         <Grid item sm={12} md={5} lg={3}>

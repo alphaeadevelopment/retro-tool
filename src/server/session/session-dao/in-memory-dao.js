@@ -1,5 +1,6 @@
 import update from 'immutability-helper';
 import clone from 'lodash/clone';
+import omit from 'lodash/omit';
 import without from 'lodash/without';
 import includes from 'lodash/includes';
 import keys from 'lodash/keys';
@@ -13,7 +14,7 @@ class InMemoryDao {
   updateSession = (sessionId, spec) => new Promise((res, rej) => {
     try {
       this.sessions = update(this.sessions, { [sessionId]: spec });
-      res(clone(this.sessions[sessionId]));
+      res(omit(clone(this.sessions[sessionId]), ['pdfData']));
     }
     catch (e) {
       rej(e);
@@ -78,7 +79,9 @@ class InMemoryDao {
     },
   });
   setStatus = (sessionId, status) => this.updateSession(sessionId, { status: { $set: status } })
-  getSession = sessionId => Promise.resolve(clone(this.sessions[sessionId]))
+  getSession = sessionId => Promise.resolve(clone(omit(this.sessions[sessionId]), ['pdfData']))
+  savePdfData = (sessionId, data) => this.updateSession(sessionId, { pdfData: { $set: data } })
+  getPdfData = sessionId => Promise.resolve(this.sessions[sessionId] && this.sessions[sessionId].pdfData)
 
   registerSocket = (socketId, name, sessionId, token) => new Promise((res) => {
     const entry = { _id: socketId, name, sessionId, token };

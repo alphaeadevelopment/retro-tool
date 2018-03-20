@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import http from 'http';
 
 import socket from './socket';
+import getPdfData from './pdf/get-pdf-data';
 
 const port = process.env.PORT || 3000;
 
@@ -35,5 +36,15 @@ socket.init(serve);
 
 serve.listen(port, () => {
   console.log('Listening on %s', port); // eslint-disable-line no-console
+});
+
+app.get('/pdf/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+  getPdfData(sessionId)
+    .then(data => res.status(200)
+      .header('Content-Disposition', 'attachment; filename="responses.pdf"')
+      .header('Content-Type', 'application/pdf')
+      .send(Buffer.from(data, 'base64')))
+    .catch(() => res.status(500).send(''));
 });
 

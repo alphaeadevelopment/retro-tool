@@ -2,6 +2,7 @@
 import { MongoClient } from 'mongodb';
 import omit from 'lodash/omit';
 
+const returnSession = s => omit(s, ['_id', 'pdfData']);
 class MongoDao {
   sessionsCollection = 'sessions'
   socketsCollection = 'sockets'
@@ -47,7 +48,7 @@ class MongoDao {
       const s = { ...session, _id: session.id };
       return coll.insert(s);
     })
-    .then(r => omit(r.ops[0], '_id'));
+    .then(r => returnSession(r.ops[0]));
 
   addParticipant = (sessionId, newParticipant) => this.withCollection(
     this.sessionsCollection,
@@ -199,13 +200,30 @@ class MongoDao {
     },
   ).then(() => this.getSession(sessionId));
 
-  getSession = sessionId => this.withCollection(
+  getSession = sessionId => this.__getSession(sessionId) // eslint-disable-line no-underscore-dangle
+    .then(r => returnSession(r))
+
+  __getSession = sessionId => this.withCollection(
     this.sessionsCollection,
     (coll) => {
       const query = { _id: sessionId };
       return coll.findOne(query);
     },
-  ).then(r => omit(r, '_id'))
+  )
+
+  savePdfData = (sessionId, data) => this.withCollection(
+    this.sessionsCollection,
+    (coll) => {
+      const query = { '_id': sessionId };
+      const spec = {
+        $set: { pdfData: data },
+      };
+      return coll.updateOne(query, spec);
+    },
+  ).then(r => null)
+
+  getPdfData = (sessionId, data) => this.__getSession(sessionId) // eslint-disable-line no-underscore-dangle
+    .then(r => r.pdfData)
 
   registerSocket = (socketId, name, sessionId, token) => this.withCollection(
     this.socketsCollection,
