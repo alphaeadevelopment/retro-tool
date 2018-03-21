@@ -33,6 +33,10 @@ export default (state = initial, { type, payload }) => {
       return update(state, {
         responses: { $merge: { [payload.response.id]: payload.response } },
       });
+    case Types.RESPONSE_DELETED:
+      return update(state, {
+        responses: { $unset: [payload.responseId] },
+      });
     case Types.RESPONSE_TYPE_ADDED:
       return update(state, {
         responseTypes: { $merge: { [payload.responseType.id]: payload.responseType } },

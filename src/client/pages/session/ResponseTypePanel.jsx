@@ -21,7 +21,13 @@ export const RawResponseTypePanel = ({
   return (
     <Paper className={classes.root}>
       <Typography variant={'subheading'}>{responseType.title}</Typography>
-      <ResponseDisplay sessionStatus={sessionStatus} responses={responses} responseType={responseType} {...rest} />
+      <ResponseDisplay
+        name={name}
+        sessionStatus={sessionStatus}
+        responses={responses}
+        responseType={responseType}
+        {...rest}
+      />
       {showForm && <NewResponseForm onAdd={onAdd} responseType={responseType} />}
     </Paper>
   );

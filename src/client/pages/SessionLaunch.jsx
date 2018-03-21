@@ -27,7 +27,7 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
   render() {
     const {
       session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onAddResponseType,
-      onChangeStatus, onUpVote, onCancelUpVote, onSendFeedback, match, ...rest
+      onChangeStatus, onUpVote, onCancelUpVote, onSendFeedback, onDeleteResponse, match, ...rest
     } = this.props;
     const { sessionId } = this.state;
     const { socket } = this.context;
@@ -50,6 +50,7 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
             onChangeStatus={onChangeStatus(socket)}
             onAddResponseType={onAddResponseType(socket)}
             onSendFeedback={onSendFeedback(socket)}
+            onDeleteResponse={onDeleteResponse(socket)}
             {...rest}
           />
         }
@@ -76,6 +77,7 @@ const dispatchToActions = dispatch => ({
   onCancelUpVote: socket => responseId => () => dispatch(Actions.Emit.onCancelUpVoteResponse(socket, { responseId })),
   onJoinSession: socket => (name, sessionId) => dispatch(Actions.Emit.onJoinSession(socket, { name, sessionId })),
   onLeaveSession: socket => () => dispatch(Actions.Emit.onLeaveSession(socket)),
+  onDeleteResponse: socket => responseId => () => dispatch(Actions.Emit.onDeleteResponse(socket, { responseId })),
   onAddResponse: socket => responseType => value =>
     dispatch(Actions.Emit.onAddResponse(socket, { responseType, value })),
   onChangeStatus: socket => status => () => dispatch(Actions.Emit.onChangeStatus(socket, { status })),
