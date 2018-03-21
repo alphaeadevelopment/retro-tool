@@ -160,6 +160,18 @@ class MongoDao {
     },
   ).then(r => this.getSession(sessionId));
 
+  deleteResponseType = (sessionId, responseTypeId) => this.withCollection(
+    this.sessionsCollection,
+    (coll) => {
+      const query = { _id: sessionId };
+      const spec = {
+        $unset: {},
+      };
+      spec.$unset[`responseTypes.${responseTypeId}`] = '';
+      return coll.updateOne(query, spec);
+    },
+  ).then(r => this.getSession(sessionId));
+
   upVoteResponse = (sessionId, responseId, name) => this.withCollection(
     this.sessionsCollection,
     (coll) => {

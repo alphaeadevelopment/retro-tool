@@ -5,10 +5,10 @@ export default (io, socket) => ({ responseId }) => { // eslint-disable-line no-u
   const onError = emitError(socket);
   connectionManager.getConnection(socket.id)
     .then((connection) => {
-      const { sessionId, name } = connection;
+      const { sessionId } = connection;
       sessionManager.deleteResponse(connection, responseId)
         .then(() => {
-          socket.emit('responseDeleted', { responseId, name });
+          socket.emit('responseDeleted', { responseId });
           sessionManager.isOwner(connection)
             .then((isOwner) => {
               if (!isOwner) {

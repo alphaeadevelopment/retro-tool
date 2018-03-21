@@ -171,6 +171,14 @@ class SessionManager {
       .catch(e => rej(e));
     // });
   });
+  deleteResponseType = ({ sessionId }, responseTypeId) => new Promise((res, rej) => {
+    // connectionManager.getConnection(socketId)
+    //   .then(({ name, sessionId }) => {
+    dao.deleteResponseType(sessionId, responseTypeId)
+      .then(() => res())
+      .catch(e => rej(e));
+    // });
+  });
   setStatus = ({ sessionId }, status) => new Promise((res, rej) => {
     // connectionManager.getConnection(socketId)
     //   .then(({ sessionId }) => {

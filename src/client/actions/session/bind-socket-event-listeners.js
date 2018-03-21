@@ -33,6 +33,7 @@ const listeners = {
   onParticipantDisconnected: {},
   onResponseAdded: {},
   onResponseDeleted: {},
+  onResponseTypeDeleted: {},
   onUpVoteRegistered: {},
   onUpVoteCancelled: {},
   onSyncSession: {},
