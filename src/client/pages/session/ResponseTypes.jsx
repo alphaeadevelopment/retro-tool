@@ -1,5 +1,4 @@
 import React from 'react';
-import update from 'immutability-helper';
 import Form from 'material-ui-jsonschema-form';
 import keys from 'lodash/keys';
 import filter from 'lodash/filter';
@@ -8,35 +7,10 @@ import Modal from 'material-ui/Modal';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import ResponseTypePanel from './ResponseTypePanel';
+import getFormSchemaForType from './get-form-schema-for-type';
+import getFormUiSchemaForType from './get-form-ui-schema-for-type';
+import getDefaultFormDataForType from './get-default-form-data-for-type';
 
-const defaultSchema = {
-  type: 'object',
-  properties: {
-    question: {
-      title: 'Title',
-      type: 'string',
-    },
-    type: {
-      title: 'Type',
-      type: 'string',
-      enum: ['Text', 'Number', 'Yes/No', 'Choices'],
-    },
-    allowMultiple: {
-      title: 'Allow Multiple',
-      type: 'boolean',
-    },
-  },
-};
-const choicesProperty = {
-  choices: {
-    title: 'Choices',
-    type: 'array',
-    items: {
-      type: 'string',
-      default: '',
-    },
-  },
-};
 const styles = theme => ({
   root: {
     '&>div:first-child': {
@@ -51,23 +25,11 @@ const styles = theme => ({
     transform: 'translateX(-50%) translateY(-50%)',
   },
 });
-
-const getFormSchemaForType = (type) => {
-  if (type === 'Choices') {
-    return update(defaultSchema, { properties: { $merge: choicesProperty } });
-  }
-  return defaultSchema;
-};
-const defaultFormData = () => ({
-  question: '',
-  allowMultiple: true,
-  type: 'Text',
-  choices: [''],
-});
 const defaultState = () => ({
   displayForm: false,
-  formData: defaultFormData(),
+  formData: getDefaultFormDataForType('Text'),
   schema: getFormSchemaForType('Text'),
+  uiSchema: getFormUiSchemaForType('Text'),
 });
 export class RawResponseTypes extends React.Component {
   state = defaultState()
@@ -82,6 +44,8 @@ export class RawResponseTypes extends React.Component {
     const newState = { formData };
     if (formData.type !== this.state.formData.type) {
       newState.schema = getFormSchemaForType(formData.type);
+      newState.uiSchema = getFormUiSchemaForType(formData.type);
+      newState.formData = getDefaultFormDataForType(formData.type);
     }
     this.setState(newState);
   }

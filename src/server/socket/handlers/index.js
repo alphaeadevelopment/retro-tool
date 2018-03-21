@@ -9,3 +9,5 @@ export { default as addResponseType } from './add-response-type';
 export { default as sendFeedback } from './send-feedback';
 export { default as reconnectToSession } from './reconnect-to-session';
 export { default as disconnect } from './disconnect';
+export { default as deleteResponse } from './delete-response';
+export { default as deleteResponseType } from './delete-response-type';

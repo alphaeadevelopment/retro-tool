@@ -20,6 +20,8 @@ const handlers = {
   onAddResponseType: {},
   onSendFeedback: {},
   onReconnectToSession: {},
+  onDeleteResponse: {},
+  onDeleteResponseType: {},
 };
 
 const handlerFunctions = mapValues(handlers, (options, handler) => {

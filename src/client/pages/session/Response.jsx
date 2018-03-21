@@ -6,6 +6,7 @@ import IconButton from 'material-ui/IconButton';
 import Star from 'material-ui-icons/Star';
 import StarBorder from 'material-ui-icons/StarBorder';
 import Feedback from 'material-ui-icons/Feedback';
+import Delete from 'material-ui-icons/Delete';
 import Form from 'material-ui-jsonschema-form';
 import Modal from 'material-ui/Modal';
 import Tooltip from 'material-ui/Tooltip';
@@ -81,7 +82,7 @@ export class RawResponse extends React.Component {
   }
   render() {
     const {
-      classes, response, voted, onUpVote, onCancelUpVote, sessionStatus, topThree, isOwner, name,
+      classes, response, voted, onUpVote, onCancelUpVote, sessionStatus, topThree, isOwner, name, onDeleteResponse,
     } = this.props;
     const voting = sessionStatus === 'voting';
     const ownResponse = (name === response.author);
@@ -104,6 +105,13 @@ export class RawResponse extends React.Component {
             <Tooltip title={'Block this response'}>
               <IconButton onClick={this.onClickSendFeedback}>
                 <Feedback />
+              </IconButton>
+            </Tooltip>
+          }
+          {ownResponse && sessionStatus === 'initial' && !response.flagged &&
+            <Tooltip title={'Delete'}>
+              <IconButton onClick={onDeleteResponse(response.id)}>
+                <Delete />
               </IconButton>
             </Tooltip>
           }

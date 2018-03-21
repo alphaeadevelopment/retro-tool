@@ -42,6 +42,12 @@ class InMemoryDao {
   addResponse = (sessionId, newResponse) => this.updateSession(sessionId,
     { responses: { $merge: { [newResponse.id]: newResponse } } },
   );
+  deleteResponse = (sessionId, responseId) => this.updateSession(sessionId,
+    { responses: { $unset: [responseId] } },
+  );
+  deleteResponseType = (sessionId, responseTypeId) => this.updateSession(sessionId,
+    { responseTypes: { $unset: [responseTypeId] } },
+  );
   upVoteResponse = (sessionId, responseId, name) => this.updateSession(sessionId, {
     responses: {
       [responseId]: {
