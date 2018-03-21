@@ -10,7 +10,7 @@ export default (io, socket) => ({ token }) => { // eslint-disable-line no-unused
       const { sessionId, name } = connection;
       sessionManager.reconnect(connection, socket)
         .then((session) => {
-          console.log('reconnect %s with session %s', name, sessionId);
+          console.log('reconnect %s with session %s; owner is %s', name, sessionId, session.owner);
           connectionManager.registerSocket(socket.id, name, sessionId)
             .then(() => {
               socket.join(sessionId);

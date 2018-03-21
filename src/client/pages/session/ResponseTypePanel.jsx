@@ -39,6 +39,7 @@ export const RawResponseTypePanel = ({
         <Typography variant={'subheading'}>{responseType.title}</Typography>
       </div>
       <ResponseDisplay
+        isOwner={isOwner}
         name={name}
         sessionStatus={sessionStatus}
         responses={responses}
