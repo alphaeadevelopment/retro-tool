@@ -45,6 +45,7 @@ export class RawResponseTypes extends React.Component {
     if (formData.type !== this.state.formData.type) {
       newState.schema = getFormSchemaForType(formData.type);
       newState.uiSchema = getFormUiSchemaForType(formData.type);
+      newState.formData = getDefaultFormDataForType(formData.type);
     }
     this.setState(newState);
   }

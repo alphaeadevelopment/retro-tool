@@ -33,5 +33,10 @@ export default (responseType) => {
   else if (responseType.type === '1 to 10') {
     rv.enum = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   }
+  else if (responseType.type === 'Agree/Disagree') {
+    rv.enum = [
+      'Strongly agree', 'Somewhat agree', 'Neither agree nor disagree', 'Somewhat disagree', 'Strongly disagree',
+    ];
+  }
   return rv;
 };

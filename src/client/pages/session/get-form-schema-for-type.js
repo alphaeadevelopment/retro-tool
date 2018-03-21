@@ -11,7 +11,7 @@ const defaultSchema = {
     type: {
       title: 'Type',
       type: 'string',
-      enum: ['Text', 'Number', 'Yes/No', 'Choices', '1 to 10'],
+      enum: ['Text', 'Number', 'Yes/No', 'Choices', '1 to 10', 'Agree/Disagree'],
     },
   },
 };

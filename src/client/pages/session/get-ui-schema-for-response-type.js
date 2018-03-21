@@ -11,9 +11,9 @@ const singleChoiceSpec = {
   'ui:widget': { $set: 'radio' },
   'ui:options': { $set: { 'inline': true } },
 };
-const oneToTenSpec = {
+const agreementSpec = {
   'ui:widget': { $set: 'radio' },
-  'ui:options': { $set: { 'inline': true } },
+  'ui:options': { $set: { 'inline': false } },
 };
 
 export default (responseType) => { // eslint-disable-line no-unused-vars
@@ -21,7 +21,9 @@ export default (responseType) => { // eslint-disable-line no-unused-vars
     case 'Choices':
       return update(defaultUiSchema, responseType.allowMultiple ? multiChoiceSpec : singleChoiceSpec);
     case '1 to 10':
-      return update(defaultUiSchema, oneToTenSpec);
+      return update(defaultUiSchema, singleChoiceSpec);
+    case 'Agree/Disagree':
+      return update(defaultUiSchema, agreementSpec);
     default:
       return clone(defaultUiSchema);
   }

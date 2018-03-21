@@ -7,9 +7,12 @@ const defaultFormData = type => ({
 
 export default (type) => {
   switch (type) {
+    case 'Agree/Disagree':
+      return update(defaultFormData(type), {
+        allowMultiple: { $set: false },
+      });
     case 'Choices':
       return update(defaultFormData(type), {
-        type: { $set: type },
         choices: { $set: [] },
         allowMultiple: { $set: true },
       });
