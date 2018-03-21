@@ -117,7 +117,7 @@ describe('filterResponses', () => {
       expect(actual.responses).not.to.have.property('abc');
       expect(actual.responses).to.have.property('def');
     });
-    it('don\'t exclude flagged responses for owner when status=voting', () => {
+    it('exclude flagged responses for owner when status=voting', () => {
       const session = {
         status: 'voting',
         responses: {
@@ -135,7 +135,7 @@ describe('filterResponses', () => {
       };
 
       const actual = modifySession(session, 'bob');
-      expect(actual.responses).to.have.property('abc');
+      expect(actual.responses).to.not.have.property('abc');
       expect(actual.responses).to.have.property('def');
     });
     it('exclude flagged responses when status=discuss', () => {

@@ -10,7 +10,6 @@ const filterResponses = (responses, status, name, owner) => {
     case 'initial':
       return name === owner ? responses : pickBy(responses, ownResponsesFilter(name));
     case 'voting':
-      return name === owner ? responses : pickBy(responses, notFlaggedFilter);
     case 'discuss':
       return pickBy(responses, notFlaggedFilter);
     default:
