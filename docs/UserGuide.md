@@ -4,7 +4,7 @@
 Either [install and run the server on your local machine](https://github.com/alphaeadevelopment/retro-tool/blob/master/docs/README.md) or use the
 [free hosted service](https://retro-tool.herokuapp.com/).
 
-_IMPORTANT: No assurances are made in respect of either the resilience or the security of data submitted to the hosted service. Although the hosted service does persist session data in a mongo database, it will periodically sweep and purge any sessions that have no connected users. This is to ensure that the size of the datastore remains within free usage limits._
+Please read the [disclaimer](./Disclaimer.md) before using the hosted service.
 
 ## Start a new session
 Click the 'Host new session' link and enter your name when prompted.
