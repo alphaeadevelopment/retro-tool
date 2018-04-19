@@ -13,6 +13,10 @@ teams, as well as faciliting collection of ideas and focussing on the most relev
 
 Team feedback can be rapidly captured through quick-to-setup questionnaires.
 
+## Sounds good, how do I use it?
+
+There is a free hosted service which you can access [here](https://retro-tool.herokuapp.com/) after you have read the [disclaimer](./Disclaimer.md).
+
 ## User Guide
 See [here](./UserGuide.md) for detailed usage guidance.
 
