@@ -4,7 +4,7 @@ import parseuri from 'parseuri';
 import { withStyles } from 'material-ui/styles';
 import Divider from 'material-ui/Divider';
 import Grid from 'material-ui/Grid';
-import Left from 'material-ui-icons/KeyboardArrowLeft';
+import Left from '@material-ui/icons/KeyboardArrowLeft';
 import IconButton from 'material-ui/IconButton';
 import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';

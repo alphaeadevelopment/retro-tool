@@ -1,3 +1,3 @@
-import uuid from 'uuid/v1';
+import sessionManager from '../../session/session-manager';
 
-export default () => uuid();
+export default () => sessionManager.newSessionId();

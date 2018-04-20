@@ -6,13 +6,14 @@ import dao from './session-dao';
 import newSession from './new-session';
 
 class SessionManager {
+  newSessionId = () => dao.next('sessionId');
   getOwner = sessionId => new Promise((res, rej) => {
     dao.getSession(sessionId)
       .then((session = {}) => {
         res(session.owner);
       })
       .catch(e => rej(e));
-  })
+  });
   createSession = (sessionId, socket, owner) => new Promise((res, rej) => {
     // connectionManager.registerSocket(socket.id, owner, sessionId, token)
     //   .then(() => {

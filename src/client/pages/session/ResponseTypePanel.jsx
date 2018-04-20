@@ -4,7 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
-import Delete from 'material-ui-icons/Delete';
+import Delete from '@material-ui/icons/Delete';
 import Tooltip from 'material-ui/Tooltip';
 import NewResponseForm from './NewResponseForm';
 import * as Selectors from '../../selectors';

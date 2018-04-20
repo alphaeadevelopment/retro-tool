@@ -2,7 +2,7 @@ import React from 'react';
 import Snackbar from 'material-ui/Snackbar';
 import { withStyles } from 'material-ui/styles';
 import IconButton from 'material-ui/IconButton';
-import CloseIcon from 'material-ui-icons/Close';
+import CloseIcon from '@material-ui/icons/Close';
 import Slide from 'material-ui/transitions/Slide';
 import { connect } from 'react-redux';
 import keys from 'lodash/keys';

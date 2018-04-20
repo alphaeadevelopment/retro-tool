@@ -6,6 +6,7 @@ const returnSession = s => omit(s, ['_id', 'pdfData']);
 class MongoDao {
   sessionsCollection = 'sessions'
   socketsCollection = 'sockets'
+  sequencesCollection = 'sequences'
   constructor(dbName, url) {
     console.info('Creating Mongo DAO %s at %s', dbName, url);
     this.dbName = dbName;
@@ -41,6 +42,19 @@ class MongoDao {
     this.sessionsCollection,
     coll => coll.count({ _id: sessionId }),
   ).then(r => r === 1)
+
+  next = sequenceName => this.withCollection(
+    this.sequencesCollection,
+    (coll) => {
+      const filter = { name: sequenceName };
+      const update = { $inc: { value: 1 } };
+
+      return coll.findOneAndUpdate(filter, update, {
+        projection: { value: 1 },
+        upsert: true,
+      });
+    })
+    .then(r => r.value.value);
 
   save = session => this.withCollection(
     this.sessionsCollection,
