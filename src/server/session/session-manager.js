@@ -6,7 +6,8 @@ import dao from './session-dao';
 import newSession from './new-session';
 
 class SessionManager {
-  newSessionId = () => dao.next('sessionId');
+  newSessionId = () => dao.next('sessionId')
+    .then(r => `${r}`);
   getOwner = sessionId => new Promise((res, rej) => {
     dao.getSession(sessionId)
       .then((session = {}) => {
