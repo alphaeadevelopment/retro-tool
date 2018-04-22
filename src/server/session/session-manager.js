@@ -55,6 +55,7 @@ class SessionManager {
             name,
             votes: 0,
             connected: true,
+            joinedAt: Date.now(),
           };
           dao.addParticipant(sessionId, newParticipant)
             .then((updated) => {

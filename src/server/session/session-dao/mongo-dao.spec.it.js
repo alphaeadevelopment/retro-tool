@@ -65,8 +65,8 @@ describe('mongo dao', () => {
             expect(updatedSession).to.have.property('participants');
             expect(updatedSession.participants).to.have.property(name).deep.equal(newParticipant);
             expect(updatedSession.participants).to.have.property(owner);
-            expect(updatedSession.numParticipants).to.equal(2);
-            expect(updatedSession.connectedParticipants).to.equal(2);
+            expect(updatedSession.numParticipants).to.equal(4);
+            expect(updatedSession.connectedParticipants).to.equal(4);
             done();
           })
           .catch(e => done(e));
@@ -179,28 +179,30 @@ describe('mongo dao', () => {
       it('marks participant as disconnected', (done) => {
         dao.participantDisconnected(sessionId, owner).then((updatedSession) => {
           expect(updatedSession.participants[owner]).to.have.property('connected', false);
-          expect(updatedSession.numParticipants).to.equal(1);
-          expect(updatedSession.connectedParticipants).to.equal(0);
+          expect(updatedSession.numParticipants).to.equal(3);
+          expect(updatedSession.connectedParticipants).to.equal(2);
           done();
         }).catch(e => done(e));
       });
     });
     describe('participantReconnected', () => {
       it('marks participant as connected', (done) => {
-        dao.participantReconnected(sessionId, owner).then((updatedSession) => {
-          expect(updatedSession.participants[owner]).to.have.property('connected', true);
-          expect(updatedSession.numParticipants).to.equal(1);
-          expect(updatedSession.connectedParticipants).to.equal(2);
-          done();
-        }).catch(e => done(e));
+        dao.participantReconnected(sessionId, owner)
+          .then((updatedSession) => {
+            expect(updatedSession.participants[owner]).to.have.property('connected', true);
+            expect(updatedSession.numParticipants).to.equal(3);
+            expect(updatedSession.connectedParticipants).to.equal(4);
+            done();
+          })
+          .catch(done);
       });
     });
     describe('removeParticipant', () => {
       it('removes participant', (done) => {
         dao.removeParticipant(sessionId, owner).then((updatedSession) => {
           expect(updatedSession.participants).to.not.have.property(owner);
-          expect(updatedSession.numParticipants).to.equal(0);
-          expect(updatedSession.connectedParticipants).to.equal(0);
+          expect(updatedSession.numParticipants).to.equal(2);
+          expect(updatedSession.connectedParticipants).to.equal(2);
           done();
         }).catch(e => done(e));
       });
@@ -219,7 +221,7 @@ describe('mongo dao', () => {
           })
           .catch(e => done(e));
       });
-      it.only('removes participant', (done) => {
+      it('removes participant', (done) => {
         dao.resetAllConnections()
           .then(() => {
             dao.getSession(sessionId2)
