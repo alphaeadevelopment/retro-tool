@@ -1,29 +1,34 @@
 import sessionManager, { connectionManager } from '../../session';
 import emitError from './emit-error';
 
+const notifyRoomThatUserLeft = (socket, sessionId, name) => {
+  socket.broadcast.to(sessionId).emit('participantLeft', { name });
+};
+
+const leaveRoom = (socket, sessionId) => {
+  socket.leave(sessionId);
+};
+const confirmToUser = (socket) => {
+  socket.emit('leftSession');
+};
 
 export default (io, socket) => () => { // eslint-disable-line no-unused-vars
   const onError = emitError(socket);
-  // TODO get connection
   connectionManager.getConnection(socket.id)
     .then((connection) => {
       const { name } = connection;
       if (name) {
-        sessionManager.leaveSession(connection)
-          .then((sessionId) => {
-            connectionManager.deregisterSocket(socket.id)
-              .then(() => {
-                socket.broadcast.to(sessionId).emit('participantLeft', { name });
-                socket.leave(sessionId);
-                socket.emit('leftSession');
-              })
-              .catch(e => onError(e));
-          })
-          .catch(e => onError(e));
+        return sessionManager.leaveSession(connection)
+          .then(sessionId => connectionManager.deregisterSocket(socket.id)
+            .then(() => {
+              leaveRoom(socket, sessionId);
+              notifyRoomThatUserLeft(socket, sessionId, name);
+              confirmToUser(socket);
+              return Promise.resolve();
+            }));
       }
-      else {
-        onError({ message: 'not in a session' });
-      }
+      onError({ message: 'not in a session' });
+      return Promise.resolve();
     })
-    .catch(e => onError(e));
+    .catch(onError);
 };
