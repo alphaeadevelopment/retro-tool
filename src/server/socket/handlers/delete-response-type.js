@@ -6,12 +6,11 @@ export default (io, socket) => ({ responseTypeId }) => { // eslint-disable-line 
   connectionManager.getConnection(socket.id)
     .then((connection) => {
       const { sessionId } = connection;
-      sessionManager.deleteResponseType(connection, responseTypeId)
+      return sessionManager.deleteResponseType(connection, responseTypeId)
         .then(() => {
           socket.emit('responseTypeDeleted', { responseTypeId });
           io.to(sessionId).emit('responseTypeDeleted', { responseTypeId });
-        })
-        .catch(e => onError(e));
+        });
     })
     .catch(e => onError(e));
 };

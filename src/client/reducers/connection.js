@@ -4,7 +4,6 @@ import * as Types from '../actions/types';
 const initial = {
   connected: false,
   name: null,
-  owner: false,
 };
 
 export default (state = initial, { type, payload }) => {
@@ -12,11 +11,11 @@ export default (state = initial, { type, payload }) => {
     case Types.INIT:
       return update(state, { connected: { $set: true } });
     case Types.SESSION_CREATED:
-      return update(state, { name: { $set: payload.name }, owner: { $set: true } });
+      return update(state, { name: { $set: payload.name } });
     case Types.JOINED_SESSION:
-      return update(state, { name: { $set: payload.name }, owner: { $set: false } });
+      return update(state, { name: { $set: payload.name } });
     case Types.RECONNECTED:
-      return update(state, { name: { $set: payload.name }, owner: { $set: payload.session.owner === payload.name } });
+      return update(state, { name: { $set: payload.name } });
     case Types.DISCONNECT:
       return update(state, { connected: { $set: false } });
     default:

@@ -35,14 +35,12 @@ describe('mongo dao', () => {
       dao.save(session).then(() => done());
     });
     describe('sessionExists', () => {
-      it('returns true for existing session', (done) => {
+      it('returns true for existing session', () => {
         const expected = true;
-        dao.sessionExists(sessionId)
+        return dao.sessionExists(sessionId)
           .then((actual) => {
             expect(actual).to.equal(expected);
-            done();
-          })
-          .catch(e => done(e));
+          });
       });
       it('returns false for non-existing session', (done) => {
         const expected = false;
@@ -53,6 +51,19 @@ describe('mongo dao', () => {
           })
           .catch(e => done(e));
       });
+    });
+    describe('get most recent non-owner participant', () => {
+      it('returns expected participant', () => {
+        const expected = 'participant2';
+        return dao.getMostRecentNonOwnerParticipant(sessionId)
+          .then((actual) => {
+            expect(actual).to.equal(expected);
+          });
+      });
+      it('returns null for unidentified session', () => dao.getMostRecentNonOwnerParticipant('invalid')
+        .then((actual) => {
+          expect(actual).to.be.undefined;
+        }));
     });
     describe('add participant', () => {
       it('adds participant', (done) => {
@@ -65,8 +76,8 @@ describe('mongo dao', () => {
             expect(updatedSession).to.have.property('participants');
             expect(updatedSession.participants).to.have.property(name).deep.equal(newParticipant);
             expect(updatedSession.participants).to.have.property(owner);
-            expect(updatedSession.numParticipants).to.equal(2);
-            expect(updatedSession.connectedParticipants).to.equal(2);
+            expect(updatedSession.numParticipants).to.equal(4);
+            expect(updatedSession.connectedParticipants).to.equal(4);
             done();
           })
           .catch(e => done(e));
@@ -179,28 +190,30 @@ describe('mongo dao', () => {
       it('marks participant as disconnected', (done) => {
         dao.participantDisconnected(sessionId, owner).then((updatedSession) => {
           expect(updatedSession.participants[owner]).to.have.property('connected', false);
-          expect(updatedSession.numParticipants).to.equal(1);
-          expect(updatedSession.connectedParticipants).to.equal(0);
+          expect(updatedSession.numParticipants).to.equal(3);
+          expect(updatedSession.connectedParticipants).to.equal(2);
           done();
         }).catch(e => done(e));
       });
     });
     describe('participantReconnected', () => {
       it('marks participant as connected', (done) => {
-        dao.participantReconnected(sessionId, owner).then((updatedSession) => {
-          expect(updatedSession.participants[owner]).to.have.property('connected', true);
-          expect(updatedSession.numParticipants).to.equal(1);
-          expect(updatedSession.connectedParticipants).to.equal(2);
-          done();
-        }).catch(e => done(e));
+        dao.participantReconnected(sessionId, owner)
+          .then((updatedSession) => {
+            expect(updatedSession.participants[owner]).to.have.property('connected', true);
+            expect(updatedSession.numParticipants).to.equal(3);
+            expect(updatedSession.connectedParticipants).to.equal(4);
+            done();
+          })
+          .catch(done);
       });
     });
     describe('removeParticipant', () => {
       it('removes participant', (done) => {
         dao.removeParticipant(sessionId, owner).then((updatedSession) => {
           expect(updatedSession.participants).to.not.have.property(owner);
-          expect(updatedSession.numParticipants).to.equal(0);
-          expect(updatedSession.connectedParticipants).to.equal(0);
+          expect(updatedSession.numParticipants).to.equal(2);
+          expect(updatedSession.connectedParticipants).to.equal(2);
           done();
         }).catch(e => done(e));
       });
@@ -219,7 +232,7 @@ describe('mongo dao', () => {
           })
           .catch(e => done(e));
       });
-      it.only('removes participant', (done) => {
+      it('removes participant', (done) => {
         dao.resetAllConnections()
           .then(() => {
             dao.getSession(sessionId2)

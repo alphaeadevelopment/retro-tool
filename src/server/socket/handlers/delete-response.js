@@ -1,25 +1,30 @@
 import sessionManager, { connectionManager } from '../../session';
 import emitError from './emit-error';
 
+const notifySessionOwner = (sessionId, responseId) =>
+  sessionManager.getOwnerSocket(sessionId)
+    .then(ownerSocket => ownerSocket.emit('responseDeleted', { responseId }));
+
+const confirmToUser = (socket, responseId) => {
+  socket.emit('responseDeleted', { responseId });
+};
+
 export default (io, socket) => ({ responseId }) => { // eslint-disable-line no-unused-vars
   const onError = emitError(socket);
   connectionManager.getConnection(socket.id)
     .then((connection) => {
       const { sessionId } = connection;
-      sessionManager.deleteResponse(connection, responseId)
+      return sessionManager.deleteResponse(connection, responseId)
         .then(() => {
-          socket.emit('responseDeleted', { responseId });
-          sessionManager.isOwner(connection)
+          confirmToUser(socket, responseId);
+          return sessionManager.isOwner(connection)
             .then((isOwner) => {
               if (!isOwner) {
-                sessionManager.getOwnerSocket(sessionId)
-                  .then(ownerSocket => ownerSocket.emit('responseDeleted', { responseId }))
-                  .catch(e => onError(e));
+                return notifySessionOwner(sessionId, responseId);
               }
-            })
-            .catch(e => onError(e));
-        })
-        .catch(e => onError(e));
+              return Promise.resolve();
+            });
+        });
     })
     .catch(e => onError(e));
 };

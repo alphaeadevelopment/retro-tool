@@ -12,13 +12,13 @@ const extractScss = new ExtractTextPlugin({ filename: 'style.css', allChunks: tr
 const extractCss = new ExtractTextPlugin({ filename: 'main.css', allChunks: true })
 
 const VENDOR_LIBS = [
+  '@material-ui/icons',
   'babel-polyfill',
   'babel-register',
   'body-parser',
   'classnames',
   'immutability-helper',
   'lodash',
-  'material-ui-icons',
   'material-ui',
   'moment',
   'react-dom',

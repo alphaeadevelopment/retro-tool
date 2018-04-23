@@ -6,6 +6,7 @@ const returnSession = s => omit(s, ['_id', 'pdfData']);
 class MongoDao {
   sessionsCollection = 'sessions'
   socketsCollection = 'sockets'
+  sequencesCollection = 'sequences'
   constructor(dbName, url) {
     console.info('Creating Mongo DAO %s at %s', dbName, url);
     this.dbName = dbName;
@@ -21,26 +22,39 @@ class MongoDao {
           try {
             fn.call(self, coll)
               .then((d) => {
-                res(d);
                 client.close();
+                res(d);
               })
               .catch((e) => {
-                rej(e);
                 client.close();
+                rej(e);
               });
           }
           catch (e) {
-            rej(e);
             client.close();
+            rej(e);
           }
         })
-        .catch(e => rej(e));
+        .catch(rej);
     });
   }
   sessionExists = sessionId => this.withCollection(
     this.sessionsCollection,
     coll => coll.count({ _id: sessionId }),
   ).then(r => r === 1)
+
+  next = sequenceName => this.withCollection(
+    this.sequencesCollection,
+    (coll) => {
+      const filter = { name: sequenceName };
+      const update = { $inc: { value: 1 } };
+
+      return coll.findOneAndUpdate(filter, update, {
+        projection: { value: 1 },
+        upsert: true,
+      });
+    })
+    .then(r => r.value.value);
 
   save = session => this.withCollection(
     this.sessionsCollection,
@@ -65,6 +79,74 @@ class MongoDao {
       return coll.updateOne(query, spec);
     },
   ).then(r => this.getSession(sessionId));
+
+  getMostRecentNonOwnerParticipant = sessionId => this.withCollection(
+    this.sessionsCollection,
+    (coll) => {
+      const agg = [
+        {
+          $match: {
+            _id: sessionId,
+          },
+        },
+        {
+          $project: {
+            participants: { $objectToArray: '$participants' },
+            owner: 1,
+          },
+        },
+        {
+          $project: {
+            participants: {
+              $map: {
+                input: '$participants',
+                in: '$$this.v',
+              },
+            },
+            owner: 1,
+          },
+        },
+        {
+          $project: {
+            participants: {
+              $filter: {
+                input: '$participants',
+                as: 'p',
+                cond: {
+                  $and: [
+                    { $ne: ['$$p.name', '$owner'] },
+                    { $eq: ['$$p.connected', true] },
+                  ],
+                },
+              },
+            },
+            owner: 1,
+          },
+        },
+        {
+          $unwind: '$participants',
+        },
+        {
+          $sort: { 'participants.joinedAt': 1 },
+        },
+        {
+          $project: {
+            names: '$participants.name',
+          },
+        },
+        {
+          $group: {
+            _id: 'all', names: { $push: '$names' },
+          },
+        },
+      ];
+      const query = coll.aggregate(agg)
+        .project({ names: 1 });
+      return query.toArray()
+        .then(a => a.length && a[0].names)
+        .then(a => a.length && a[0]);
+    },
+  );
 
   removeParticipant = (sessionId, name) => this.withCollection(
     this.sessionsCollection,
@@ -213,6 +295,17 @@ class MongoDao {
     },
   ).then(() => this.getSession(sessionId));
 
+  setOwner = (sessionId, name) => this.withCollection(
+    this.sessionsCollection,
+    (coll) => {
+      const query = { '_id': sessionId };
+      const spec = {
+        $set: { owner: name },
+      };
+      return coll.updateOne(query, spec);
+    },
+  ).then(() => this.getSession(sessionId));
+
   setStatus = (sessionId, status) => this.withCollection(
     this.sessionsCollection,
     (coll) => {
@@ -284,5 +377,15 @@ class MongoDao {
     .then(r =>
       r && { ...omit(r, '_id'), socketId: r._id }, // eslint-disable-line no-underscore-dangle
     );
+
+  // getConnectionByNameAndSession = (name, sessionId) => this.withCollection(
+  //   this.socketsCollection,
+  //   (coll) => {
+  //     const query = { name, sessionId };
+  //     return coll.findOne(query);
+  //   })
+  //   .then(r =>
+  //     r && { ...omit(r, '_id'), socketId: r._id }, // eslint-disable-line no-underscore-dangle
+  //   );
 }
 export default new MongoDao(process.env.DATABASE_NAME || 'sessions', process.env.MONGODB_URL);

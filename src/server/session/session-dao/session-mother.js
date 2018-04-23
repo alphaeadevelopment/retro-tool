@@ -1,4 +1,5 @@
 
+const now = Date.now();
 
 export const fakeSession = (id, owner) => ({
   id,
@@ -8,10 +9,29 @@ export const fakeSession = (id, owner) => ({
       name: owner,
       votes: 0,
       connected: true,
+      joinedAt: now,
+    },
+    participant1: {
+      name: 'participant1',
+      votes: 0,
+      connected: true,
+      joinedAt: now + 200,
+    },
+    participant2: {
+      name: 'participant2',
+      votes: 0,
+      connected: true,
+      joinedAt: now + 100,
+    },
+    participant3: {
+      name: 'participant3',
+      votes: 0,
+      connected: false,
+      joinedAt: now + 50,
     },
   },
-  numParticipants: 1,
-  connectedParticipants: 1,
+  numParticipants: 3,
+  connectedParticipants: 3,
   owner,
   responses: {
   },
