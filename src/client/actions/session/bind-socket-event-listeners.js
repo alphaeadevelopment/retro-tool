@@ -44,6 +44,7 @@ const listeners = {
   onApplicationError: {},
   onInit: {},
   onDisconnect: {},
+  onNewOwner: {},
 }; // remember to add action type to ./types.js
 
 const listenerFunctions = mapValues(listeners, (options, handlerName) => {

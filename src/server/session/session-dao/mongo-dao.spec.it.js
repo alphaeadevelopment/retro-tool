@@ -35,14 +35,12 @@ describe('mongo dao', () => {
       dao.save(session).then(() => done());
     });
     describe('sessionExists', () => {
-      it('returns true for existing session', (done) => {
+      it('returns true for existing session', () => {
         const expected = true;
-        dao.sessionExists(sessionId)
+        return dao.sessionExists(sessionId)
           .then((actual) => {
             expect(actual).to.equal(expected);
-            done();
-          })
-          .catch(e => done(e));
+          });
       });
       it('returns false for non-existing session', (done) => {
         const expected = false;
@@ -53,6 +51,19 @@ describe('mongo dao', () => {
           })
           .catch(e => done(e));
       });
+    });
+    describe('get most recent non-owner participant', () => {
+      it('returns expected participant', () => {
+        const expected = 'participant2';
+        return dao.getMostRecentNonOwnerParticipant(sessionId)
+          .then((actual) => {
+            expect(actual).to.equal(expected);
+          });
+      });
+      it('returns null for unidentified session', () => dao.getMostRecentNonOwnerParticipant('invalid')
+        .then((actual) => {
+          expect(actual).to.be.undefined;
+        }));
     });
     describe('add participant', () => {
       it('adds participant', (done) => {

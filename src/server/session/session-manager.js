@@ -38,6 +38,13 @@ class SessionManager {
         .catch(e => rej(e));
     }
   });
+  getNextOwner = sessionId => dao.getMostRecentNonOwnerParticipant(sessionId);
+  // .then((nextOwner) => {
+  //   if (!nextOwner) return Promise.resolve();
+  //   return dao.getConnectionByNameAndSession(nextOwner, sessionId);
+  // });
+  setNewOwner = (sessionId, name) => dao.setOwner(sessionId, name)
+
   sessionExists = sessionId => new Promise((res, rej) => {
     dao.sessionExists(sessionId)
       .then(r => res(r))

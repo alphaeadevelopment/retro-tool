@@ -23,6 +23,12 @@ export const fakeSession = (id, owner) => ({
       connected: true,
       joinedAt: now + 100,
     },
+    participant3: {
+      name: 'participant3',
+      votes: 0,
+      connected: false,
+      joinedAt: now + 50,
+    },
   },
   numParticipants: 3,
   connectedParticipants: 3,

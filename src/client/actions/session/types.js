@@ -22,3 +22,4 @@ export const RECONNECTED = 'RECONNECTED';
 export const UNKNOWN_TOKEN = 'UNKNOWN_TOKEN';
 export const INIT = 'INIT';
 export const DISCONNECT = 'DISCONNECT';
+export const NEW_OWNER = 'NEW_OWNER';
