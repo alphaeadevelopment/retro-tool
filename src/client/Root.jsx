@@ -1,3 +1,4 @@
+/* globals window */
 import React from 'react';
 import 'typeface-roboto'; // eslint-disable-line import/extensions
 // https://github.com/mui-org/material-ui/releases/tag/v1.0.0-beta.37
@@ -7,10 +8,10 @@ import { HashRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
-import { window } from 'js-services';
 import reducer from './reducers';
 import App from './containers/App';
-import SocketProvider from './containers/SocketProvider';
+import { SocketProvider, LocalStorageTokenManager } from './containers';
+import events from './socket-events';
 
 const middleware = [thunk];
 
@@ -30,8 +31,10 @@ export default () => (
     <Provider store={store}>
       <div>
         <CssBaseline />
-        <SocketProvider>
-          <App />
+        <SocketProvider listenFor={events}>
+          <LocalStorageTokenManager>
+            <App />
+          </LocalStorageTokenManager>
         </SocketProvider>
       </div>
     </Provider>

@@ -10,7 +10,6 @@ import Footer from './Footer';
 
 export const RawApp = () => (
   <MuiThemeProvider theme={theme}>
-
     <Route path={'/:sessionId?'} component={SessionLaunch} />
     <Footer />
     <Errors />

@@ -1,11 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Session from './session';
 import SessionInitialization from './SessionInitialization';
 import * as Selectors from '../selectors';
 import * as Actions from '../actions';
+import { withSocket } from '../containers';
 
 export class RawSessionLaunch extends React.Component { // eslint-disable-line react/prefer-stateless-function
   state = {
@@ -18,20 +18,18 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
     this.setState({ sessionId });
   }
   componentWillReceiveProps = (nextProps) => {
-    const { token, onReconnectToSession } = this.props;
-    const { socket } = this.context;
+    const { socket, token, onReconnectToSession } = this.props;
     if (token && !this.props.isConnected && nextProps.isConnected) {
       onReconnectToSession(socket, token);
     }
   }
   render() {
     const {
-      session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onAddResponseType,
+      socket, session, onJoinSession, onCreateSession, onLeaveSession, onAddResponse, onAddResponseType,
       onChangeStatus, onUpVote, onCancelUpVote, onSendFeedback, onDeleteResponse, match,
       onDeleteResponseType, ...rest
     } = this.props;
     const { sessionId } = this.state;
-    const { socket } = this.context;
     return (
       <div>
         {!session.id &&
@@ -60,9 +58,6 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
     );
   }
 }
-RawSessionLaunch.contextTypes = {
-  socket: PropTypes.object,
-};
 
 const mapStateToProps = state => ({
   session: Selectors.getCurrentSession(state),
@@ -73,21 +68,21 @@ const mapStateToProps = state => ({
 });
 
 const dispatchToActions = dispatch => ({
-  onReconnectToSession: (socket, token) => dispatch(Actions.Emit.onReconnectToSession(socket, { token })),
-  onCreateSession: socket => name => dispatch(Actions.Emit.onCreateSession(socket, { name })),
-  onUpVote: socket => responseId => () => dispatch(Actions.Emit.onUpVoteResponse(socket, { responseId })),
-  onCancelUpVote: socket => responseId => () => dispatch(Actions.Emit.onCancelUpVoteResponse(socket, { responseId })),
-  onJoinSession: socket => (name, sessionId) => dispatch(Actions.Emit.onJoinSession(socket, { name, sessionId })),
-  onLeaveSession: socket => () => dispatch(Actions.Emit.onLeaveSession(socket)),
-  onDeleteResponse: socket => responseId => () => dispatch(Actions.Emit.onDeleteResponse(socket, { responseId })),
+  onReconnectToSession: (socket, token) => dispatch(Actions.Emit.reconnectToSession(socket, { token })),
+  onCreateSession: socket => name => dispatch(Actions.Emit.createSession(socket, { name })),
+  onUpVote: socket => responseId => () => dispatch(Actions.Emit.upVoteResponse(socket, { responseId })),
+  onCancelUpVote: socket => responseId => () => dispatch(Actions.Emit.cancelUpVoteResponse(socket, { responseId })),
+  onJoinSession: socket => (name, sessionId) => dispatch(Actions.Emit.joinSession(socket, { name, sessionId })),
+  onLeaveSession: socket => () => dispatch(Actions.Emit.leaveSession(socket)),
+  onDeleteResponse: socket => responseId => () => dispatch(Actions.Emit.deleteResponse(socket, { responseId })),
   onDeleteResponseType: socket => responseTypeId => () =>
-    dispatch(Actions.Emit.onDeleteResponseType(socket, { responseTypeId })),
+    dispatch(Actions.Emit.deleteResponseType(socket, { responseTypeId })),
   onAddResponse: socket => responseType => value =>
-    dispatch(Actions.Emit.onAddResponse(socket, { responseType, value })),
-  onChangeStatus: socket => status => () => dispatch(Actions.Emit.onChangeStatus(socket, { status })),
-  onAddResponseType: socket => data => dispatch(Actions.Emit.onAddResponseType(socket, data)),
+    dispatch(Actions.Emit.addResponse(socket, { responseType, value })),
+  onChangeStatus: socket => status => () => dispatch(Actions.Emit.changeStatus(socket, { status })),
+  onAddResponseType: socket => data => dispatch(Actions.Emit.addResponseType(socket, data)),
   onSendFeedback: socket => responseId => message =>
-    dispatch(Actions.Emit.onSendFeedback(socket, { responseId, message })),
+    dispatch(Actions.Emit.sendFeedback(socket, { responseId, message })),
 });
 
-export default withRouter(connect(mapStateToProps, dispatchToActions)(RawSessionLaunch));
+export default withSocket(withRouter(connect(mapStateToProps, dispatchToActions)(RawSessionLaunch)));

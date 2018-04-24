@@ -19,15 +19,16 @@ export default ({ emitError, joinRoom, toRoom, toSocket }, io, socket) => ({ nam
             if (registered) {
               return emitError({ message: 'already in session' }, { name, sessionId });
             }
-            const token = createToken();
-            return sessionManager.joinSession(socket, name, sessionId)
-              .then(session =>
-                connectionManager.registerSocket(socket.id, name, sessionId, token)
-                  .then(() => Promise.all([
-                    joinRoom(sessionId),
-                    notifyRoom(toRoom(sessionId), name),
-                    confirmToUser(toSocket, session, name, token),
-                  ])));
+            return createToken()
+              .then(token =>
+                sessionManager.joinSession(socket, name, sessionId)
+                  .then(session =>
+                    connectionManager.registerSocket(socket.id, name, sessionId, token)
+                      .then(() => Promise.all([
+                        joinRoom(sessionId),
+                        notifyRoom(toRoom(sessionId), name),
+                        confirmToUser(toSocket, session, name, token),
+                      ]))));
           });
       }
       return emitError({ message: 'no such session' }, { sessionId });

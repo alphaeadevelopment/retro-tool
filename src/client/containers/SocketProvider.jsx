@@ -3,8 +3,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
-import * as Actions from '../actions';
-import bindSocketListeners from './bind-socket-listeners';
+import forEach from 'lodash/forEach';
+import snakeCase from 'lodash/snakeCase';
+
+export const eventToReduxActionType = event => snakeCase(event).toUpperCase();
+
+export const createActionDispatcher = (dispatch, action) => payload => dispatch(action.call(null, payload));
+
+export const createActionForEvent = event => obj => dispatch =>
+  dispatch({ type: eventToReduxActionType(event), payload: obj });
+
+export const bindSocketHandlers = (events, socket, dispatch) => {
+  forEach(events, (event) => {
+    socket.on(event, createActionDispatcher(dispatch, createActionForEvent(event)));
+  });
+};
 
 export class RawSocketProvider extends React.Component {
   state = {
@@ -14,20 +27,15 @@ export class RawSocketProvider extends React.Component {
     return { socket: this.state.socket };
   }
   componentWillMount() {
-    const { dispatch } = this.props;
+    const { dispatch, listenFor } = this.props;
     const socket = io.connect(process.env.SOCKET_URL || 'http://localhost:3000');
     this.setState({
       socket,
     });
-    bindSocketListeners(Actions.Listeners, socket, dispatch);
+    bindSocketHandlers(listenFor, socket, dispatch);
   }
   render() {
-    const { children } = this.props;
-    return (
-      <div>
-        {children}
-      </div>
-    );
+    return this.props.children;
   }
 }
 
@@ -35,7 +43,4 @@ RawSocketProvider.childContextTypes = {
   socket: PropTypes.object,
 };
 
-const mapStateToProps = () => ({
-});
-
-export default connect(mapStateToProps)(RawSocketProvider);
+export default connect()(RawSocketProvider);
