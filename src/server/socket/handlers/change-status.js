@@ -1,34 +1,23 @@
 import modifySession from './modify-session';
-import sessionManager, { connectionManager } from '../../session';
-import emitError from './emit-error';
+import sessionManager from '../../session';
 import createPdf from '../../pdf/create-pdf';
 
 const preGeneratePdf = session =>
   createPdf(session)
-    .then(data =>
-      sessionManager.savePdfData({ sessionId: session.id, data })
-        .then(() => null))
-    .catch(() => {
-      console.error('Error generating pdf');
-    });
+    .then(data => sessionManager.savePdfData({ sessionId: session.id, data }));
 
-const syncSessionToEntireRoom = (io, sessionId, status, session, name) => {
-  io.to(sessionId).emit('syncSession', { status, session: modifySession(session, name) });
-};
+const syncSessionToEntireRoom = (toSession, status, session, name) =>
+  toSession('syncSession', { status, session: modifySession(session, name) }, true);
 
-export default (io, socket) => ({ status }) => { // eslint-disable-line no-unused-vars
-  const onError = emitError(socket);
-  connectionManager.getConnection(socket.id)
+export default ({ getConnection, toSession }) => ({ status }) =>
+  getConnection()
     .then((connection) => {
       const { name, sessionId } = connection;
       return sessionManager.setStatus(connection, status)
         .then((session) => {
-          syncSessionToEntireRoom(io, sessionId, status, session, name);
-          if (status === 'discuss') {
-            return preGeneratePdf();
-          }
-          return Promise.resolve();
+          const p1 = syncSessionToEntireRoom(toSession(sessionId), status, session, name);
+          const p2 = (status === 'discuss') ? preGeneratePdf() : Promise.resolve();
+          return Promise.all([p1, p2]);
         });
-    })
-    .catch(e => onError(e));
-};
+    });
+

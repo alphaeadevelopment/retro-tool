@@ -1,20 +1,14 @@
-import sessionManager, { connectionManager } from '../../session';
-import emitError from './emit-error';
+import sessionManager from '../../session';
 
-const notifyEntireRoom = (io, sessionId, newResponseType) => {
-  io.to(sessionId).emit('responseTypeAdded', { responseType: newResponseType });
-};
+const notifyEntireRoom = (toSession, newResponseType) =>
+  toSession('responseTypeAdded', { responseType: newResponseType }, true);
 
-export default (io, socket) => (data) => { // eslint-disable-line no-unused-vars
-  const onError = emitError(socket);
-  return connectionManager.getConnection(socket.id)
+export default ({ toSession, getConnection }) => data =>
+  getConnection()
     .then((connection) => {
       const { sessionId } = connection;
       return sessionManager.addResponseType(connection, data)
-        .then((newResponseType) => {
-          notifyEntireRoom(io, sessionId, newResponseType);
-        })
-        .catch(e => onError(e));
-    })
-    .catch(e => onError(e));
-};
+        .then(newResponseType =>
+          notifyEntireRoom(toSession(sessionId), newResponseType));
+    });
+

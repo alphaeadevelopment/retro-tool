@@ -1,25 +1,17 @@
-import sessionManager, { connectionManager } from '../../session';
-import emitError from './emit-error';
+import sessionManager from '../../session';
 
-const sendConfirmationToUser = (socket, responseId, name) => {
-  socket.emit('upVoteRegistered', { responseId, name });
-};
+const sendConfirmationToUser = (toSocket, responseId, name) => toSocket('upVoteRegistered', { responseId, name });
 
-const sendConfirmationToRoom = (socket, sessionId, name) => {
-  socket.broadcast.to(sessionId).emit('userVoted', { name });
-};
+const sendConfirmationToRoom = (toSession, name) => toSession('userVoted', { name }, false);
 
-export default (io, socket) => ({ responseId }) => { // eslint-disable-line no-unused-vars
-  const onError = emitError(socket);
-  connectionManager.getConnection(socket.id)
+export default ({ getConnection, toSocket, toSession }) => ({ responseId }) =>
+  getConnection()
     .then((connection) => {
-      const { sessionId, name } = connection;
+      const { name, sessionId } = connection;
       return sessionManager.upVoteResponse(connection, responseId)
-        .then(() => {
-          sendConfirmationToUser(socket, responseId, name);
-          sendConfirmationToRoom(socket, sessionId, name);
-          return Promise.resolve();
-        });
-    })
-    .catch(onError);
-};
+        .then(() => Promise.all([
+          sendConfirmationToUser(toSocket, responseId, name),
+          sendConfirmationToRoom(toSession(sessionId), name),
+        ]));
+    });
+

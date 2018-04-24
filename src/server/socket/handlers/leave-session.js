@@ -1,45 +1,43 @@
-import sessionManager, { connectionManager, socketManager } from '../../session';
-import emitError from './emit-error';
+import sessionManager, { connectionManager } from '../../session';
 import modifySession from './modify-session';
 
-const notifyRoomThatUserLeft = (socket, sessionId, name) => {
-  socket.broadcast.to(sessionId).emit('participantLeft', { name });
-};
+const notifyRoomThatUserLeft = (toSession, name) => toSession('participantLeft', { name });
+const confirmToUser = toSocket => toSocket('leftSession');
 
-const leaveRoom = (socket, sessionId) => {
-  socket.leave(sessionId);
-};
-const confirmToUser = (socket) => {
-  socket.emit('leftSession');
-};
-
-const updateWithNewOwner = (io, sessionId, nextOwner) =>
+const updateWithNewOwner = (toSession, toSessionOwner, toNewOwner, sessionId, nextOwner) =>
   sessionManager.setNewOwner(sessionId, nextOwner)
-    .then((session) => {
-      io.to(sessionId).emit('newOwner', { name: nextOwner });
-      const ownerSocket = socketManager.getSocket(nextOwner);
-      ownerSocket.emit('syncSession', { session: modifySession(session, nextOwner) });
-    });
+    .then(session => Promise.all([
+      toNewOwner('syncSession', { session: modifySession(session, nextOwner) }),
+      toSession('newOwner', { name: nextOwner }),
+    ]));
 
-export default (io, socket) => () => { // eslint-disable-line no-unused-vars
-  const onError = emitError(socket);
-  connectionManager.getConnection(socket.id)
+export default (
+  { leaveRoom, emitError, getConnection, toSocket, toSession, toSessionOwner, toSessionParticipant },
+  io, socket,
+) => () =>
+  getConnection()
     .then((connection) => {
-      const { name } = connection;
+      const { name, sessionId } = connection;
       if (name) {
         return sessionManager.isOwner(connection)
           .then(isOwner => sessionManager.leaveSession(connection)
-            .then(sessionId => connectionManager.deregisterSocket(socket.id)
+            .then(() => connectionManager.deregisterSocket(socket.id)
               .then(() => sessionManager.getNextOwner(sessionId)
-                .then((nextOwner) => {
-                  leaveRoom(socket, sessionId);
-                  notifyRoomThatUserLeft(socket, sessionId, name);
-                  confirmToUser(socket);
-                  return isOwner && nextOwner && updateWithNewOwner(io, sessionId, nextOwner);
-                }))));
+                .then(nextOwner => Promise.all([
+                  leaveRoom(sessionId),
+                  notifyRoomThatUserLeft(toSession(sessionId), name),
+                  confirmToUser(toSocket),
+                  (isOwner && nextOwner) ?
+                    updateWithNewOwner(
+                      toSession(sessionId),
+                      toSessionOwner(sessionId),
+                      toSessionParticipant(sessionId, nextOwner),
+                      sessionId,
+                      nextOwner,
+                    ) :
+                    Promise.resolve(),
+                ])))));
       }
-      onError({ message: 'not in a session' });
-      return Promise.resolve();
-    })
-    .catch(onError);
-};
+      return emitError({ message: 'not in a session' });
+    });
+

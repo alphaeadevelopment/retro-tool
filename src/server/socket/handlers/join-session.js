@@ -1,50 +1,34 @@
 // import sessionManager, { connectionManager } from '../../session';
 import modifySession from './modify-session';
 import createToken from './create-token';
-import emitError from './emit-error';
 
 const sessionManager = require('../../session').default;
 const { connectionManager } = require('../../session');
 
-const joinRoom = (socket, sessionId) => {
-  socket.join(sessionId);
-};
+const notifyRoom = (toSession, name) => toSession('newParticipant', { name }, false);
 
-const notifyRoom = (socket, sessionId, name) => {
-  socket.broadcast.to(sessionId).emit('newParticipant', { name });
-};
+const confirmToUser = (toSocket, session, name, token) =>
+  toSocket('joinedSession', { token, session: modifySession(session, name), name });
 
-const confirmToUser = (socket, session, name, token) => {
-  socket.emit('joinedSession', { token, session: modifySession(session, name), name });
-};
-
-export default (io, socket) => ({ name, sessionId }) => {
-  const onError = emitError(socket);
+export default ({ emitError, joinRoom, toSession, toSocket }, io, socket) => ({ name, sessionId }) =>
   sessionManager.sessionExists(sessionId)
     .then((exists) => {
       if (exists) {
         return connectionManager.socketRegistered(socket.id)
           .then((registered) => {
             if (registered) {
-              onError({ message: 'already in session' }, { name, sessionId });
-              return Promise.resolve();
+              return emitError({ message: 'already in session' }, { name, sessionId });
             }
             const token = createToken();
             return sessionManager.joinSession(socket, name, sessionId)
               .then(session =>
                 connectionManager.registerSocket(socket.id, name, sessionId, token)
-                  .then(() => {
-                    joinRoom(socket, sessionId);
-                    notifyRoom(socket, sessionId, name);
-                    confirmToUser(socket, session, name, token);
-                    return Promise.resolve();
-                  }));
+                  .then(() => Promise.all([
+                    joinRoom(sessionId),
+                    notifyRoom(toSession(sessionId), name),
+                    confirmToUser(toSocket, session, name, token),
+                  ])));
           });
       }
-      onError({ message: 'no such session' }, { sessionId });
-      return Promise.resolve();
-    })
-    .catch((e) => {
-      onError(e, { name, sessionId });
+      return emitError({ message: 'no such session' }, { sessionId });
     });
-};

@@ -1,4 +1,4 @@
-/* globals xdescribe, xit, before describe, it, beforeEach */ // eslint-disable-line no-unused-vars
+/* globals xdescribe, xit, before describe, it, beforeEach, afterEach */ // eslint-disable-line no-unused-vars
 /* eslint-disable no-unused-expressions,import/no-webpack-loader-syntax */
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
@@ -70,13 +70,13 @@ describe('session manager', () => {
       socketManagerStubs.saveSocket.resetHistory();
       socketManagerStubs.getSocket.withArgs(owner).returns(socket);
     });
-    it('creates a new session', (done) => {
+    it('creates a new session', () => {
       // assemble
       const stubReturnSession = { id: sessionId, owner };
       daoStubs.save.callsFake(s => Promise.resolve(s));
       newSessionStub.returns(stubReturnSession);
       // act
-      sessionManager.createSession(sessionId, socket, owner, token)
+      return sessionManager.createSession(sessionId, socket, owner, token)
         .then((createdSession) => {
           // assert
           expect(daoStubs.save).calledWith(sinon.match.object);
@@ -84,9 +84,7 @@ describe('session manager', () => {
           expect(socketManagerStubs.saveSocket).calledWith(owner, socket);
           expect(createdSession).to.not.be.null;
           expect(createdSession).to.equal(stubReturnSession);
-          done();
-        })
-        .catch(e => done(e));
+        });
     });
   });
   describe('getOwnerSocket', () => {
@@ -100,12 +98,6 @@ describe('session manager', () => {
       daoStubs.save.callsFake(s => Promise.resolve(s));
       newSessionStub.returns(stubReturnSession);
       daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      // sessionManager.createSession(sessionId, socket, owner, token)
-      //   .then((s) => {
-      //     session = s;
-      //     done();
-      //   })
-      //   .catch(e => done(e));
     });
     it('returns true for owner socket', (done) => {
       // connectionManagerStubs.getConnection.returns(Promise.resolve());
@@ -156,6 +148,8 @@ describe('session manager', () => {
     });
   });
   describe('join session', () => {
+    let clock;
+    const now = Date.now();
     let stubReturnSession;
     beforeEach(() => {
       sessionId = generate();
@@ -165,8 +159,12 @@ describe('session manager', () => {
       daoStubs.save.callsFake(s => Promise.resolve(s));
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
+      clock = sinon.useFakeTimers(now);
     });
-    it('adds participant', (done) => {
+    afterEach(() => {
+      clock.restore();
+    });
+    it('adds participant', () => {
       // assemble
       daoStubs.getSession.returns(Promise.resolve(stubReturnSession));
       daoStubs.addParticipant.returns(Promise.resolve(session));
@@ -175,13 +173,11 @@ describe('session manager', () => {
       const bobSocket = { id: 'bobSocket' };
 
       // act
-      sessionManager.joinSession(bobSocket, name, sessionId, token)
+      return sessionManager.joinSession(bobSocket, name, sessionId, token)
         .then(() => {
           // assert
-          expect(daoStubs.addParticipant).to.be.calledWith(sessionId, { id: name, name, votes: 0, connected: true });
-          done();
-        })
-        .catch(e => done(e));
+          expect(daoStubs.addParticipant).to.be.calledWith(sessionId, { id: name, name, joinedAt: now, votes: 0, connected: true });
+        });
     });
     // it('prevents socket id joining two sessions', (done) => {
     //   // connectionManagerStubs.socketRegistered.returns(Promise.resolve(true));
@@ -221,12 +217,6 @@ describe('session manager', () => {
       newSessionStub.resetHistory();
       newSessionStub.returns(stubReturnSession);
       daoStubs.getSession.callsFake(() => Promise.resolve(stubReturnSession));
-      // sessionManager.createSession(sessionId, socket, owner, token)
-      //   .then((s) => {
-      //     session = s;
-      //     done();
-      //   });
-      // connectionManagerStubs.getConnection.returns(Promise.resolve({ sessionId, name: owner }));
     });
     it('adds response', (done) => {
       // assemble

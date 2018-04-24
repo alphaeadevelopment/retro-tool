@@ -39,10 +39,6 @@ class SessionManager {
     }
   });
   getNextOwner = sessionId => dao.getMostRecentNonOwnerParticipant(sessionId);
-  // .then((nextOwner) => {
-  //   if (!nextOwner) return Promise.resolve();
-  //   return dao.getConnectionByNameAndSession(nextOwner, sessionId);
-  // });
   setNewOwner = (sessionId, name) => dao.setOwner(sessionId, name)
 
   sessionExists = sessionId => new Promise((res, rej) => {
@@ -50,11 +46,11 @@ class SessionManager {
       .then(r => res(r))
       .catch(e => rej(e));
   })
-  joinSession = (socket, name, sessionId) => new Promise((res, rej) => {
+  joinSession = (socket, name, sessionId) =>
     this.getSession(sessionId)
       .then((session) => {
         if (has(session.participants, name)) {
-          rej(new Error('name in use'));
+          throw new Error('name in use');
         }
         else {
           const newParticipant = {
@@ -64,16 +60,13 @@ class SessionManager {
             connected: true,
             joinedAt: Date.now(),
           };
-          dao.addParticipant(sessionId, newParticipant)
+          return dao.addParticipant(sessionId, newParticipant)
             .then((updated) => {
               socketManager.saveSocket(name, socket);
-              res(updated);
-            })
-            .catch(e => rej(e));
+              return updated;
+            });
         }
-      })
-      .catch(e => rej(e));
-  });
+      });
   getSession = sessionId => dao.getSession(sessionId)
   leaveSession = ({ name, sessionId }) => new Promise((res, rej) => {
     dao.removeParticipant(sessionId, name)

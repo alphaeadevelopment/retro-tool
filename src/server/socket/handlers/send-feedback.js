@@ -1,24 +1,17 @@
-import socketManager from '../../session/socket-manager';
-import emitError from './emit-error';
+import sessionManager from '../../session';
 
-const sessionManager = require('../../session').default;
-const { connectionManager } = require('../../session');
+const sendFeedbackToAuthor = (toAuthor, response, responseId, message) =>
+  toAuthor('feedbackReceived', { responseId, message });
 
+const confirmToSender = (toSocket, responseId, message) => toSocket('feedbackReceived', { responseId, message });
 
-const sendFeedbackToAuthor = (socket, response, responseId, message) => {
-  const authorSocket = socketManager.getSocket(response.author);
-  authorSocket.emit('feedbackReceived', { responseId, message });
-  socket.emit('feedbackReceived', { responseId, message });
-};
-
-export default (io, socket) => ({ responseId, message }) => { // eslint-disable-line no-unused-vars
-  const onError = emitError(socket);
-  connectionManager.getConnection(socket.id)
-    .then(connection =>
-      sessionManager.addFeedback(connection, responseId, message)
-        .then((response) => {
-          sendFeedbackToAuthor(socket, response, responseId, message);
-          return Promise.resolve();
-        }))
-    .catch(onError);
-};
+export default ({ getConnection, toSocket, toSessionParticipant }) => ({ responseId, message }) =>
+  getConnection()
+    .then((connection) => {
+      const { sessionId } = connection;
+      return sessionManager.addFeedback(connection, responseId, message)
+        .then(response => Promise.all([
+          sendFeedbackToAuthor(toSessionParticipant(sessionId, response.author), response, responseId, message),
+          confirmToSender(toSocket, responseId, message),
+        ]));
+    });

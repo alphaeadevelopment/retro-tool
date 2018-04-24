@@ -1,3 +1,3 @@
 import uuid from 'uuid/v1';
 
-export default () => uuid();
+export default () => Promise.resolve(uuid());

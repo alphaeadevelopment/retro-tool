@@ -3,6 +3,7 @@
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import generate from 'shortid';
 
 chai.use(sinonChai);
 
@@ -10,19 +11,18 @@ const inject = require('inject-loader!./join-session'); // eslint-disable-line i
 
 describe('joinSession', () => {
   const io = {};
+  const joinRoomSpy = sinon.spy();
+  const toSessionSpy = sinon.spy();
+  const toSocketSpy = sinon.spy();
+  const emitErrorSpy = sinon.spy();
+  const callbacks = {
+    joinRoom: joinRoomSpy,
+    toSession: () => toSessionSpy,
+    toSocket: toSocketSpy,
+    emitError: emitErrorSpy,
+  };
   let joinSession;
   const modifySessionStub = sinon.stub();
-  const socketEmitSpy = sinon.spy();
-  const joinSpy = sinon.spy();
-  const broadcastToStub = sinon.stub();
-  const broadcastEmitSpy = sinon.spy();
-  const socket = {
-    emit: socketEmitSpy,
-    join: joinSpy,
-    broadcast: {
-      to: broadcastToStub,
-    },
-  };
   const sessionManagerStubs = {
     sessionExists: sinon.stub(),
     joinSession: sinon.stub(),
@@ -34,26 +34,27 @@ describe('joinSession', () => {
     getConnection: sinon.stub(),
     getConnectionByToken: sinon.stub(),
   };
+  let socket;
   before(() => {
     joinSession = inject({
       '../../session': { default: sessionManagerStubs, connectionManager: connectionManagerStubs },
       './modify-session': modifySessionStub,
     }).default;
-    broadcastToStub.returns({
-      emit: broadcastEmitSpy,
-    });
     modifySessionStub.callsFake(s => s);
     connectionManagerStubs.socketRegistered.returns(Promise.resolve(false));
     connectionManagerStubs.registerSocket.returns(Promise.resolve());
   });
   beforeEach(() => {
+    socket = {
+      id: generate(),
+    };
     sessionManagerStubs.sessionExists.resetHistory();
     sessionManagerStubs.joinSession.resetHistory();
-    joinSpy.resetHistory();
-    socketEmitSpy.resetHistory();
-    broadcastToStub.resetHistory();
+    joinRoomSpy.resetHistory();
+    toSessionSpy.resetHistory();
+    toSocketSpy.resetHistory();
   });
-  it('join session and broadcasts - control', (done) => {
+  it('join session and broadcasts - control', () => {
     // arrange
     const name = 'name';
     const sessionId = 'sessionId';
@@ -62,36 +63,30 @@ describe('joinSession', () => {
     sessionManagerStubs.joinSession.returns(Promise.resolve(session));
 
     // act
-    joinSession(io, socket)({ name, sessionId })
+    return joinSession(callbacks, io, socket)({ name, sessionId })
       .then(() => {
         // assert
         expect(sessionManagerStubs.sessionExists).calledWith(sessionId);
         expect(sessionManagerStubs.joinSession).calledWith(socket, name, sessionId);
-        expect(joinSpy).calledWith(sessionId);
-        expect(broadcastEmitSpy).calledWith('newParticipant', sinon.match({ name }));
-        expect(socketEmitSpy).calledWith('joinedSession', sinon.match({ session, name }));
-        done();
-      })
-      .catch(e => done(e));
+        expect(joinRoomSpy).calledWith(sessionId);
+        expect(toSessionSpy).calledWith('newParticipant', sinon.match({ name }));
+        expect(toSocketSpy).calledWith('joinedSession', sinon.match({ session, name }));
+      });
   });
-  it('attempt to join session that doesn\'t exist', (done) => {
+  it('attempt to join session that doesn\'t exist', () => {
     // arrange
     const name = 'name';
     const sessionId = 'sessionId';
     sessionManagerStubs.sessionExists.returns(Promise.resolve(false));
-    const session = { id: sessionId };
-    sessionManagerStubs.joinSession.returns(Promise.resolve(session));
 
     // act
-    joinSession(io, socket)({ name, sessionId })
+    return joinSession(callbacks, io, socket)({ name, sessionId })
       .then(() => {
         // assert
-        expect(socketEmitSpy).calledWith('applicationError', { message: 'no such session', parameters: { sessionId } });
-        done();
-      })
-      .catch(e => done(e));
+        expect(emitErrorSpy).calledWith({ message: 'no such session' }, { sessionId });
+      });
   });
-  it('error on joining session', (done) => {
+  it('error on joining session', () => {
     // arrange
     const name = 'name';
     const sessionId = 'sessionId';
@@ -99,15 +94,10 @@ describe('joinSession', () => {
     sessionManagerStubs.joinSession.returns(Promise.reject(new Error('name in use')));
 
     // act
-    joinSession(io, socket)({ name, sessionId })
-      .then(() => {
-        // assert
-        expect(socketEmitSpy).calledWith(
-          'applicationError',
-          { message: 'name in use', parameters: { name, sessionId } },
-        );
-        done();
-      })
-      .catch(e => done(e));
+    return joinSession(callbacks, io, socket)({ name, sessionId })
+      .then(() => Promise.reject(new Error('expected error')))
+      .catch((e) => {
+        expect(e.message).to.equal('name in use');
+      });
   });
 });

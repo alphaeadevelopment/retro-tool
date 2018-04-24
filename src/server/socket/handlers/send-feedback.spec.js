@@ -1,82 +1,75 @@
 /* globals xdescribe, xit, before describe, it, beforeEach */ // eslint-disable-line no-unused-vars
-/* eslint-disable no-unused-expressions,import/no-webpack-loader-syntax,import/no-unresolved */
+/* eslint-disable no-unused-expressions,import/no-webpack-loader-syntax */
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import generate from 'shortid';
 
 chai.use(sinonChai);
 
-const inject = require('inject-loader!./send-feedback');
+const inject = require('inject-loader!./send-feedback'); // eslint-disable-line import/no-unresolved
 
 describe('sendFeedback', () => {
   const io = {};
-  let addFeedback;
-  const getSocketStub = sinon.stub();
-  const socketEmitSpy = sinon.spy();
-  const authorSocketEmitSpy = sinon.spy();
-  const joinSpy = sinon.spy();
-  const broadcastToStub = sinon.stub();
-  const broadcastEmitSpy = sinon.spy();
-  const socket = {
-    emit: socketEmitSpy,
-    join: joinSpy,
-    broadcast: {
-      to: broadcastToStub,
-    },
+  const joinRoomSpy = sinon.spy();
+  const toSessionStub = sinon.stub();
+  const toSessionSpy = sinon.spy();
+  toSessionStub.returns(toSessionSpy);
+  const toSessionParticipantStub = sinon.stub();
+  const toSessionParticipantSpy = sinon.spy();
+  toSessionParticipantStub.returns(toSessionParticipantSpy);
+  const toSocketSpy = sinon.spy();
+  const getConnectionStub = sinon.stub();
+  const callbacks = {
+    toSocket: toSocketSpy,
+    getConnection: getConnectionStub,
+    toSessionParticipant: toSessionParticipantStub,
   };
-  const authorSocket = {
-    emit: authorSocketEmitSpy,
-  };
+  let sendFeedback;
   const sessionManagerStubs = {
     addFeedback: sinon.stub(),
   };
-  const connectionManagerStubs = {
-    registerSocket: sinon.stub(),
-    deregisterSocket: sinon.stub(),
-    socketRegistered: sinon.stub(),
-    getConnection: sinon.stub(),
-    getConnectionByToken: sinon.stub(),
-  };
-  const socketManager = {
-    getSocket: getSocketStub,
-  };
-  let author;
-  const message = 'Rubbish';
-  const name = 'name';
+  let socket;
+  const author = 'author';
   const sessionId = 'sessionId';
+  const name = 'name';
   const responseId = 'responseId';
-  const connection = { name, sessionId };
+  const message = 'message';
+  const connection = {
+    sessionId, name,
+  };
   before(() => {
-    author = 'author';
-    addFeedback = inject({
-      '../../session': { default: sessionManagerStubs, connectionManager: connectionManagerStubs },
-      '../../session/socket-manager': socketManager,
+    sendFeedback = inject({
+      '../../session': sessionManagerStubs,
     }).default;
-    broadcastToStub.returns({
-      emit: broadcastEmitSpy,
-    });
-    connectionManagerStubs.getConnection.returns(Promise.resolve(connection));
+    getConnectionStub.returns(Promise.resolve(connection));
   });
   beforeEach(() => {
-    socketEmitSpy.resetHistory();
-    broadcastToStub.resetHistory();
+    socket = {
+      id: generate(),
+    };
+    sessionManagerStubs.addFeedback.resetHistory();
+    joinRoomSpy.resetHistory();
+    toSessionSpy.resetHistory();
+    toSessionStub.resetHistory();
+    toSessionParticipantStub.resetHistory();
+    toSessionParticipantSpy.resetHistory();
+    toSocketSpy.resetHistory();
   });
-  it('join session and broadcasts - control', (done) => {
+  it('join session and broadcasts - control', () => {
     // arrange
-    getSocketStub.withArgs(author).returns(authorSocket);
     sessionManagerStubs.addFeedback
       .withArgs(connection, responseId, message)
       .callsFake((socketId, r) => Promise.resolve({ id: r, author }));
 
     // act
-    addFeedback(io, socket)({ responseId, message })
+    return sendFeedback(callbacks, io, socket)({ responseId, message })
       .then(() => {
         // assert
         expect(sessionManagerStubs.addFeedback).calledWith(connection, responseId, message);
-        expect(authorSocketEmitSpy).calledWith('feedbackReceived', { responseId, message });
-        expect(socketEmitSpy).calledWith('feedbackReceived', { responseId, message });
-        done();
-      })
-      .catch(e => done(e));
+        expect(toSessionParticipantStub).calledWith(sessionId, author);
+        expect(toSessionParticipantSpy).calledWith('feedbackReceived', { responseId, message });
+        expect(toSocketSpy).calledWith('feedbackReceived', { responseId, message });
+      });
   });
 });

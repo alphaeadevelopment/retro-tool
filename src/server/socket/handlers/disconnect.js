@@ -1,19 +1,16 @@
-import sessionManager, { connectionManager } from '../../session';
-import emitError from './emit-error';
+import sessionManager from '../../session';
 
-const notifyRoom = (io, sessionId, name) => {
-  io.to(sessionId).emit('participantDisconnected', { name });
+const notifyRoom = (toSession, name) => {
+  toSession('participantDisconnected', { name }, false);
 };
-export default (io, socket) => (data) => { // eslint-disable-line no-unused-vars
-  const onError = emitError(socket);
-  connectionManager.getConnection(socket.id)
+export default ({ toSession, getConnection }) => () =>
+  getConnection()
     .then((connection) => {
       const { sessionId, name } = connection;
       return sessionManager.disconnect(connection)
-        .then(() => {
+        .then(() =>
           // connectionManager.deregisterSocket(socket.id);
-          notifyRoom(io, sessionId, name);
-        });
-    })
-    .catch(e => onError(e));
-};
+          notifyRoom(toSession(sessionId), name),
+        );
+    });
+

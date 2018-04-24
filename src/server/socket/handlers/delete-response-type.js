@@ -1,16 +1,13 @@
-import sessionManager, { connectionManager } from '../../session';
-import emitError from './emit-error';
+import sessionManager from '../../session';
 
-export default (io, socket) => ({ responseTypeId }) => { // eslint-disable-line no-unused-vars
-  const onError = emitError(socket);
-  connectionManager.getConnection(socket.id)
+const notifySession = (toSession, responseTypeId) => toSession('responseTypeDeleted', { responseTypeId }, true);
+
+export default ({ getConnection, toSession }) => ({ responseTypeId }) =>
+  getConnection()
     .then((connection) => {
       const { sessionId } = connection;
       return sessionManager.deleteResponseType(connection, responseTypeId)
-        .then(() => {
-          socket.emit('responseTypeDeleted', { responseTypeId });
-          io.to(sessionId).emit('responseTypeDeleted', { responseTypeId });
-        });
-    })
-    .catch(e => onError(e));
-};
+        .then(() =>
+          notifySession(toSession(sessionId), responseTypeId));
+    });
+

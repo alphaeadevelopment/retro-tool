@@ -1,21 +1,16 @@
-import sessionManager, { connectionManager } from '../../session';
-import emitError from './emit-error';
+import sessionManager from '../../session';
 
-const confirmToUser = (socket, responseId, name) => {
-  socket.emit('upVoteCancelled', { responseId, name });
-};
-const notifyRoom = (socket, sessionId, name) => {
-  socket.broadcast.to(sessionId).emit('userUnvoted', { name });
-};
+const confirmToUser = (toSocket, responseId, name) => toSocket('upVoteCancelled', { responseId, name });
+const notifyRoom = (toSession, name) => toSession('userUnvoted', { name });
 
-export default (io, socket) => ({ responseId }) => { // eslint-disable-line no-unused-vars
-  const onError = emitError(socket);
-  connectionManager.getConnection(socket.id)
+export default ({ toSession, toSocket, getConnection }) => ({ responseId }) =>
+  getConnection()
     .then(connection => sessionManager.cancelUpVoteResponse(connection, responseId)
       .then(() => {
-        const { sessionId, name } = connection;
-        confirmToUser(socket, responseId, name);
-        notifyRoom(socket, sessionId, name);
-      }))
-    .catch(e => onError(e));
-};
+        const { name, sessionId } = connection;
+        return Promise.all([
+          confirmToUser(toSocket, responseId, name),
+          notifyRoom(toSession(sessionId), name),
+        ]);
+      }));
+
