@@ -5,12 +5,12 @@ import createToken from './create-token';
 const sessionManager = require('../../session').default;
 const { connectionManager } = require('../../session');
 
-const notifyRoom = (toSession, name) => toSession('newParticipant', { name }, false);
+const notifyRoom = (toRoom, name) => toRoom('newParticipant', { name }, false);
 
 const confirmToUser = (toSocket, session, name, token) =>
   toSocket('joinedSession', { token, session: modifySession(session, name), name });
 
-export default ({ emitError, joinRoom, toSession, toSocket }, io, socket) => ({ name, sessionId }) =>
+export default ({ emitError, joinRoom, toRoom, toSocket }, io, socket) => ({ name, sessionId }) =>
   sessionManager.sessionExists(sessionId)
     .then((exists) => {
       if (exists) {
@@ -25,7 +25,7 @@ export default ({ emitError, joinRoom, toSession, toSocket }, io, socket) => ({ 
                 connectionManager.registerSocket(socket.id, name, sessionId, token)
                   .then(() => Promise.all([
                     joinRoom(sessionId),
-                    notifyRoom(toSession(sessionId), name),
+                    notifyRoom(toRoom(sessionId), name),
                     confirmToUser(toSocket, session, name, token),
                   ])));
           });

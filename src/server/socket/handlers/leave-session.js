@@ -1,18 +1,18 @@
 import sessionManager, { connectionManager } from '../../session';
 import modifySession from './modify-session';
 
-const notifyRoomThatUserLeft = (toSession, name) => toSession('participantLeft', { name });
+const notifyRoomThatUserLeft = (toRoom, name) => toRoom('participantLeft', { name });
 const confirmToUser = toSocket => toSocket('leftSession');
 
-const updateWithNewOwner = (toSession, toSessionOwner, toNewOwner, sessionId, nextOwner) =>
+const updateWithNewOwner = (toRoom, toSessionOwner, toNewOwner, sessionId, nextOwner) =>
   sessionManager.setNewOwner(sessionId, nextOwner)
     .then(session => Promise.all([
       toNewOwner('syncSession', { session: modifySession(session, nextOwner) }),
-      toSession('newOwner', { name: nextOwner }),
+      toRoom('newOwner', { name: nextOwner }),
     ]));
 
 export default (
-  { leaveRoom, emitError, getConnection, toSocket, toSession, toSessionOwner, toSessionParticipant },
+  { leaveRoom, emitError, getConnection, toSocket, toRoom, toSessionOwner, toSessionParticipant },
   io, socket,
 ) => () =>
   getConnection()
@@ -25,11 +25,11 @@ export default (
               .then(() => sessionManager.getNextOwner(sessionId)
                 .then(nextOwner => Promise.all([
                   leaveRoom(sessionId),
-                  notifyRoomThatUserLeft(toSession(sessionId), name),
+                  notifyRoomThatUserLeft(toRoom(sessionId), name),
                   confirmToUser(toSocket),
                   (isOwner && nextOwner) ?
                     updateWithNewOwner(
-                      toSession(sessionId),
+                      toRoom(sessionId),
                       toSessionOwner(sessionId),
                       toSessionParticipant(sessionId, nextOwner),
                       sessionId,

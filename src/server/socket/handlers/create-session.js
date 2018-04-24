@@ -12,12 +12,14 @@ export default ({ toSocket, joinRoom }, io, socket) => ({ name }) => {
         .then((token) => {
           console.log('new token created %s', token);
           return connectionManager.registerSocket(socket.id, name, sessionId, token)
-            .then(() =>
-              sessionManager.createSession(sessionId, socket, name, token)
+            .then(() => {
+              console.log('create session');
+              return sessionManager.createSession(sessionId, socket, name, token)
                 .then(session => Promise.all([
                   joinRoom(sessionId),
                   confirmToUser(toSocket, session, name, token),
-                ])));
+                ]));
+            });
         }));
 };
 

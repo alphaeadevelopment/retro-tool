@@ -4,9 +4,9 @@ import modifySession from './modify-session';
 const sendConfirmationToUser = (toSocket, session, name) =>
   toSocket('reconnected', { name, session: modifySession(session, name) });
 
-const notifyRoomUserReconnected = (toSession, name) => toSession('participantReconnected', { name }, false);
+const notifyRoomUserReconnected = (toRoom, name) => toRoom('participantReconnected', { name }, false);
 
-export default ({ joinRoom, emitError, toSocket, toSession }, io, socket) => ({ token }) => { // eslint-disable-line no-unused-vars
+export default ({ joinRoom, emitError, toSocket, toRoom }, io, socket) => ({ token }) => {
   console.log('reconnect with token %s', token);
   return connectionManager.getConnectionByToken(token)
     .then((connection) => {
@@ -18,7 +18,7 @@ export default ({ joinRoom, emitError, toSocket, toSession }, io, socket) => ({ 
             .then(() => Promise.all([
               joinRoom(sessionId),
               sendConfirmationToUser(toSocket, session, name),
-              notifyRoomUserReconnected(toSession(sessionId), name),
+              notifyRoomUserReconnected(toRoom(sessionId), name),
             ]));
         });
     })

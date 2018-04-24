@@ -12,9 +12,9 @@ const inject = require('inject-loader!./send-feedback'); // eslint-disable-line 
 describe('sendFeedback', () => {
   const io = {};
   const joinRoomSpy = sinon.spy();
-  const toSessionStub = sinon.stub();
-  const toSessionSpy = sinon.spy();
-  toSessionStub.returns(toSessionSpy);
+  const toRoomStub = sinon.stub();
+  const toRoomSpy = sinon.spy();
+  toRoomStub.returns(toRoomSpy);
   const toSessionParticipantStub = sinon.stub();
   const toSessionParticipantSpy = sinon.spy();
   toSessionParticipantStub.returns(toSessionParticipantSpy);
@@ -50,8 +50,8 @@ describe('sendFeedback', () => {
     };
     sessionManagerStubs.addFeedback.resetHistory();
     joinRoomSpy.resetHistory();
-    toSessionSpy.resetHistory();
-    toSessionStub.resetHistory();
+    toRoomSpy.resetHistory();
+    toRoomStub.resetHistory();
     toSessionParticipantStub.resetHistory();
     toSessionParticipantSpy.resetHistory();
     toSocketSpy.resetHistory();

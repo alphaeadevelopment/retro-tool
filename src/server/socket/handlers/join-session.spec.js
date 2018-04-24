@@ -12,12 +12,12 @@ const inject = require('inject-loader!./join-session'); // eslint-disable-line i
 describe('joinSession', () => {
   const io = {};
   const joinRoomSpy = sinon.spy();
-  const toSessionSpy = sinon.spy();
+  const toRoomSpy = sinon.spy();
   const toSocketSpy = sinon.spy();
   const emitErrorSpy = sinon.spy();
   const callbacks = {
     joinRoom: joinRoomSpy,
-    toSession: () => toSessionSpy,
+    toRoom: () => toRoomSpy,
     toSocket: toSocketSpy,
     emitError: emitErrorSpy,
   };
@@ -51,7 +51,7 @@ describe('joinSession', () => {
     sessionManagerStubs.sessionExists.resetHistory();
     sessionManagerStubs.joinSession.resetHistory();
     joinRoomSpy.resetHistory();
-    toSessionSpy.resetHistory();
+    toRoomSpy.resetHistory();
     toSocketSpy.resetHistory();
   });
   it('join session and broadcasts - control', () => {
@@ -69,7 +69,7 @@ describe('joinSession', () => {
         expect(sessionManagerStubs.sessionExists).calledWith(sessionId);
         expect(sessionManagerStubs.joinSession).calledWith(socket, name, sessionId);
         expect(joinRoomSpy).calledWith(sessionId);
-        expect(toSessionSpy).calledWith('newParticipant', sinon.match({ name }));
+        expect(toRoomSpy).calledWith('newParticipant', sinon.match({ name }));
         expect(toSocketSpy).calledWith('joinedSession', sinon.match({ session, name }));
       });
   });
