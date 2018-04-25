@@ -7,23 +7,27 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { HashRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-import { createLogger } from 'redux-logger';
 import reducer from './reducers';
 import App from './containers/App';
 import { SocketProvider, LocalStorageTokenManager } from './containers';
 import events from './socket-events';
 
 const middleware = [thunk];
-
+let composedMiddleware;
 // eslint-disable-next-line no-underscore-dangle
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 if (process.env.NODE_ENV !== 'production') {
+  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+  const createLogger = require('redux-logger').createLogger;
   middleware.push(createLogger());
+  composedMiddleware = composeEnhancers(applyMiddleware(...middleware));
+}
+else {
+  composedMiddleware = applyMiddleware(...middleware);
 }
 
 const store = createStore(
   reducer,
-  composeEnhancers(applyMiddleware(...middleware)),
+  composedMiddleware,
 );
 
 export default () => (

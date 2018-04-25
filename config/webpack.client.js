@@ -23,6 +23,7 @@ const VENDOR_LIBS = [
   'react-redux',
   'react-router-dom',
   'react',
+  'react-loadable',
   'redux-logger',
   'redux-thunk',
   'redux',

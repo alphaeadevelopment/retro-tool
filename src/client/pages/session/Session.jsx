@@ -1,5 +1,6 @@
 /* globals window */
 import React from 'react';
+import Loader from 'react-loadable';
 import parseuri from 'parseuri';
 import { withStyles } from 'material-ui/styles';
 import Divider from 'material-ui/Divider';
@@ -8,8 +9,12 @@ import Left from '@material-ui/icons/KeyboardArrowLeft';
 import IconButton from 'material-ui/IconButton';
 import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
-import ParticipantList from './ParticipantList';
 import ResponseTypes from './ResponseTypes';
+
+const ParticipantList = Loader({
+  loader: () => import('./ParticipantList'),
+  loading: () => <div>Loading...</div>,
+});
 
 const SessionButtons = ({ className, sessionStatus, onChangeStatus }) => (
   <div className={className}>

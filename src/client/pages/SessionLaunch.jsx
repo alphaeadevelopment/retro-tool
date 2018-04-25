@@ -2,15 +2,13 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Loadable from 'react-loadable';
-// import Session from './session';
 import SessionInitialization from './SessionInitialization';
 import * as Selectors from '../selectors';
 import * as Actions from '../actions';
 import { withSocket } from '../containers';
 
-
-const Session = Loadable({
-  loader: () => import('./session'),
+const DisplaySession = Loadable({
+  loader: () => import('./DisplaySession'),
   loading: () => <div>Loading...</div>,
 });
 
@@ -47,7 +45,7 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
           />
         }
         {session.id &&
-          <Session
+          <DisplaySession
             onLeaveSession={onLeaveSession(socket, session.id)}
             session={session}
             onAddResponse={onAddResponse(socket)}
