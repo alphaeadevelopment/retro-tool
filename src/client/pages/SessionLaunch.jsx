@@ -1,11 +1,18 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import Session from './session';
+import Loadable from 'react-loadable';
+// import Session from './session';
 import SessionInitialization from './SessionInitialization';
 import * as Selectors from '../selectors';
 import * as Actions from '../actions';
 import { withSocket } from '../containers';
+
+
+const Session = Loadable({
+  loader: () => import('./session'),
+  loading: () => <div>Loading...</div>,
+});
 
 export class RawSessionLaunch extends React.Component { // eslint-disable-line react/prefer-stateless-function
   state = {
