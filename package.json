@@ -12,7 +12,7 @@
     "test:it:server:ci": "mocha-webpack --webpack-config config/webpack.mocha.server.js --glob \"*.spec.it.js*\" --recursive --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit src/server",
     "postinstall": "npm run build",
     "build": "webpack --config config/webpack.client.js",
-    "start": "cross-env DAO=mongo DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/retro-tool-test} node --require './src/server/node-require.js' src/server/index.js",
+    "start": "node --require './src/server/node-require.js' src/server/index.js",
     "start:dev": "cross-env DAO=mongo DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/retro-tool-test} node --require './src/server/node-require.js' --inspect=20112 src/server/index.js",
     "start:db": "mongod --dbpath ./data",
     "start:watch": "cross-env DAO=${DAO:-mongo} DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/retro-tool-test} nodemon src/server/index.js",
