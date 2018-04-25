@@ -8,9 +8,6 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const moduleConfig = require(fs.existsSync(path.join(__dirname, './module-config.js')) ? './module-config' : './default-module-config.js');
 
-const extractScss = new ExtractTextPlugin({ filename: 'style.css', allChunks: true })
-const extractCss = new ExtractTextPlugin({ filename: 'main.css', allChunks: true })
-
 const VENDOR_LIBS = [
   '@material-ui/icons',
   'babel-polyfill',
@@ -37,7 +34,6 @@ const VENDOR_LIBS = [
 
 const alias = {
   'branding': path.join(__dirname, '../src/client/styles/branding'),
-  'styles': path.join(__dirname, '../src/client/styles'),
   'api-stubs': path.join(__dirname, '../src/stubs/empty-stubs.js'),
 }
 if (process.env.NODE_ENV !== 'production' && process.env.NO_STUBS === undefined) {
@@ -72,8 +68,11 @@ const config = {
           },
           {
             test: /\.scss$/,
-            use: extractScss.extract({
-              use: [{
+            use: [
+              {
+                loader: 'style-loader',
+              },
+              {
                 loader: 'css-loader',
                 options: {
                   localIdentName: '[path]__[name]__[local]__[hash:base64:5]',
@@ -83,20 +82,17 @@ const config = {
               }, {
                 loader: 'sass-loader',
               }]
-            }),
           },
           {
             test: /\.css$/,
-            use: extractCss.extract({
-              use: [{
-                loader: 'css-loader',
-                options: {
-                  localIdentName: '[path]__[name]__[local]__[hash:base64:5]',
-                  modules: true,
-                  camelCase: true,
-                }
-              }]
-            }),
+            use: [{
+              loader: 'css-loader',
+              options: {
+                localIdentName: '[path]__[name]__[local]__[hash:base64:5]',
+                modules: true,
+                camelCase: true,
+              }
+            }]
           },
           {
             test: /\.(gif|png|jpe?g|svg)$/i,
@@ -146,8 +142,6 @@ const config = {
     extensions: ['.js', '.jsx'],
   },
   plugins: [
-    extractScss,
-    extractCss,
     new HtmlWebpackPlugin({
       template: 'src/client/index.html',
     }),

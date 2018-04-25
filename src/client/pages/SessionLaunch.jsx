@@ -31,7 +31,7 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
     } = this.props;
     const { sessionId } = this.state;
     return (
-      <div>
+      <React.Fragment>
         {!session.id &&
           <SessionInitialization
             sessionId={sessionId}
@@ -54,7 +54,7 @@ export class RawSessionLaunch extends React.Component { // eslint-disable-line r
             {...rest}
           />
         }
-      </div>
+      </React.Fragment>
     );
   }
 }

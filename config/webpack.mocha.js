@@ -13,7 +13,6 @@ const extractCss = new ExtractTextPlugin({ filename: "main.css", allChunks: true
 
 const alias = {
   'branding': path.join(__dirname, '../src/client/styles/branding'),
-  'styles': path.join(__dirname, '../src/client/styles'),
   'api-stubs': path.join(__dirname, '../src/stubs/empty-stubs.js'),
 }
 if (process.env.NODE_ENV !== 'production' && process.env.NO_STUBS === undefined) {

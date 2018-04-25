@@ -29,14 +29,14 @@ const store = createStore(
 export default () => (
   <Router>
     <Provider store={store}>
-      <div>
+      <React.Fragment>
         <CssBaseline />
         <SocketProvider listenFor={events}>
           <LocalStorageTokenManager>
             <App />
           </LocalStorageTokenManager>
         </SocketProvider>
-      </div>
+      </React.Fragment>
     </Provider>
   </Router>
 );

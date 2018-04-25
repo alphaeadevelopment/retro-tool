@@ -18,7 +18,7 @@ const styles = theme => ({
 
   },
   errorCtr: {
-    background: theme.palette.error,
+    background: theme.palette.error.main,
   },
 });
 const TransitionUp = props => <Slide direction='up' {...props} />;

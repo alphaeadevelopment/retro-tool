@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import filter from 'lodash/filter';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
+import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Paper from 'material-ui/Paper';
 import hasAnonymity from './has-anonymity';
 
@@ -29,32 +30,32 @@ export const RawParticipantList = ({ isOwner, classes, owner, participants, resp
     <Paper className={classes.root}>
       <Typography variant={'subheading'}>Participants</Typography>
       <div>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              {isOwner && <th>Responses</th>}
-              <th>Votes</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              {isOwner && <TableCell>Responses</TableCell>}
+              <TableCell>Votes</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {keys(participants).map((p) => {
               const numResponses = filter(responses, r => r.author === p).length;
               return (
-                <tr key={p}>
-                  <td>
+                <TableRow key={p}>
+                  <TableCell>
                     <span className={classNames({ [classes.disconnected]: !participants[p].connected })}>
                       {participants[p].name}
                     </span>
                     {owner === p && <span> *</span>}
-                  </td>
-                  {isOwner && <td>{isAnonymous ? numResponses : '-'}</td>}
-                  <td>{isAnonymous ? participants[p].votes : '-'}</td>
-                </tr>
+                  </TableCell>
+                  {isOwner && <TableCell>{isAnonymous ? numResponses : '-'}</TableCell>}
+                  <TableCell>{isAnonymous ? participants[p].votes : '-'}</TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </Paper>
   );
