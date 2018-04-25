@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
 import http from 'http';
+import compression from 'compression';
 
 import socket from './socket';
 import getPdfData from './pdf/get-pdf-data';
@@ -11,6 +12,7 @@ const port = process.env.PORT || 3000;
 
 const app = express();
 app.use(bodyParser.json());
+app.use(compression());
 
 if (process.env.NODE_ENV !== 'production') {
   const webpack = require('webpack');

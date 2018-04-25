@@ -69,6 +69,7 @@
     "bind-socketio-handlers": "^1.0.7",
     "body-parser": "^1.18.2",
     "classnames": "^2.2.5",
+    "compression": "^1.7.2",
     "d3": "^3.5.17",
     "express": "^4.16.3",
     "faker": "^4.1.0",
