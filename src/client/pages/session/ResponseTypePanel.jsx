@@ -1,4 +1,5 @@
 import React from 'react';
+import isEqual from 'lodash/isEqual';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
@@ -22,34 +23,38 @@ const styles = theme => ({
     },
   },
 });
-export const RawResponseTypePanel = ({
-  classes, name, responseType, responses, onAdd, sessionStatus, isOwner, onDeleteResponseType, ...rest
-}) => {
-  const showForm = showResponseForm(responseType, responses, sessionStatus, name);
-  return (
-    <Paper className={classes.root}>
-      <div>
-        {isOwner && sessionStatus === 'initial' &&
-          <Tooltip title={'Delete'}>
-            <IconButton onClick={onDeleteResponseType(responseType.id)}>
-              <Delete />
-            </IconButton>
-          </Tooltip>
-        }
-        <Typography variant={'subheading'}>{responseType.title}</Typography>
-      </div>
-      <ResponseDisplay
-        isOwner={isOwner}
-        name={name}
-        sessionStatus={sessionStatus}
-        responses={responses}
-        responseType={responseType}
-        {...rest}
-      />
-      {showForm && <NewResponseForm onAdd={onAdd} responseType={responseType} />}
-    </Paper>
-  );
-};
+export class RawResponseTypePanel extends React.Component {
+  shouldComponentUpdate = nextProps => !isEqual(this.props.responses, nextProps.responses)
+  render() {
+    const {
+      classes, name, responseType, responses, onAdd, sessionStatus, isOwner, onDeleteResponseType, ...rest
+    } = this.props;
+    const showForm = showResponseForm(responseType, responses, sessionStatus, name);
+    return (
+      <Paper className={classes.root}>
+        <div>
+          {isOwner && sessionStatus === 'initial' &&
+            <Tooltip title={'Delete'}>
+              <IconButton onClick={onDeleteResponseType(responseType.id)}>
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          }
+          <Typography variant={'subheading'}>{responseType.title}</Typography>
+        </div>
+        <ResponseDisplay
+          isOwner={isOwner}
+          name={name}
+          sessionStatus={sessionStatus}
+          responses={responses}
+          responseType={responseType}
+          {...rest}
+        />
+        {showForm && <NewResponseForm onAdd={onAdd} responseType={responseType} />}
+      </Paper>
+    );
+  }
+}
 
 const mapStateToProps = state => ({
   votes: Selectors.getVotes(state),
