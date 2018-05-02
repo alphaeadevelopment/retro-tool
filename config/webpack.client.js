@@ -17,7 +17,6 @@ const VENDOR_LIBS = [
   'immutability-helper',
   'lodash',
   'material-ui',
-  'moment',
   'react-dom',
   'react-hot-loader',
   'react-redux',
@@ -28,23 +27,16 @@ const VENDOR_LIBS = [
   'redux-thunk',
   'redux',
   'reselect',
-  'rx',
   'typeface-roboto',
   'uuid',
 ];
 
-const alias = {
-  'branding': path.join(__dirname, '../src/client/styles/branding'),
-  'api-stubs': path.join(__dirname, '../src/stubs/empty-stubs.js'),
-}
-if (process.env.NODE_ENV !== 'production' && process.env.NO_STUBS === undefined) {
-  alias['api-stubs'] = path.join(__dirname, '../src/stubs/api-stubs.js');
-}
+const alias = {}
 if (process.env.NODE_ENV !== 'production') {
   Object.assign(alias, moduleConfig.aliases);
 }
 
-const babelExclude = /node_modules[\\/](?!js-services)/
+const babelExclude = /node_modules/
 const outputPath = path.join(__dirname, '../dist');
 
 const config = {
