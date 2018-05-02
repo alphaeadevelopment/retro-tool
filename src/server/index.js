@@ -32,7 +32,6 @@ app.use(express.static(publicPath));
 // ping for load balancer checking health
 app.get('/ping', (req, res) => res.status(200).send());
 
-
 const serve = http.createServer(app);
 socket.init(serve);
 

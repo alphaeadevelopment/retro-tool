@@ -31,6 +31,11 @@ const theme = {
         fontSize: '2rem',
       },
     },
+    MuiTableCell: {
+      root: {
+        padding: 4,
+      },
+    },
   },
 };
 

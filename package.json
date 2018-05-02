@@ -13,7 +13,7 @@
     "postinstall": "npm run build",
     "build": "webpack --config config/webpack.client.js",
     "start": "node --require './src/server/node-require.js' src/server/index.js",
-    "start:dev": "cross-env DAO=mongo DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/retro-tool-test} node --require './src/server/node-require.js' --inspect=20112 src/server/index.js",
+    "start:dev": "cross-env DAO=mongo DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/retro-tool-test} node --inspect=20112 --require './src/server/node-require.js' --inspect=20112 src/server/index.js",
     "start:db": "mongod --dbpath ./data",
     "start:watch": "cross-env DAO=${DAO:-mongo} DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/retro-tool-test} nodemon src/server/index.js",
     "start:debug": "cross-env DAO=${DAO:-mongo} DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/retro-tool-test} nodemon --inspect-brk src/server/index.js"
