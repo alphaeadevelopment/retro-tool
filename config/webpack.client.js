@@ -149,6 +149,7 @@ const config = {
   target: 'web',
 };
 
+console.log('building for NODE_ENV: %s', process.env.NODE_ENV);
 // PROD ONLY
 if (process.env.NODE_ENV === 'production') {
   config.plugins.push(
