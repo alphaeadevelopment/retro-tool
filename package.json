@@ -6,7 +6,6 @@
   "scripts": {
     "test": "npm run test:ci -- --watch",
     "test:ci": "mocha-webpack --webpack-config config/webpack.mocha.js --glob \"*.spec.js*\" --recursive --require mocha.setup.js --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit src/client",
-    "postinstall": "npm run build",
     "build": "webpack --config config/webpack.client.js",
     "start": "node --require './src/server/node-require.js' src/server/index.js",
     "start:dev": "cross-env DAO=mongo DATABASE_NAME=${DATABASE_NAME:-retro-tool-test} MONGODB_URL=${MONGODB_URL:-mongodb://localhost:27017/retro-tool-test} node --require './src/server/node-require.js' --inspect=20112 src/server/index.js",
