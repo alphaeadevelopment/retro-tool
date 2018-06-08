@@ -26,8 +26,7 @@ export const RawFooter = ({ classes }) => (
         <a target={'_new'} href={'https://alphaeadevelopment.github.io/retro-tool/'}>Retrospective Tool</a>
       </Typography>
       <Typography variant={'body1'}>
-        <span>Powered by </span>
-        <a target={'_new'} href={'http://animando-solutions.co.uk/'}>Animando Solutions</a>
+        <span>Powered by Animando Solutions</span>
       </Typography>
     </div>
   </div>
